@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Games - Sudoku, Jogo da Memória e Connect 4</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Container principal -->
+    <div class="main-container">
+        <!-- Cabeçalho -->
+        <header class="header">
+            <h1>Web Games</h1>
+            <p>Jogos desenvolvidos em JavaScript para navegador</p>
+        </header>
+
+        <!-- Menu de seleção de jogos -->
+        <nav class="game-selector">
+            <button id="sudoku-btn" class="game-btn active" onclick="showGame('sudoku')">
+                <span class="game-icon">🔢</span>
+                Sudoku
+            </button>
+            <button id="memory-btn" class="game-btn" onclick="showGame('memory')">
+                <span class="game-icon">🧠</span>
+                Jogo da Memória
+            </button>
+            <button id="connect4-btn" class="game-btn" onclick="showGame('connect4')">
+                <span class="game-icon">🔴</span>
+                Connect 4
+            </button>
+        </nav>
+
+        <!-- Container dos jogos -->
+        <main class="games-container">
+            <!-- Jogo Sudoku -->
+            <div id="sudoku-game" class="game-panel active">
+                <div class="game-header">
+                    <h2>Sudoku</h2>
+                    <div class="game-controls">
+                        <button onclick="sudoku.newGame()" class="btn btn-primary">Novo Jogo</button>
+                        <button onclick="sudoku.solve()" class="btn btn-secondary">Resolver</button>
+                        <button onclick="sudoku.clear()" class="btn btn-secondary">Limpar</button>
+                        <button onclick="sudoku.check()" class="btn btn-secondary">Verificar</button>
+                    </div>
+                </div>
+                <div class="sudoku-status" id="sudoku-status">
+                    Preencha o grid seguindo as regras do Sudoku!
+                </div>
+                <div class="sudoku-container">
+                    <table id="sudoku-grid" class="sudoku-grid">
+                        <!-- Grid será gerado dinamicamente pelo JavaScript -->
+                    </table>
+                </div>
+            </div>
+
+            <!-- Jogo da Memória -->
+            <div id="memory-game" class="game-panel">
+                <div class="game-header">
+                    <h2>Jogo da Memória</h2>
+                    <div class="game-controls">
+                        <button onclick="memory.newGame()" class="btn btn-primary">Novo Jogo</button>
+                        <select id="memory-difficulty" onchange="memory.setDifficulty(this.value)">
+                            <option value="easy">Fácil (4x4)</option>
+                            <option value="medium" selected>Médio (6x4)</option>
+                            <option value="hard">Difícil (6x6)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="memory-status" id="memory-status">
+                    <div class="memory-stats">
+                        <span>Movimentos: <span id="memory-moves">0</span></span>
+                        <span>Pares: <span id="memory-pairs">0</span>/<span id="memory-total-pairs">12</span></span>
+                        <span>Tempo: <span id="memory-time">00:00</span></span>
+                    </div>
+                </div>
+                <div class="memory-container">
+                    <div id="memory-grid" class="memory-grid">
+                        <!-- Grid será gerado dinamicamente pelo JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connect 4 -->
+            <div id="connect4-game" class="game-panel">
+                <div class="game-header">
+                    <h2>Connect 4</h2>
+                    <div class="game-controls">
+                        <button onclick="connect4.newGame()" class="btn btn-primary">Novo Jogo</button>
+                        <button onclick="connect4.resetScore()" class="btn btn-secondary">Zerar Placar</button>
+                    </div>
+                </div>
+                <div class="connect4-status" id="connect4-status">
+                    <div class="connect4-info">
+                        <div class="player-info">
+                            <span class="player player1">Jogador 1: <span id="score1">0</span></span>
+                            <span class="current-player" id="current-player">Vez do Jogador 1</span>
+                            <span class="player player2">Jogador 2: <span id="score2">0</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="connect4-container">
+                    <div id="connect4-grid" class="connect4-grid">
+                        <!-- Grid será gerado dinamicamente pelo JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Rodapé -->
+        <footer class="footer">
+            <p>Desenvolvido com HTML, CSS e JavaScript | Compatível com desktop e mobile</p>
+        </footer>
+    </div>
+
+    <!-- Scripts dos jogos -->
+    <script src="sudoku.js"></script>
+    <script src="memory.js"></script>
+    <script src="connect4.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
+

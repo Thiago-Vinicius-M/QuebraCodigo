@@ -1,0 +1,485 @@
+/* Reset e estilos base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cabeçalho */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+}
+
+.header h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header p {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+/* Seletor de jogos */
+.game-selector {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.game-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1em;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.game-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.game-btn.active {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border-color: white;
+}
+
+.game-icon {
+    font-size: 1.5em;
+}
+
+/* Container dos jogos */
+.games-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.game-panel {
+    display: none;
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 800px;
+}
+
+.game-panel.active {
+    display: block;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.game-header h2 {
+    font-size: 2.2em;
+    color: #2c3e50;
+}
+
+.game-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Botões */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 0.9em;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #1f5f8b);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+}
+
+/* === ESTILOS DO SUDOKU === */
+.sudoku-status {
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background-color: #ecf0f1;
+    font-size: 1.1em;
+    color: #34495e;
+}
+
+.sudoku-status.success {
+    background-color: #d5f4e6;
+    color: #27ae60;
+    border: 2px solid #27ae60;
+}
+
+.sudoku-status.error {
+    background-color: #fadbd8;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+}
+
+.sudoku-container {
+    display: flex;
+    justify-content: center;
+}
+
+.sudoku-grid {
+    border: 3px solid #2c3e50;
+    border-collapse: collapse;
+    background: white;
+}
+
+.sudoku-cell {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 1.4em;
+    font-weight: bold;
+    border: 1px solid #bdc3c7;
+    background: white;
+    color: #2c3e50;
+    outline: none;
+}
+
+.sudoku-cell:focus {
+    background-color: #e8f4fd;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+.sudoku-cell.fixed {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.sudoku-cell.invalid {
+    background-color: #fadbd8;
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+
+.sudoku-cell.top-border {
+    border-top: 3px solid #2c3e50;
+}
+
+.sudoku-cell.left-border {
+    border-left: 3px solid #2c3e50;
+}
+
+/* === ESTILOS DO JOGO DA MEMÓRIA === */
+.memory-status {
+    margin-bottom: 20px;
+}
+
+.memory-stats {
+    display: flex;
+    justify-content: space-around;
+    background-color: #ecf0f1;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    color: #34495e;
+}
+
+.memory-container {
+    display: flex;
+    justify-content: center;
+}
+
+.memory-grid {
+    display: grid;
+    gap: 10px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 15px;
+}
+
+.memory-card {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 2em;
+    color: white;
+    border: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.memory-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+.memory-card.flipped {
+    background: white;
+    color: #333;
+    border-color: #3498db;
+}
+
+.memory-card.matched {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    border-color: #27ae60;
+    cursor: default;
+}
+
+.memory-card.matched:hover {
+    transform: none;
+}
+
+/* === ESTILOS DO CONNECT 4 === */
+.connect4-status {
+    margin-bottom: 20px;
+}
+
+.connect4-info {
+    background-color: #ecf0f1;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.player-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+.player.player1 {
+    color: #e74c3c;
+}
+
+.player.player2 {
+    color: #f39c12;
+}
+
+.current-player {
+    color: #2c3e50;
+    font-size: 1.1em;
+}
+
+.connect4-container {
+    display: flex;
+    justify-content: center;
+}
+
+.connect4-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    background-color: #3498db;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+.connect4-cell {
+    width: 60px;
+    height: 60px;
+    background-color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.connect4-cell:hover {
+    background-color: #ecf0f1;
+    transform: scale(1.05);
+}
+
+.connect4-cell.player1 {
+    background-color: #e74c3c;
+}
+
+.connect4-cell.player2 {
+    background-color: #f39c12;
+}
+
+.connect4-cell.winning {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Rodapé */
+.footer {
+    text-align: center;
+    margin-top: 30px;
+    color: white;
+    opacity: 0.8;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .main-container {
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 2.5em;
+    }
+    
+    .game-selector {
+        gap: 10px;
+    }
+    
+    .game-btn {
+        padding: 12px 20px;
+        font-size: 1em;
+        min-width: 100px;
+    }
+    
+    .game-panel {
+        padding: 20px;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .game-header h2 {
+        font-size: 1.8em;
+    }
+    
+    .game-controls {
+        justify-content: center;
+    }
+    
+    .sudoku-cell {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2em;
+    }
+    
+    .memory-card {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5em;
+    }
+    
+    .connect4-cell {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .memory-stats {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .player-info {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 2em;
+    }
+    
+    .game-panel {
+        padding: 15px;
+    }
+    
+    .sudoku-cell {
+        width: 30px;
+        height: 30px;
+        font-size: 1em;
+    }
+    
+    .memory-card {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2em;
+    }
+    
+    .connect4-cell {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 0.8em;
+    }
+}
+
