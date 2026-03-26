@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sudoku – Quebra Código</title>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="sudoku.css">
+</head>
+
+<body class="game-page">
+<div class="game-shell">
+
+    <header class="game-header">
+        <a href="/index.html" class="go-back" id="go-back" aria-label="Voltar">
+            <img src="../img/topbar/setaVoltar.png" alt="Botão retornar para a Home">
+        </a>
+        <h1 class="game-title">Sudoku</h1>
+
+        <div class="controls">
+            <button id="sNew">Novo Jogo</button>
+
+            <label>
+                Dificuldade:
+                <select id="sDiff">
+                    <option value="easy">Fácil</option>
+                    <option value="medium">Médio</option>
+                    <option value="hard">Difícil</option>
+                </select>
+            </label>
+
+            <button id="sSolve">Resolver</button>
+            <button id="sClear">Limpar</button>
+        </div>
+    </header>
+
+    <div class="panel">
+        <div class="sudoku-wrap">
+            <div id="sGrid" class="sudoku-grid"></div>
+        </div>
+
+        <div id="sMsg" class="muted" style="text-align:center"></div>
+    </div>
+
+    <div id="winOverlay" class="win-overlay hidden">
+        <div class="win-content">
+            <h2>🏆 Parabéns! 🏆</h2>
+            <p>Você conseguiu o Sudoku</p>
+            <button id="winNewGame">Novo Jogo</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const backLink = document.querySelector('.go-back');
+        if (backLink) {
+            backLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.location.href = '/index.html';
+            });
+        }
+    })();
+</script>
+
+<script src="sudoku.js" defer></script>
+</body>
+</html>

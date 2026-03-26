@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Connect 4 – Quebra Código</title>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="connect4.css">
+</head>
+
+<body class="game-page">
+<div class="game-shell">
+
+    <header class="game-header">
+        <a href="/index.html" class="go-back" id="go-back" aria-label="Voltar">
+            <img src="../img/topbar/setaVoltar.png" alt="Botão retornar para a Home">
+        </a>
+        <h1 class="game-title">Connect 4</h1>
+
+        <div class="controls">
+            <button id="c4Start">Iniciar</button>
+
+            <label>
+                Modo:
+                <select id="c4Mode">
+                    <option value="pve">Você vs CPU</option>
+                    <option value="pvp">2 Jogadores</option>
+                </select>
+            </label>
+
+            <span class="muted">Vez: <strong id="c4Turn">—</strong></span>
+            <span class="muted">Vencedor: <strong id="c4Winner">—</strong></span>
+        </div>
+    </header>
+    <div class="panel">
+        <div class="c4-hover-rail" id="c4Rail">
+            <div class="c4-hover-dot" id="c4Dot"></div>
+        </div>
+
+        <div class="c4-wrap">
+            <div class="c4-board" id="c4Board" aria-label="Tabuleiro 7 por 6"></div>
+        </div>
+
+        <div id="c4Msg" class="status"></div>
+    </div>
+
+    <div id="win-overlay" class="win-overlay hidden">
+        <div class="win-box">
+            <h2>Fim de Jogo!</h2>
+            <p>O JavaScript irá informar o vencedor aqui.</p>
+            <button id="play-again">Jogar novamente</button>
+        </div>
+    </div>
+</div>
+<script src="connect4.js" defer></script>
+</body>
+</html>

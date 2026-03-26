@@ -1,0 +1,204 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(
+            180deg,
+            #0A0D3C 7%,
+            #3C1361 28%,
+            #006A60 58%,
+            #008080 75%,
+            #3D485D 100%
+    );
+
+    color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    overflow-y: auto;
+    justify-content: center;
+}
+
+.game-title {
+    display: flex;
+    position: relative;
+    text-align: center;
+    font-size: 2rem;
+    margin: 0 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 800;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #3C1361, #008080);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+}
+
+.sudoku-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 24px 0;
+}
+
+.sudoku-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 55px);
+    background: #e2e8f079;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    /* Reduzi a borda do grid 9x9 para 2px para criar mais contraste com a nova borda de 1px das células */
+    border: 2px solid rgba(248, 250, 252, 0.9);
+}
+
+.sudoku-cell {
+    width: 55px;
+    height: 55px;
+    box-sizing: border-box;
+    /* Borda padrão das células: fina e mais escura */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff56;
+    position: relative;
+}
+
+/* Bordas dos blocos 3×3 (linhas e colunas) */
+
+/* 1. Bordas verticais (após as colunas 3 e 6) */
+.sudoku-cell:nth-child(9n + 3):not(:nth-child(9n)),
+.sudoku-cell:nth-child(9n + 6):not(:nth-child(9n)) {
+    /* Borda mais clara (0.5 opacity) e menos grossa (2px) para destacar os blocos 3x3 */
+    border-right: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 2. Bordas horizontais (após as linhas 3 e 6) */
+.sudoku-cell:nth-child(n+19):nth-child(-n+27), /* 3ª linha */
+.sudoku-cell:nth-child(n+46):nth-child(-n+54) /* 6ª linha */ {
+    /* Borda mais clara (0.5 opacity) e menos grossa (2px) para destacar os blocos 3x3 */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 3. Ajuste para fechar os quadrados:
+   As células nas linhas 3 e 6 que têm borda direita (colunas 3 e 6) precisam que sua borda inferior
+   seja igualmente destacada para criar a intersecção clara. */
+.sudoku-cell:nth-child(9n + 3):nth-child(n + 19):nth-child(-n + 27),
+.sudoku-cell:nth-child(9n + 6):nth-child(n + 19):nth-child(-n + 27),
+.sudoku-cell:nth-child(9n + 3):nth-child(n + 46):nth-child(-n + 54),
+.sudoku-cell:nth-child(9n + 6):nth-child(n + 46):nth-child(-n + 54) {
+    /* Garantir que as bordas de intersecção sejam as mais claras */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* input */
+.sudoku-cell input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    color: #1e293b;
+    text-align: center;
+    border: none;
+    outline: none;
+    font-size: 24px;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+/* =========================
+   ESTILOS DE DESTAQUE E VALIDAÇÃO
+   ========================= */
+
+/* Destaque para Linha, Coluna e Bloco (Cor azulada suave) */
+.sudoku-cell.highlight {
+    background-color: #bfdbfe44 !important;
+}
+
+.sudoku-cell.fixed {
+    background-color: #334155;
+}
+
+/* Destaque para a célula que está selecionada (Azul mais forte) */
+.sudoku-cell.active {
+    background-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+/* Erro: Fundo avermelhado quando o número está errado */
+.sudoku-cell.invalid {
+    background-color: rgba(239, 68, 68, 0.25) !important; /* Vermelho translúcido */
+}
+
+/* Erro: Input muda de cor */
+.sudoku-cell.invalid input {
+    color: #fca5a5 !important; /* Texto vermelho claro */
+}
+
+.sudoku-cell.correct input {
+    color: #11664a !important; /* Texto verde para feedback positivo */
+}
+
+/* Opcional: Efeito de hover suave */
+.sudoku-cell:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Estilos para o Win Overlay */
+.win-overlay {
+    position: fixed; /* Fixa na tela */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9); /* Fundo escuro e semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Garante que fique acima de tudo */
+    backdrop-filter: blur(5px); /* Efeito de desfoque (opcional, moderno) */
+}
+
+/* Esconde o overlay por padrão */
+.win-overlay.hidden {
+    display: none;
+}
+
+.win-content {
+    background: #1f2937; /* Fundo do modal de parabéns */
+    color: #f3f4f6;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    transform: scale(0.8);
+    animation: scaleIn 0.3s forwards;
+}
+
+.win-content h2 {
+    color: #34d399; /* Verde de sucesso */
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.win-time {
+    font-size: 1.2em;
+    margin: 15px 0;
+}
+
+.win-content button {
+    padding: 10px 20px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 20px;
+}
+
+@keyframes scaleIn {
+    to {
+        transform: scale(1);
+    }
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Free - Quebra Código</title>
+    <link rel="stylesheet" href="flow-free.css">
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <a href="/index.html" class="back-link" aria-label="Voltar">← Voltar</a>
+        <h1>Flow Free</h1>
+        <div class="info-panels">
+            <div class="info-panel">
+                <div class="info-label">Nível</div>
+                <div class="info-value" id="levelDisplay">1</div>
+            </div>
+            <div class="info-panel">
+                <div class="info-label">Dicas</div>
+                <div class="info-value" id="hintsDisplay">2</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="hintBtn">💡 Dica</button>
+        <button class="btn" id="restartBtn">⟳ Reiniciar</button>
+        <button class="btn" id="prevLevelBtn">← Anterior</button>
+        <button class="btn" id="nextLevelBtn">Próximo →</button>
+    </div>
+
+    <div class="game-container">
+        <div class="grid-container" id="gridContainer"></div>
+
+        <div class="game-message" id="gameMessage">
+            <div class="message-title" id="messageTitle">Parabéns!</div>
+            <div class="message-text" id="messageText">Você conectou todos os fluxos!</div>
+            <button class="btn" id="nextLevelMsgBtn">Próximo nível</button>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <p><strong>Objetivo:</strong> Conecte cada par de pontos da mesma cor e preencha todo o tabuleiro (sem deixar espaços vazios).</p>
+        <p><strong>Como jogar:</strong> Arraste a partir de um ponto (ou do seu caminho) para desenhar. Não cruze os caminhos.</p>
+        <p><strong>Dicas:</strong> Cada fase dá 2 dicas. As que sobraram somam às 2 da próxima fase.</p>
+    </div>
+</div>
+<script src="flow-free.js"></script>
+</body>
+</html>

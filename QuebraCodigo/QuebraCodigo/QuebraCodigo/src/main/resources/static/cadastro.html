@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="css/cadastro.css"/>
+    <link rel="stylesheet" href="css/animate.css">
+</head>
+<body>
+<main class="page-container">
+
+    <header class="form-header">
+        <a href="login.html" class="go-back slide-left delay-2" id="go-back" aria-label="Voltar">
+            <img src="img/games/sidebar-topbar/setaVoltar.png" alt="Botão retornar para a Home">
+        </a>
+        <h1 class="form-title zoom-blur delay-2">Faça seu cadastro</h1>
+    </header>
+
+    <form class="register-form glass-rise delay-3">
+
+        <div class="name-group">
+            <div class="input-wrapper slide-left delay-3">
+                <input type="text" id="first-name" name="primeiroNome" placeholder="Primeiro nome" />
+            </div>
+
+            <div class="input-wrapper slide-left delay-3">
+                <input type="text" id="last-name" name="ultimoNome" placeholder="Último nome" />
+            </div>
+        </div>
+
+        <div class="input-wrapper icon-left slide-left delay-3">
+            <span class="icon">📅</span>
+            <input type="text" id="data-nascimento" name="dataNascimento" inputmode="numeric" autocomplete="bday" placeholder="Data de nascimento: dd/mm/aaaa" />
+        </div>
+
+        <div class="input-wrapper icon-left slide-left delay-3">
+            <span class="icon">✉️</span>
+            <input type="email" id="email" name="email" placeholder="Email@exemplo.com" />
+        </div>
+
+        <div class="input-wrapper icon-left slide-left delay-3">
+            <span class="icon">👤</span>
+            <input type="text" id="usuario" name="usuario" placeholder="Usuário" required minlength="2" />
+        </div>
+
+        <div class="input-wrapper icon-left slide-left delay-3">
+            <span class="icon">🔒</span>
+            <input type="password" id="senha" name="senha" placeholder="Senha" required minlength="4" />
+        </div>
+
+        <div class="social-section fade-in delay-7">
+            <p>Continuar com</p>
+
+            <div class="social-icons zoom-blur delay-8">
+                <img src="img/login/Google Logo 1.png" alt="Google" />
+            </div>
+
+            <button type="submit" class="submit-button zoom-blur delay-9" id="criarConta-button">
+                Criar conta
+            </button>
+        </div>
+
+    </form>
+    <script>
+        document.getElementById("go-back").addEventListener("click", function(e) {
+            e.preventDefault();
+            window.location.href = "login.html";
+        });
+
+        document.querySelector(".register-form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            if (window.location.protocol === "file:") {
+                alert("O cadastro só funciona com o servidor rodando. Inicie o Spring Boot e abra:\nhttp://localhost:8150/cadastro.html");
+                return;
+            }
+            const usuario = document.getElementById("usuario").value.trim();
+            const senha = document.getElementById("senha").value;
+            const email = document.getElementById("email").value.trim();
+            const primeiroNome = document.getElementById("first-name").value.trim();
+            const ultimoNome = document.getElementById("last-name").value.trim();
+            const dataNascimento = document.getElementById("data-nascimento").value.trim();
+
+            if (!primeiroNome || !ultimoNome) {
+                alert("Preencha nome e sobrenome.");
+                return;
+            }
+            if (!email) {
+                alert("Preencha o e-mail.");
+                return;
+            }
+            if (!dataNascimento) {
+                alert("Preencha a data de nascimento (dd/mm/aaaa).");
+                return;
+            }
+            if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataNascimento)) {
+                alert("Use a data no formato dd/mm/aaaa (ex.: 17/09/1999).");
+                return;
+            }
+            if (!usuario || usuario.length < 2) {
+                alert("O usuário deve ter pelo menos 2 caracteres.");
+                return;
+            }
+            if (!senha || senha.length < 4) {
+                alert("A senha deve ter pelo menos 4 caracteres.");
+                return;
+            }
+
+            const msgEl = document.getElementById("cadastro-msg");
+            if (msgEl) msgEl.remove();
+
+            try {
+                const res = await fetch("/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        primeiroNome,
+                        ultimoNome,
+                        email,
+                        dataNascimento,
+                        usuario,
+                        senha
+                    })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    window.location.href = "index.html";
+                } else {
+                    const p = document.createElement("p");
+                    p.id = "cadastro-msg";
+                    p.style.color = "#e74c3c";
+                    p.style.marginTop = "0.5rem";
+                    const msg = data.error || data.message || data.detail || "Erro ao criar conta.";
+                    p.textContent = typeof msg === "string" ? msg : JSON.stringify(msg);
+                    document.querySelector(".submit-button").before(p);
+                }
+            } catch (err) {
+                const p = document.createElement("p");
+                p.id = "cadastro-msg";
+                p.style.color = "#e74c3c";
+                p.textContent = "Erro de conexão. Tente novamente.";
+                document.querySelector(".submit-button").before(p);
+            }
+        });
+    </script>
+</main>
+</body>
+</html>

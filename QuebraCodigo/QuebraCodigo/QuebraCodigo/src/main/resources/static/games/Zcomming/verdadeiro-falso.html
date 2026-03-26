@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Verdadeiro ou Falso e Etc. – Quebra Código</title>
+    <link rel="stylesheet" href="/css/games.css"/>
+</head>
+<body>
+<div class="container">
+    <h1>Verdadeiro ou Falso e Etc.</h1>
+    <div class="panel" style="max-width:820px;margin:0 auto">
+        <div class="controls">
+            <label>Modo:
+                <select id="vfMode">
+                    <option value="classico">Clássico (V/F)</option>
+                    <option value="conectivos">Conectivos Lógicos</option>
+                    <option value="tabela">Tabela-Verdade</option>
+                    <option value="competitivo">Competitivo (tempo)</option>
+                </select>
+            </label>
+            <button id="vfNew">Novo</button>
+            <span class="muted">Acertos: <strong id="vfHits">0</strong></span>
+            <span class="muted">Tempo: <strong id="vfTime">00:00</strong></span>
+        </div>
+        <div id="vfQ" style="font-size:18px;margin:10px 0"></div>
+        <div class="controls">
+            <button id="btnTrue">Verdadeiro</button>
+            <button id="btnFalse">Falso</button>
+        </div>
+        <div id="vfExplain" class="muted"></div>
+    </div>
+    <p><a href="/">↩ Voltar</a></p>
+</div>
+<script src="/games/js/achievements.js"></script>
+<script src="/games/js/verdadeiro-falso.js"></script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+/* ========== ANIMAÇÕES DE ENTRADA ========== */
+
+/* Fade-in suave */
+.fade-in {
+    opacity: 0;
+    transform: translateY(15px);
+    animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade-in com atraso */
+.fade-in.delay-1 {
+    animation-delay: 0.2s;
+}
+
+.fade-in.delay-2 {
+    animation-delay: 0.4s;
+}
+
+.fade-in.delay-3 {
+    animation-delay: 0.6s;
+}
+
+/* Slide lateral */
+.slide-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    animation: slideLeft .8s cubic-bezier(.25, 1.25, .5, 1) forwards;
+}
+
+@keyframes slideLeft {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Efeito glass emergindo */
+.glass-rise {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    backdrop-filter: blur(0px);
+    animation: glassRise .9s ease forwards;
+}
+
+@keyframes glassRise {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        backdrop-filter: blur(20px);
+    }
+}
+
+/* Animação em ondas */
+.stagger {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: stagger .6s ease forwards;
+}
+
+@keyframes stagger {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Zoom + blur suave */
+.zoom-blur {
+    opacity: 0;
+    transform: scale(1);
+    filter: blur(6px);
+    animation: zoomBlur .7s ease-out forwards;
+}
+
+@keyframes zoomBlur {
+    to {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0px);
+    }
+}
+
+/* Flutuação contínua */
+.floating {
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Zoom suave para cards de cursos */
+.course-zoom {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+    animation: courseZoom .8s ease-out forwards;
+}
+
+@keyframes courseZoom {
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ========== ANIMAÇÕES DE SAÍDA ========== */
+
+/* Fade-out suave (Inverso de .fade-in) */
+.fade-out {
+    opacity: 0;
+    transform: translateY(0);
+    animation: fadeOut 0.8s ease forwards;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+}
+
+/* Slide lateral para fora (Inverso de .slide-left) */
+.slide-right-out {
+    opacity: 0;
+    transform: translateX(0px);
+    animation: slideRightOut .8s cubic-bezier(.25, 1.25, .5, 1) forwards;
+}
+
+@keyframes slideRightOut {
+    to {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+}
+
+/* Efeito glass afundando (Inverso de .glass-rise) */
+.glass-sink {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    backdrop-filter: blur(20px);
+    animation: glassSink .9s ease forwards;
+}
+
+@keyframes glassSink {
+    to {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+        backdrop-filter: blur(0px);
+    }
+}
+
+/* Animação em ondas inversa (Inverso de .stagger) */
+.stagger-out {
+    opacity: 1;
+    transform: translateY(0);
+    animation: staggerOut .6s ease forwards;
+}
+
+@keyframes staggerOut {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Zoom + blur reverso (Inverso de .zoom-blur) */
+.zoom-blur-out {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+    animation: zoomBlurOut .7s ease-out forwards;
+}
+
+@keyframes zoomBlurOut {
+    to {
+        opacity: 0;
+        transform: scale(1);
+        filter: blur(6px);
+    }
+}
+
+/* Zoom suave para cards de cursos inversa (Inverso de .course-zoom) */
+.course-zoom-out {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    animation: courseZoomOut .8s ease-out forwards;
+}
+
+@keyframes courseZoomOut {
+    to {
+        opacity: 0;
+        transform: scale(0.92) translateY(8px);
+    }
+}
+
+/* Animação de entrada */
+.anim-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.6s ease forwards;
+}
+
+/* Keyframes da animação de entrada */
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animação de saída */
+.anim-out {
+    opacity: 1;
+    transform: translateY(0);
+    animation: fadeOut 0.6s ease forwards;
+}
+
+/* Keyframes da animação de saída */
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* --- Entrada da página --- */
+.page-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: pageFadeIn .6s ease forwards;
+}
+
+@keyframes pageFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Saída da página --- */
+.page-out {
+    opacity: 1;
+    transform: translateY(0);
+    animation: pageFadeOut .6s ease forwards;
+}
+
+@keyframes pageFadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}

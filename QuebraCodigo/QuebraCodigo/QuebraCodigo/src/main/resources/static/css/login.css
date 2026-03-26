@@ -1,0 +1,297 @@
+/* ============================
+   RESET
+============================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', 'Sofia Sans', sans-serif;
+  color: #fff;
+  background: linear-gradient(
+          180deg,
+          #0A0F2C 0%,
+          #111A3A 20%,
+          #1C2E6C 45%,
+          #3A1F78 70%,
+          #5C2D91 86%
+  );
+  min-height: 100vh;
+  padding: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* ============================
+   ACESSIBILIDADE
+============================ */
+.visually-hidden {
+  position: absolute;
+  left: -9999px;
+}
+
+/* ============================
+   CONTAINER PRINCIPAL
+============================ */
+.container {
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 10px 0;
+  flex-shrink: 0;
+}
+
+/* ============================
+   LOGO
+============================ */
+.logo {
+  width: clamp(140px, 28vw, 220px);
+  height: clamp(140px, 28vw, 220px);
+  object-fit: contain;
+  animation: liquidPulse 4s infinite ease-in-out;
+}
+
+@keyframes liquidPulse {
+  0%   { transform: scale(1) rotate(0deg); }
+  25%  { transform: scale(1.03) rotate(1deg); }
+  50%  { transform: scale(0.97) rotate(-1deg); }
+  75%  { transform: scale(1.04) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* ============================
+   BOAS-VINDAS
+============================ */
+.welcome-title {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.welcome-quote {
+  max-width: 750px;
+  margin: 20px auto 0;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.welcome-quote span {
+  color: #00EAFF;
+}
+
+.welcome-quote a {
+  color: #a200ff
+}
+
+/* ============================
+   FORMULÁRIO
+============================ */
+.form-area {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.input-box {
+  width: 100%;
+  max-width: 620px;
+  height: 56px;
+  background: rgba(186, 186, 186, 0.25);
+  border-radius: 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 20px;
+}
+
+.input-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+}
+
+.input-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 18px;
+  outline: none;
+}
+
+/* ============================
+   AÇÕES
+============================ */
+.action-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.forgot-btn {
+  position: absolute;
+  right: 0;
+  width: auto;
+  padding: 0 15px;
+  height: 40px;
+  background: rgba(186, 186, 186, 0.25);
+  border-radius: 24px;
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.actions-row {
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  padding: 0 20px;
+}
+
+/* ============================
+  LOGIN / CRIAR CONTA
+============================ */
+.login-actions {
+  width: 298px;
+  height: 44px;
+  display: flex;
+  background: rgba(186, 186, 186, 0.25);
+  border-radius: 24px;
+}
+
+.create-btn,
+.login-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 24px;
+}
+
+.create-btn:hover {
+  background: rgba(211, 230, 239, 0.4);
+  box-shadow: 0 0 20px #f7f7f7;
+  transform: scale(1.03);
+  transition: 0.3s;
+}
+
+.login-btn {
+  background: rgba(186, 186, 186, 0.25);
+  border-radius: 24px;
+}
+
+.login-btn:hover {
+  background: rgba(0, 234, 255, 0.4);
+  box-shadow: 0 0 20px #00eaffaa;
+  transform: scale(1.03);
+  transition: 0.3s;
+}
+
+/* Telas com pouca altura: reduzir blocos para enquadrar sem cortar */
+@media (max-height: 700px) {
+  .container {
+    gap: 16px;
+    padding: 8px 0;
+  }
+
+  .logo {
+    width: clamp(100px, 22vw, 180px);
+    height: clamp(100px, 22vw, 180px);
+  }
+
+  .welcome-title {
+    font-size: 26px;
+  }
+
+  .welcome-quote {
+    font-size: 16px;
+    margin-top: 8px;
+  }
+
+  .form-area {
+    gap: 12px;
+  }
+
+  .input-box {
+    height: 48px;
+  }
+}
+
+/* ============================
+  RESPONSIVIDADE
+============================ */
+@media (max-width: 768px) {
+  /* ... (suas regras existentes, que estão boas) */
+  .logo {
+    width: 250px;
+    height: 250px;
+  }
+
+  .welcome-quote {
+    font-size: 16px;
+    width: 90%;
+  }
+
+  .input-box {
+    height: 50px; /* Um pouco menor para celular */
+  }
+
+  .input-box input {
+    font-size: 16px; /* Fonte menor em celular */
+  }
+
+  /* Ajuste para garantir que o forgot-btn caiba confortavelmente */
+  .actions-row {
+    flex-direction: column; /* Quebra em coluna para que o botão não fique espremido */
+    gap: 10px;
+    align-items: center;
+    width: 90%;
+    padding: 0;
+    position: static;
+  }
+
+  .forgot-btn {
+    position: static;
+    margin: 0;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .action-list {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .login-actions {
+    width: 90%;
+    max-width: 300px;
+    height: 40px;
+  }
+}

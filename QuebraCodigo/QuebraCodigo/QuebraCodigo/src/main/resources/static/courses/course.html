@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curso - Quebra Código</title>
+    <link rel="stylesheet" href="../css/course.css">
+</head>
+<body>
+<div class="course-page">
+    <!-- Sidebar estilo W3Schools: navegação do curso -->
+    <aside class="course-sidebar">
+        <div class="course-logo"><a href="../index.html">Quebra<span>Código</span></a></div>
+        <h2 class="course-nav-title" id="course-nav-title">Curso</h2>
+        <nav class="course-nav-wrap">
+            <ul class="course-nav" id="course-nav"></ul>
+        </nav>
+        <a href="../index.html" class="course-btn-home">← Home</a>
+    </aside>
+
+    <!-- Área principal -->
+    <main class="course-main">
+        <div id="course-loading" class="course-loading">Carregando curso...</div>
+        <div id="course-error" class="course-error" style="display:none;"></div>
+
+        <div id="course-content" class="course-content-wrap" style="display:none;">
+            <article class="course-article">
+                <div id="lesson-area" class="lesson-area"></div>
+
+                <div class="course-prev-next" id="prev-next" style="display:none;">
+                    <button class="course-prev" type="button" id="btn-prev">◀ Anterior</button>
+                    <button class="course-next" type="button" id="btn-next">Próximo ▶</button>
+                </div>
+            </article>
+        </div>
+    </main>
+</div>
+<script type="module" src="../js/course.js"></script>
+</body>
+</html>

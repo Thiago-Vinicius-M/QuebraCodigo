@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial - App Educacional</title>
+    <link rel="icon" type="image/png" href="img/home/logoQuebraCodigo.png">
+    <link rel="shortcut icon" type="image/png" href="img/home/logoQuebraCodigo.png">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/textEffects.css">
+    <link rel="stylesheet" href="css/imageEffects.css">
+</head>
+<body>
+<div class="container">
+
+    <!-- Navbar lateral -->
+    <aside class="sidebar slide-left animate-in" data-exit="slide-right-out">
+        <button class="profile-button">
+            <div class="icon-wrapper">
+                <div class="nav-bg-editarPerfil"></div>
+                <img src="img/home/editarPerfilLogo.png" alt="Editar Perfil">
+            </div>
+            <span class="neon-text">Editar<br>Perfil</span>
+        </button>
+
+        <button class="nav-button">
+            <div class="icon-wrapper">
+                <div class="nav-bg"></div>
+                <img src="img/home/homeLogo.png" alt="HomeLogo">
+            </div>
+            <span class="neon-text-light">Home</span>
+        </button>
+
+        <button class="nav-button-settings" id="settings-button" type="button">
+            <div class="icon-wrapper">
+                <div class="nav-bg"></div>
+                <img src="img/home/settingsLogo.png" alt="Configuração">
+            </div>
+            <span class="neon-text-light">Configuração</span>
+        </button>
+
+        <a href="games/ia.html" class="nav-link" target="_blank" rel="noopener noreferrer">
+            <button class="nav-button-ia">
+                <div class="icon-wrapper">
+                    <div class="nav-bg"></div>
+                    <img src="img/home/logoIA.png" alt="IA">
+                </div>
+                <span class="neon-text-light">Assistente interativo</span>
+            </button>
+        </a>
+
+        <a href="login.html" class="nav-button" id="btn-sair">
+            <div class="icon-wrapper">
+                <div class="nav-bg"></div>
+                <img src="img/home/sairLogo.png" alt="Sair">
+            </div>
+            <span class="neon-text-light">Sair</span>
+        </a>
+
+        <button class="nav-button" id="btn-theme-toggle" type="button">
+            <div class="icon-wrapper">
+                <div class="nav-bg"></div>
+                <img src="img/home/settingsLogo.png" alt="Alternar tema">
+            </div>
+            <span class="neon-text-light" id="theme-toggle-label">Tema: Normal</span>
+        </button>
+    </aside>
+
+    <div id="profile-modal" class="profile-modal" aria-hidden="true">
+        <div class="profile-modal-backdrop"></div>
+        <div class="profile-modal-panel glass-rise">
+            <div class="profile-modal-header">
+                <h2>Editar perfil</h2>
+                <button type="button" class="profile-modal-close" id="profile-modal-close" aria-label="Fechar">&times;</button>
+            </div>
+            <form id="profile-form" class="profile-form">
+                <label class="profile-field">
+                    <span>Nome de usuário</span>
+                    <input type="text" name="nome" id="profile-nome" required minlength="2" maxlength="64" placeholder="Seu usuário">
+                </label>
+                <label class="profile-field">
+                    <span>Email</span>
+                    <input type="email" name="email" id="profile-email" maxlength="120" placeholder="email@exemplo.com">
+                </label>
+                <label class="profile-field">
+                    <span>Nova senha (opcional)</span>
+                    <input type="password" name="novaSenha" id="profile-nova-senha" minlength="4" placeholder="Deixe em branco para não alterar">
+                </label>
+                <p id="profile-msg" class="profile-msg"></p>
+                <div class="profile-actions">
+                    <button type="button" class="profile-btn-cancel" id="profile-cancel">Cancelar</button>
+                    <button type="submit" class="profile-btn-save">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="settings-modal" aria-hidden="true">
+        <div class="settings-modal-backdrop"></div>
+        <div class="settings-modal-panel glass-rise">
+            <div class="settings-modal-header">
+                <h2>Configurações</h2>
+                <button type="button" class="settings-modal-close" id="settings-modal-close" aria-label="Fechar">&times;</button>
+            </div>
+            <form id="settings-form" class="settings-form">
+                <div class="settings-section">
+                    <h3>Aparência</h3>
+                    <label class="settings-field">
+                        <span>Tema visual</span>
+                        <select id="cfg-theme" name="theme">
+                            <option value="default">Padrão</option>
+                            <option value="contrast">Alto contraste</option>
+                        </select>
+                    </label>
+                    <label class="settings-field">
+                        <span>Tamanho da interface</span>
+                        <input type="range" id="cfg-zoom" name="zoom" min="90" max="115" step="5" value="100">
+                        <small id="cfg-zoom-value">100%</small>
+                    </label>
+                    <label class="settings-toggle">
+                        <input type="checkbox" id="cfg-glass">
+                        <span>Efeito vidro nos cards</span>
+                    </label>
+                    <label class="settings-toggle">
+                        <input type="checkbox" id="cfg-compact">
+                        <span>Modo compacto de cards</span>
+                    </label>
+                </div>
+                <div class="settings-section">
+                    <h3>Experiência</h3>
+                    <label class="settings-toggle">
+                        <input type="checkbox" id="cfg-animations">
+                        <span>Animações da interface</span>
+                    </label>
+                    <label class="settings-toggle">
+                        <input type="checkbox" id="cfg-sound">
+                        <span>Efeitos sonoros (salvo para futuras telas)</span>
+                    </label>
+                    <label class="settings-toggle">
+                        <input type="checkbox" id="cfg-show-lesson">
+                        <span>Mostrar card de lição principal</span>
+                    </label>
+                </div>
+                <div class="settings-section">
+                    <h3>Sistema</h3>
+                    <label class="settings-field">
+                        <span>Idioma</span>
+                        <select id="cfg-language" name="language">
+                            <option value="pt-BR">Português (Brasil)</option>
+                            <option value="en-US">English</option>
+                            <option value="es-ES">Español</option>
+                        </select>
+                    </label>
+                </div>
+                <p id="settings-msg" class="settings-msg"></p>
+                <div class="settings-actions">
+                    <button type="button" id="settings-reset" class="settings-btn-secondary">Restaurar padrão</button>
+                    <button type="button" id="settings-cancel" class="settings-btn-secondary">Cancelar</button>
+                    <button type="submit" class="settings-btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Conteúdo principal (wrapper para escala e caber na tela sem scroll) -->
+    <div class="content-viewport">
+        <div class="content-scalable">
+    <main class="content animate-in fade-in" data-exit="fade-out">
+        <span class="slide-left delay-2 animate-in">Bem vindo, <t id="user-display">Carregando...</t></span>
+
+        <section class="welcome-section animate-in fade-in" data-exit="fade-out">
+            <img src="img/home/iconeLicao.png" alt="Lição" class="zoom-blur delay-1 animate-in">
+            <div class="lesson-info">
+                <h2 class="zoom-blur delay-1 animate-in"><span>Lição 2</span> - Lógica</h2>
+                <p class="zoom-blur delay-2 animate-in">Verdadeiro ou falso?</p>
+
+                <a1 class="zoom-blur delay-2 animate-in">
+                    Dê um superpoder para o seu cérebro! Nossa academia de lógica é o lugar
+                    para treinar a sua mente de um jeito muito legal. <br>Falso ou Verdadeiro? <br>Pense rápido e responda para
+                    passar de fase. Quanto mais você joga, mais rápido você aprende a desvendar todos os segredos da lógica.
+                    <br> Vamos lá, o seu QI vai agradecer!
+                </a1>
+
+                <footer>
+                    <div class="progress-container zoom-blur delay-3 animate-in">
+                        <div class="progress-bar" style="width: 60%;"></div>
+                    </div>
+                    <button class="continue-button zoom-blur delay-3 animate-in" data-exit="zoom-out">
+                        Continuar
+                    </button>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Seção de Jogos -->
+        <section class="cards-section animate-in fade-in" data-exit="fade-out">
+            <h2 class="zoom-blur delay-1 animate-in">Jogos</h2>
+
+            <div class="cards-grid">
+                <a class="card-button glass-rise stagger animate-in" data-exit="zoom-out" style="animation-delay:.1s" href="games/memory/memory.html">
+                    <img src="img/home/jogos/memory.png" alt="Jogo da memória">
+                    <p>Jogo da memória</p>
+                </a>
+
+                <a class="card-button glass-rise stagger animate-in" data-exit="zoom-out" style="animation-delay:.2s" href="games/connect4/connect4.html">
+                    <img src="img/home/jogos/connect4.png" alt="Connect 4">
+                    <p>Connect 4</p>
+                </a>
+
+                <a class="card-button glass-rise stagger animate-in" data-exit="zoom-out" style="animation-delay:.3s" href="games/sudoku/sudoku.html">
+                    <img src="img/home/jogos/sudoku.png" alt="Sudoku">
+                    <p>Sudoku</p>
+                </a>
+
+                <a class="card-button glass-rise stagger animate-in" data-exit="zoom-out" style="animation-delay:.4s" href="games/minesweeper/minesweeper.html">
+                    <img src="img/home/jogos/MINESWEEPER.png" alt="Minesweeper">
+                    <p>Minesweeper</p>
+                </a>
+
+                <a class="card-button glass-rise stagger animate-in" data-exit="zoom-out" style="animation-delay:.5s" href="games/2048/2048.html">
+                    <img src="img/home/jogos/2048.png" alt="2048">
+                    <p>2048</p>
+                </a>
+
+                <a class="card-button glass-rise stagger animate-in" data-exit="zoom-out" style="animation-delay:.6s" href="games/flow-free/flow-free.html">
+                    <img src="img/home/jogos/FLOW FREE.png" alt="Flow Free">
+                    <p>Flow Free</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Seção de Cursos -->
+        <h2 class="zoom-blur delay-2 animate-in">Cursos</h2>
+
+        <div class="cards-grid">
+            <a class="card-button course-zoom animate-in" data-exit="fade-out" style="animation-delay:.1s" href="courses/course.html?curso=python">
+                <img src="img/home/cursos/PYTHON.png" alt="Python">
+                <p>Python</p>
+            </a>
+
+            <a class="card-button course-zoom animate-in" data-exit="fade-out" style="animation-delay:.2s" href="courses/course.html?curso=cpp">
+                <img src="img/home/cursos/C++.png" alt="C++">
+                <p>C++</p>
+            </a>
+
+            <a class="card-button course-zoom animate-in" data-exit="fade-out" style="animation-delay:.3s" href="courses/course.html?curso=html">
+                <img src="img/home/cursos/HTML.png" alt="HTML">
+                <p>HTML</p>
+            </a>
+
+            <a class="card-button course-zoom animate-in" data-exit="fade-out" style="animation-delay:.4s" href="courses/course.html?curso=java">
+                <img src="img/home/cursos/JAVA.png" alt="Java">
+                <p>Java</p>
+            </a>
+
+            <a class="card-button course-zoom animate-in" data-exit="fade-out" style="animation-delay:.5s" href="courses/course.html?curso=javascript">
+                <img src="img/home/cursos/JAVASCRIPT.png" alt="JavaScript">
+                <p>JavaScript</p>
+            </a>
+
+            <a class="card-button course-zoom animate-in" data-exit="fade-out" style="animation-delay:.6s" href="courses/course.html?curso=typescript">
+                <img src="img/home/cursos/TYPESCRIPT.png" alt="TypeScript">
+                <p>TypeScript</p>
+            </a>
+        </div>
+
+        <script type="module">
+            import { setUser, clearUser } from "/js/auth.js";
+
+            const form = document.getElementById("login-form");
+            if (form) {
+                form.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const username = e.target.elements["username"]?.value?.trim();
+                    if (!username) return;
+                    setUser(username);
+                    location.href = "/games/sudoku.html?v=2025.11.06";
+                });
+            }
+
+            const btnSair = document.getElementById("btn-sair");
+            if (btnSair) {
+                btnSair.addEventListener("click", function() {
+                    clearUser();
+                    window.location.href = "/login.html";
+                });
+            }
+        </script>
+
+        <!-- ANIMAÇÕES DE SAÍDA -->
+        <script>
+            document.querySelectorAll("a, button").forEach(el => {
+                el.addEventListener("click", function (e) {
+
+                    const href = el.getAttribute("href");
+
+                    if (!href || href.startsWith("#") || el.target === "_blank") return;
+
+                    e.preventDefault();
+
+                    document.querySelectorAll("[data-exit]").forEach(elemento => {
+                        const anim = elemento.dataset.exit;
+                        if (anim) elemento.classList.add(anim);
+                    });
+
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 800);
+                });
+            });
+        </script>
+    </main>
+        </div>
+    </div>
+</div>
+<script src="js/home-fit.js"></script>
+<script>
+    (function() {
+        const el = document.getElementById("user-display");
+        if (!el) return;
+        fetch("/auth/me", { credentials: "same-origin" })
+            .then(r => r.ok ? r.json() : { username: null })
+            .then(data => { el.textContent = data?.username || "Visitante"; })
+            .catch(() => { el.textContent = "Visitante"; });
+    })();
+
+    (function() {
+        const modal = document.getElementById("profile-modal");
+        const profileBtn = document.querySelector(".profile-button");
+        const closeBtn = document.getElementById("profile-modal-close");
+        const cancelBtn = document.getElementById("profile-cancel");
+        const backdrop = modal?.querySelector(".profile-modal-backdrop");
+        const form = document.getElementById("profile-form");
+        const msgEl = document.getElementById("profile-msg");
+        const userDisplay = document.getElementById("user-display");
+        function openModal() {
+            if (!modal) return;
+            modal.classList.add("is-open");
+            modal.setAttribute("aria-hidden", "false");
+            msgEl.textContent = "";
+            fetch("/auth/me", { credentials: "same-origin" })
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (data) {
+                        document.getElementById("profile-nome").value = data.username || "";
+                        document.getElementById("profile-email").value = data.email || "";
+                        document.getElementById("profile-nova-senha").value = "";
+                    }
+                })
+                .catch(() => {});
+        }
+        function closeModal() {
+            if (!modal) return;
+            modal.classList.remove("is-open");
+            modal.setAttribute("aria-hidden", "true");
+        }
+        profileBtn?.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openModal();
+        });
+        closeBtn?.addEventListener("click", closeModal);
+        cancelBtn?.addEventListener("click", closeModal);
+        backdrop?.addEventListener("click", closeModal);
+        form?.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            msgEl.textContent = "";
+            msgEl.classList.remove("error", "success");
+            const nome = document.getElementById("profile-nome").value.trim();
+            const email = document.getElementById("profile-email").value.trim();
+            const novaSenha = document.getElementById("profile-nova-senha").value;
+            if (nome.length < 2) {
+                msgEl.textContent = "O nome deve ter pelo menos 2 caracteres.";
+                msgEl.classList.add("error");
+                return;
+            }
+            try {
+                const body = { nome, email };
+                if (novaSenha && novaSenha.length >= 4) body.novaSenha = novaSenha;
+                const res = await fetch("/auth/me", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    if (userDisplay) userDisplay.textContent = data.username || nome;
+                    msgEl.textContent = "Perfil atualizado!";
+                    msgEl.classList.add("success");
+                    setTimeout(closeModal, 800);
+                } else {
+                    msgEl.textContent = data.error || "Erro ao atualizar.";
+                    msgEl.classList.add("error");
+                }
+            } catch (_) {
+                msgEl.textContent = "Erro de conexão. Tente novamente.";
+                msgEl.classList.add("error");
+            }
+        });
+    })();
+
+    (function() {
+        const SETTINGS_KEY = "qc:settings:v1";
+        const defaults = {
+            theme: "default",
+            zoom: 100,
+            glass: true,
+            compact: false,
+            animations: true,
+            sound: false,
+            showLesson: true,
+            language: "pt-BR"
+        };
+        const modal = document.getElementById("settings-modal");
+        const openBtn = document.getElementById("settings-button");
+        const closeBtn = document.getElementById("settings-modal-close");
+        const cancelBtn = document.getElementById("settings-cancel");
+        const resetBtn = document.getElementById("settings-reset");
+        const backdrop = modal?.querySelector(".settings-modal-backdrop");
+        const form = document.getElementById("settings-form");
+        const msg = document.getElementById("settings-msg");
+        const zoomInput = document.getElementById("cfg-zoom");
+        const zoomValue = document.getElementById("cfg-zoom-value");
+        const quickThemeBtn = document.getElementById("btn-theme-toggle");
+        const quickThemeLabel = document.getElementById("theme-toggle-label");
+        function loadSettings() {
+            try {
+                const raw = localStorage.getItem(SETTINGS_KEY);
+                return raw ? { ...defaults, ...JSON.parse(raw) } : { ...defaults };
+            } catch (_) {
+                return { ...defaults };
+            }
+        }
+        function saveSettings(settings) {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        }
+        function setFormValues(settings) {
+            document.getElementById("cfg-theme").value = settings.theme;
+            document.getElementById("cfg-zoom").value = settings.zoom;
+            document.getElementById("cfg-glass").checked = settings.glass;
+            document.getElementById("cfg-compact").checked = settings.compact;
+            document.getElementById("cfg-animations").checked = settings.animations;
+            document.getElementById("cfg-sound").checked = settings.sound;
+            document.getElementById("cfg-show-lesson").checked = settings.showLesson;
+            document.getElementById("cfg-language").value = settings.language;
+            zoomValue.textContent = settings.zoom + "%";
+        }
+        function readFormValues() {
+            return {
+                theme: document.getElementById("cfg-theme").value,
+                zoom: Number(document.getElementById("cfg-zoom").value),
+                glass: document.getElementById("cfg-glass").checked,
+                compact: document.getElementById("cfg-compact").checked,
+                animations: document.getElementById("cfg-animations").checked,
+                sound: document.getElementById("cfg-sound").checked,
+                showLesson: document.getElementById("cfg-show-lesson").checked,
+                language: document.getElementById("cfg-language").value
+            };
+        }
+        function applySettings(settings) {
+            document.body.style.zoom = (settings.zoom / 100).toString();
+            document.body.classList.toggle("theme-contrast", settings.theme === "contrast");
+            document.body.classList.toggle("glass-off", !settings.glass);
+            document.body.classList.toggle("compact-cards", settings.compact);
+            document.body.classList.toggle("animations-off", !settings.animations);
+            document.body.classList.toggle("hide-lesson", !settings.showLesson);
+            document.documentElement.lang = settings.language;
+            if (quickThemeLabel) {
+                quickThemeLabel.textContent = settings.theme === "contrast" ? "Tema: Escuro" : "Tema: Normal";
+            }
+        }
+        function openModal() {
+            if (!modal) return;
+            const current = loadSettings();
+            setFormValues(current);
+            msg.textContent = "";
+            modal.classList.add("is-open");
+            modal.setAttribute("aria-hidden", "false");
+        }
+        function closeModal() {
+            if (!modal) return;
+            modal.classList.remove("is-open");
+            modal.setAttribute("aria-hidden", "true");
+        }
+        zoomInput?.addEventListener("input", function() {
+            zoomValue.textContent = this.value + "%";
+        });
+        openBtn?.addEventListener("click", function(e) {
+            e.preventDefault();
+            openModal();
+        });
+        closeBtn?.addEventListener("click", closeModal);
+        cancelBtn?.addEventListener("click", closeModal);
+        backdrop?.addEventListener("click", closeModal);
+        resetBtn?.addEventListener("click", function() {
+            setFormValues(defaults);
+            applySettings(defaults);
+            saveSettings(defaults);
+            msg.textContent = "Configurações restauradas.";
+            msg.classList.remove("error");
+            msg.classList.add("success");
+        });
+        form?.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const values = readFormValues();
+            applySettings(values);
+            saveSettings(values);
+            msg.textContent = "Configurações salvas com sucesso.";
+            msg.classList.remove("error");
+            msg.classList.add("success");
+            setTimeout(closeModal, 700);
+        });
+        quickThemeBtn?.addEventListener("click", function() {
+            const current = loadSettings();
+            const next = {
+                ...current,
+                theme: current.theme === "contrast" ? "default" : "contrast"
+            };
+            applySettings(next);
+            saveSettings(next);
+        });
+        applySettings(loadSettings());
+    })();
+</script>
+</body>
+</html>
