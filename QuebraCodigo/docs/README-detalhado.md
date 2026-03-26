@@ -70,21 +70,21 @@ Ajuste `spring.datasource.*` em `src/main/resources/application.properties` se u
 
 #### Passo a passo
 
-Na raiz do repositório, o projeto Maven fica em **`quebra-codigo/quebra-codigo`** (pasta que contém o `pom.xml`).
+Na raiz do repositório, o projeto Maven principal fica em **`app`** (pasta que contém o `pom.xml`).
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/thomazte/quebra-codigo.git
-cd quebra-codigo
+git clone https://github.com/Thiago-Vinicius-M/QuebraCodigo.git
+cd QuebraCodigo
 
-# 2. Entre na pasta do módulo Spring Boot (onde está o pom.xml)
-cd quebra-codigo
+# 2. Entre na pasta do modulo Spring Boot (onde esta o pom.xml)
+cd app
 
 # 3. Execute com Maven
 mvn spring-boot:run
 ```
 
-No **Windows** (PowerShell ou CMD), o passo 2 pode ser `cd quebra-codigo` dentro da pasta clonada — o importante é estar na pasta que contém o `pom.xml`.
+No **Windows** (PowerShell ou CMD), o passo 2 pode ser `cd app` dentro da pasta clonada; o importante e estar na pasta que contem o `pom.xml`.
 
 > Após iniciar, acesse **http://localhost:8150**. **Login** e **cadastro:** `/login.html` e `/cadastro.html`. Página de **IA** (jogo/chat): `games/ia.html`.
 
@@ -100,7 +100,7 @@ java -jar target/edu-platform-1.0.0.jar
 ### Estrutura do projeto
 
 ```
-quebra-codigo/                    # módulo Maven (Spring Boot)
+app/                              # modulo Maven (Spring Boot)
 ├── pom.xml
 ├── scripts/
 │   └── postgres-setup.sql        # setup do schema app (PostgreSQL 15+)
@@ -202,21 +202,21 @@ Adjust `spring.datasource.*` in `src/main/resources/application.properties` if y
 
 #### Steps
 
-From the repository root, the Maven module is **`quebra-codigo/quebra-codigo`** (folder that contains `pom.xml`).
+From the repository root, the main Maven module is **`app`** (folder that contains `pom.xml`).
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/thomazte/quebra-codigo.git
-cd quebra-codigo
+git clone https://github.com/Thiago-Vinicius-M/QuebraCodigo.git
+cd QuebraCodigo
 
 # 2. Enter the Spring Boot module (folder with pom.xml)
-cd quebra-codigo
+cd app
 
 # 3. Run with Maven
 mvn spring-boot:run
 ```
 
-On **Windows**, use `cd quebra-codigo` under the cloned folder; you must be in the directory that contains `pom.xml`.
+On **Windows**, use `cd app` under the cloned folder; you must be in the directory that contains `pom.xml`.
 
 > Open **http://localhost:8150**. **Login** and **sign-up:** `/login.html` and `/cadastro.html`. **AI** page: `games/ia.html`.
 
@@ -232,7 +232,7 @@ java -jar target/edu-platform-1.0.0.jar
 ### Project Structure
 
 ```
-quebra-codigo/                    # Maven module (Spring Boot)
+app/                              # Maven module (Spring Boot)
 ├── pom.xml
 ├── scripts/
 │   └── postgres-setup.sql        # app schema setup (PostgreSQL 15+)

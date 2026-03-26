@@ -1,5 +1,6 @@
 # Maven
 target/
+**/target/
 pom.xml.tag
 pom.xml.releaseBackup
 
@@ -11,3 +12,6 @@ pom.xml.releaseBackup
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
