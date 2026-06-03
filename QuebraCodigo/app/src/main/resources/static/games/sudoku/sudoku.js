@@ -1,269 +1,252 @@
-// Sudoku – Lógica corrigida e sem botão verificar
 window.Achievements = window.Achievements || {
-    syncUser: async () => {},
-    award: async () => {},
-    toast: () => {}
+  syncUser: async () => {},
+  award: async () => {},
+  toast: () => {}
 };
 
-(function () {
-    const gridEl = document.getElementById('sGrid'),
-        msgEl  = document.getElementById('sMsg'),
-        diffSel = document.getElementById('sDiff');
-    winOverlayEl = document.getElementById('winOverlay'),
-        winNewGameBtn = document.getElementById('winNewGame');
+const { useState, useEffect, useCallback } = React;
 
-    let fixed = new Set();
-    let activeIndex = -1;
+function isValid(board, index, num) {
+  const row = Math.floor(index / 9);
+  const col = index % 9;
+  const blockRow = Math.floor(row / 3) * 3;
+  const blockCol = Math.floor(col / 3) * 3;
+  for (let c = 0; c < 9; c++) if (board[row * 9 + c] === num) return false;
+  for (let r = 0; r < 9; r++) if (board[r * 9 + col] === num) return false;
+  for (let r = 0; r < 3; r++)
+    for (let c = 0; c < 3; c++)
+      if (board[(blockRow + r) * 9 + (blockCol + c)] === num) return false;
+  return true;
+}
 
-    // --- FUNÇÕES DE LÓGICA DO TABULEIRO (MANTIDAS IGUAIS) ---
-
-    function baseBoard() {
-        const board = Array(81).fill(0);
-        function solve(board) {
-            for (let i = 0; i < 81; i++) {
-                if (board[i] === 0) {
-                    const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-                    for (let j = numbers.length - 1; j > 0; j--) {
-                        const k = Math.floor(Math.random() * (j + 1));
-                        [numbers[j], numbers[k]] = [numbers[k], numbers[j]];
-                    }
-                    for (const num of numbers) {
-                        if (isValid(board, i, num)) {
-                            board[i] = num;
-                            if (solve(board)) return true;
-                            board[i] = 0;
-                        }
-                    }
-                    return false;
-                }
-            }
-            return true;
+function solveSudoku(board) {
+  for (let i = 0; i < 81; i++) {
+    if (board[i] === 0) {
+      for (let num = 1; num <= 9; num++) {
+        if (isValid(board, i, num)) {
+          board[i] = num;
+          if (solveSudoku(board)) return true;
+          board[i] = 0;
         }
-        solve(board);
-        return board;
+      }
+      return false;
     }
+  }
+  return true;
+}
 
-    function isValid(board, index, num) {
-        const row = Math.floor(index / 9);
-        const col = index % 9;
-        const blockRow = Math.floor(row / 3) * 3;
-        const blockCol = Math.floor(col / 3) * 3;
-
-        for (let c = 0; c < 9; c++) if (board[row * 9 + c] === num) return false;
-        for (let r = 0; r < 9; r++) if (board[r * 9 + col] === num) return false;
-        for (let r = 0; r < 3; r++) {
-            for (let c = 0; c < 3; c++) {
-                if (board[(blockRow + r) * 9 + (blockCol + c)] === num) return false;
-            }
+function baseBoard() {
+  const board = Array(81).fill(0);
+  function solve(b) {
+    for (let i = 0; i < 81; i++) {
+      if (b[i] === 0) {
+        const nums = [1,2,3,4,5,6,7,8,9];
+        for (let j = nums.length - 1; j > 0; j--) {
+          const k = Math.floor(Math.random() * (j + 1));
+          [nums[j], nums[k]] = [nums[k], nums[j]];
         }
-        return true;
-    }
-
-    function carve(full) {
-        const diff = diffSel.value;
-        const removeCount = { easy: 40, medium: 50, hard: 58 }[diff] || 40;
-        const board = [...full];
-        const indices = [...Array(81).keys()];
-        for (let i = indices.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [indices[i], indices[j]] = [indices[j], indices[i]];
+        for (const n of nums) {
+          if (isValid(b, i, n)) {
+            b[i] = n;
+            if (solve(b)) return true;
+            b[i] = 0;
+          }
         }
-        let removed = 0;
-        for (let i = 0; i < indices.length && removed < removeCount; i++) {
-            const idx = indices[i];
-            const temp = board[idx];
-            board[idx] = 0;
-            removed++;
-        }
-        return board;
+        return false;
+      }
     }
+    return true;
+  }
+  solve(board);
+  return board;
+}
 
-    // --- FUNÇÕES DE RENDERIZAÇÃO E INTERAÇÃO ---
+function carve(full, diff) {
+  const removeCount = { easy: 40, medium: 50, hard: 58 }[diff] || 40;
+  const board = [...full];
+  const indices = [...Array(81).keys()];
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  for (let i = 0; i < Math.min(removeCount, indices.length); i++) {
+    board[indices[i]] = 0;
+  }
+  return board;
+}
 
-    function draw(board) {
-        gridEl.innerHTML = '';
-        fixed.clear();
+function generateGame(diff) {
+  const solved = baseBoard();
+  const puzzle = carve(solved, diff);
+  const fixed = new Set(puzzle.map((v, i) => v !== 0 ? i : -1).filter(i => i !== -1));
+  return { puzzle, fixed };
+}
 
-        for (let i = 0; i < 81; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'sudoku-cell';
+function getCellClasses(index, board, fixed, activeIndex) {
+  const classes = ['sudoku-cell'];
+  if (fixed.has(index)) return classes;
 
-            const input = document.createElement('input');
-            input.maxLength = 1;
-            input.inputMode = 'numeric';
-            const value = board[i];
+  if (activeIndex !== -1) {
+    const row = Math.floor(index / 9);
+    const col = index % 9;
+    const aRow = Math.floor(activeIndex / 9);
+    const aCol = activeIndex % 9;
+    const blockRow = Math.floor(row / 3) * 3;
+    const blockCol = Math.floor(col / 3) * 3;
+    const aBlockRow = Math.floor(aRow / 3) * 3;
+    const aBlockCol = Math.floor(aCol / 3) * 3;
 
-            // Listener de destaque para TODAS as células
-            input.addEventListener('focus', () => highlightCell(i));
-            input.addEventListener('blur', clearHighlight);
-
-            if (value !== 0) {
-                input.value = value;
-                input.readOnly = true;
-                input.classList.add('fixed');
-                fixed.add(i);
-            } else {
-                input.addEventListener('input', (e) => {
-                    e.target.value = e.target.value.replace(/[^1-9]/g, '');
-                    verifyCell(i); // Validação imediata
-                });
-            }
-
-            cell.appendChild(input);
-            gridEl.appendChild(cell);
-        }
+    if (index === activeIndex) {
+      classes.push('active');
+    } else if (row === aRow || col === aCol || (blockRow === aBlockRow && blockCol === aBlockCol)) {
+      classes.push('highlight');
     }
+  }
 
-    function clearHighlight() {
-        activeIndex = -1;
-        gridEl.querySelectorAll('.sudoku-cell').forEach(cell => {
-            cell.classList.remove('highlight', 'active');
-        });
+  const val = board[index];
+  if (val !== 0) {
+    const tmp = [...board];
+    tmp[index] = 0;
+    if (!isValid(tmp, index, val)) {
+      classes.push('invalid');
+    } else {
+      classes.push('correct');
     }
+  }
 
-    function highlightCell(index) {
-        if (activeIndex === index) return;
-        clearHighlight();
-        activeIndex = index;
+  return classes;
+}
 
-        const row = Math.floor(index / 9);
-        const col = index % 9;
-        const blockRow = Math.floor(row / 3) * 3;
-        const blockCol = Math.floor(col / 3) * 3;
+function Sudoku() {
+  const [diff, setDiff] = useState('easy');
+  const [board, setBoard] = useState(Array(81).fill(0));
+  const [fixed, setFixed] = useState(new Set());
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [showWin, setShowWin] = useState(false);
+  const [msg, setMsg] = useState('');
 
-        gridEl.children[index].classList.add('active');
+  const newGame = useCallback((d) => {
+    const { puzzle, fixed: f } = generateGame(d);
+    setBoard(puzzle);
+    setFixed(f);
+    setActiveIndex(-1);
+    setShowWin(false);
+    setMsg('');
+  }, []);
 
-        for (let i = 0; i < 81; i++) {
-            const r = Math.floor(i / 9);
-            const c = i % 9;
-            if (r === row || c === col) {
-                gridEl.children[i].classList.add('highlight');
-            }
-            const isSameBlock = Math.floor(r / 3) * 3 === blockRow && Math.floor(c / 3) * 3 === blockCol;
-            if (isSameBlock) {
-                gridEl.children[i].classList.add('highlight');
-            }
-        }
-    }
+  useEffect(() => {
+    Achievements.syncUser('Jogador');
+    newGame('easy');
+  }, []);
 
-    function verifyCell(index) {
-        const board = read();
-        let hasConflicts = false;
+  const handleInput = (index, value) => {
+    if (fixed.has(index)) return;
+    const cleaned = value.replace(/[^1-9]/g, '');
+    const num = cleaned ? parseInt(cleaned.slice(-1)) : 0;
+    const newBoard = [...board];
+    newBoard[index] = num;
+    setBoard(newBoard);
 
-        // 1. Limpa as classes de feedback, incluindo 'correct'
-        gridEl.querySelectorAll('.sudoku-cell').forEach(c => c.classList.remove('invalid', 'correct'));
-
-        // 2. Itera para verificar conflitos e aplicar cor verde (correto)
-        for (let i = 0; i < 81; i++) {
-            const value = board[i];
-
-            if (value === 0) continue;
-
-            const tempBoard = [...board];
-            tempBoard[i] = 0; // Remove temporariamente o valor para checagem de conflito
-
-            if (!isValid(tempBoard, i, value)) {
-                // Conflito: Aplica vermelho
-                gridEl.children[i].classList.add('invalid');
-                hasConflicts = true;
-            } else {
-                // Sem conflito: Se foi preenchido pelo usuário, aplica verde
-                if (!fixed.has(i)) {
-                    gridEl.children[i].classList.add('correct');
-                }
-            }
-        }
-
-        // 3. Atualiza o status do jogo
-        if (!hasConflicts) {
-            checkWin();
-        } else {
-            // Apenas removemos a mensagem de erro, mantendo o destaque visual
-            msgEl.textContent = '';
-        }
-    }
-
-    function checkWin() {
-        const board = read();
-        const hasZeros = board.includes(0);
-
-        if (!hasZeros) {
-
-            winOverlayEl.classList.remove('hidden');
-
-            msgEl.style.color = '#10b981';
-            Achievements.toast('Sudoku concluído!');
-
-        } else {
-            msgEl.textContent = '';
-        }
-    }
-
-    function read() {
-        return [...gridEl.querySelectorAll('input')].map(inp => parseInt(inp.value || '0') || 0);
-    }
-
-    function write(arr) {
-        gridEl.querySelectorAll('input').forEach((inp, i) => {
-            if (!fixed.has(i)) inp.value = arr[i] || '';
-        });
-    }
-
-    function solve() {
-        const board = read();
-        if (solveSudoku(board)) {
-            write(board);
-            verifyCell(0); // Roda verificação final para atualizar status
-        } else {
-            msgEl.textContent = 'Sem solução para o estado atual.';
-            msgEl.style.color = '#ef4444';
-        }
-    }
-
-    function solveSudoku(board) {
-        for (let i = 0; i < 81; i++) {
-            if (board[i] === 0) {
-                for (let num = 1; num <= 9; num++) {
-                    if (isValid(board, i, num)) {
-                        board[i] = num;
-                        if (solveSudoku(board)) return true;
-                        board[i] = 0;
-                    }
-                }
-                return false;
-            }
-        }
-        return true;
-    }
-
-    function clearBoard() {
-        gridEl.querySelectorAll('input').forEach((inp, i) => {
-            if (!fixed.has(i)) inp.value = '';
-        });
-        gridEl.querySelectorAll('.invalid').forEach(c => c.classList.remove('invalid'));
-        msgEl.textContent = '';
-    }
-
-    function newGame() {
-        const solved = baseBoard();
-        const game = carve(solved);
-        draw(game);
-    }
-
-
-    document.getElementById('sNew').onclick = newGame;
-    document.getElementById('sSolve').onclick = solve;
-    document.getElementById('sClear').onclick = clearBoard;
-    diffSel.onchange = newGame;
-
-    window.addEventListener('DOMContentLoaded', async () => {
-        await Achievements.syncUser('Jogador');
-        newGame();
+    const hasConflict = newBoard.some((v, i) => {
+      if (v === 0) return false;
+      const tmp = [...newBoard]; tmp[i] = 0;
+      return !isValid(tmp, i, v);
     });
 
-    winNewGameBtn.onclick = () => {
-        winOverlayEl.classList.add('hidden'); // Esconde o overlay
-        newGame(); // Inicia novo jogo
-    };
+    if (!hasConflict && !newBoard.includes(0)) {
+      setShowWin(true);
+      Achievements.toast('Sudoku concluído!');
+    } else {
+      setMsg('');
+    }
+  };
 
-})();
+  const handleSolve = () => {
+    const b = [...board];
+    if (solveSudoku(b)) {
+      setBoard(b);
+      setMsg('');
+    } else {
+      setMsg('Sem solução para o estado atual.');
+    }
+  };
+
+  const handleClear = () => {
+    setBoard(prev => prev.map((v, i) => fixed.has(i) ? v : 0));
+    setMsg('');
+    setActiveIndex(-1);
+  };
+
+  const handleDiffChange = (e) => {
+    const d = e.target.value;
+    setDiff(d);
+    newGame(d);
+  };
+
+  return (
+    <div className="game-shell">
+      <header className="game-header">
+        <a
+          href="/index.html"
+          className="go-back"
+          aria-label="Voltar"
+          onClick={e => { e.preventDefault(); window.location.href = '/index.html'; }}
+        >
+          <img src="../img/topbar/setaVoltar.png" alt="Botão retornar para a Home" />
+        </a>
+        <h1 className="game-title" style={{ pointerEvents: 'none' }}>Sudoku</h1>
+        <div className="controls">
+          <button id="sNew" onClick={() => newGame(diff)}>Novo Jogo</button>
+          <label>
+            Dificuldade:
+            <select value={diff} onChange={handleDiffChange}>
+              <option value="easy">Fácil</option>
+              <option value="medium">Médio</option>
+              <option value="hard">Difícil</option>
+            </select>
+          </label>
+          <button id="sSolve" onClick={handleSolve}>Resolver</button>
+          <button id="sClear" onClick={handleClear}>Limpar</button>
+        </div>
+      </header>
+
+      <div className="panel">
+        <div className="sudoku-wrap">
+          <div id="sGrid" className="sudoku-grid">
+            {board.map((val, i) => {
+              const isFixed = fixed.has(i);
+              const classes = getCellClasses(i, board, fixed, activeIndex);
+              return (
+                <div key={i} className={classes.join(' ')}>
+                  <input
+                    maxLength={1}
+                    inputMode="numeric"
+                    value={val !== 0 ? val : ''}
+                    readOnly={isFixed}
+                    className={isFixed ? 'fixed' : ''}
+                    onFocus={() => setActiveIndex(i)}
+                    onBlur={() => setActiveIndex(-1)}
+                    onChange={e => handleInput(i, e.target.value)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        {msg && <div id="sMsg" className="muted" style={{ textAlign: 'center', color: '#ef4444' }}>{msg}</div>}
+      </div>
+
+      {showWin && (
+        <div className="win-overlay">
+          <div className="win-content">
+            <h2>🏆 Parabéns! 🏆</h2>
+            <p>Você conseguiu o Sudoku</p>
+            <button onClick={() => { setShowWin(false); newGame(diff); }}>Novo Jogo</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Sudoku />);

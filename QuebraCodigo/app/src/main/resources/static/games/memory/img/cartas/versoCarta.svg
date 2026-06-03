@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" role="img" aria-label="Carta virada">
+  <defs>
+    <!-- dourado com brilho no topo -->
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"    stop-color="#FFF6B8"/>
+      <stop offset="0.18" stop-color="#FFE45C"/>
+      <stop offset="0.48" stop-color="#FFCB1F"/>
+      <stop offset="0.78" stop-color="#FFB000"/>
+      <stop offset="1"    stop-color="#F59A00"/>
+    </linearGradient>
+    <filter id="ds" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+    <linearGradient id="glossGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"    stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.45" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="0.6"  stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="glossM">
+      <rect x="0" y="0" width="300" height="300" fill="url(#glossGrad)"/>
+    </mask>
+  </defs>
+
+  <!-- corpo do "?" (centralizado verticalmente) -->
+  <text x="150" y="245" text-anchor="middle"
+        font-family="'Arial Rounded MT Bold','Trebuchet MS',system-ui,sans-serif"
+        font-size="270" font-weight="900"
+        fill="url(#gold)" stroke="#E08A00" stroke-width="3"
+        paint-order="stroke" filter="url(#ds)">?</text>
+
+  <!-- camada de brilho (só no topo, via máscara) -->
+  <text x="150" y="245" text-anchor="middle"
+        font-family="'Arial Rounded MT Bold','Trebuchet MS',system-ui,sans-serif"
+        font-size="270" font-weight="900"
+        fill="#ffffff" opacity="0.55" mask="url(#glossM)">?</text>
+</svg>

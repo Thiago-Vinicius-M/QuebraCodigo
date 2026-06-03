@@ -4,78 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2048 - Quebra Código</title>
-    <!-- Link para o CSS externo -->
+    <link rel="icon" type="image/png" href="../../img/home/logoQuebraCodigo.png">
+    <link rel="stylesheet" href="../css/global.css" />
     <link rel="stylesheet" href="2048.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-<!-- Container principal que centraliza todo o jogo -->
-<div class="container">
-
-    <!-- CABEÇALHO: Logo + Pontuações -->
-    <div class="header">
-        <h1>2048</h1>
-
-        <!-- Painéis de pontuação (atual e melhor) -->
-        <div class="scores">
-            <div class="score-container">
-                <div class="score-label">Pontos</div>
-                <div class="score-value" id="score">0</div>
-            </div>
-            <div class="score-container">
-                <div class="score-label">Melhor</div>
-                <div class="score-value" id="best">0</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CONTROLES: Botões de Desfazer e Reiniciar -->
-    <div class="controls">
-        <button class="btn" id="undoBtn">↶ Desfazer</button>
-        <button class="btn" id="restartBtn">⟳ Reiniciar</button>
-    </div>
-
-    <!-- CONTAINER DO JOGO -->
-    <div class="game-container">
-
-        <!-- Grid 4x4 onde as peças aparecem -->
-        <div class="grid-container" id="gridContainer">
-            <!-- 16 células de fundo (visual) -->
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <div class="grid-cell"></div>
-            <!-- As peças (tiles) são adicionadas dinamicamente pelo JS aqui -->
-        </div>
-
-        <!-- MENSAGEM DE GAME OVER / VITÓRIA (oculta por padrão) -->
-        <div class="game-message" id="gameMessage">
-            <div class="message-title" id="messageTitle">Game Over!</div>
-            <div class="message-text" id="messageText">Pontuação final: 0</div>
-            <button class="btn" id="tryAgainBtn">Jogar Novamente</button>
-        </div>
-    </div>
-
-    <!-- INSTRUÇÕES -->
-    <div class="instructions">
-        <p>Use as setas <span class="key-hint">↑</span> <span class="key-hint">↓</span> <span class="key-hint">←</span> <span class="key-hint">→</span> para mover</p>
-        <p>Quando você pressiona uma seta, <strong>TODAS as peças</strong> se movem naquela direção!</p>
-        <p>Junte números iguais para somar e chegar em <strong>2048</strong>!</p>
-    </div>
-</div>
-
-<!-- Link para o JavaScript externo -->
-<script src="2048.js"></script>
+    <div id="root"></div>
+    <script type="text/babel" src="2048.js"></script>
 </body>
 </html>

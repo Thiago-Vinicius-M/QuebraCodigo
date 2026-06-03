@@ -19,15 +19,15 @@
         <button class="profile-button">
             <div class="icon-wrapper">
                 <div class="nav-bg-editarPerfil"></div>
-                <img src="img/home/editarPerfilLogo.png" alt="Editar Perfil">
+                <img src="img/home/editarPerfilLogo.svg" alt="Editar Perfil">
             </div>
-            <span class="neon-text">Editar<br>Perfil</span>
+            <span class="neon-text-light">Editar<br>Perfil</span>
         </button>
 
         <button class="nav-button">
             <div class="icon-wrapper">
                 <div class="nav-bg"></div>
-                <img src="img/home/homeLogo.png" alt="HomeLogo">
+                <img src="img/home/homeLogo.svg" alt="HomeLogo">
             </div>
             <span class="neon-text-light">Home</span>
         </button>
@@ -35,7 +35,7 @@
         <button class="nav-button-settings" id="settings-button" type="button">
             <div class="icon-wrapper">
                 <div class="nav-bg"></div>
-                <img src="img/home/settingsLogo.png" alt="Configuração">
+                <img src="img/home/settingsLogo.svg" alt="Configuração">
             </div>
             <span class="neon-text-light">Configuração</span>
         </button>
@@ -44,7 +44,7 @@
             <button class="nav-button-ia">
                 <div class="icon-wrapper">
                     <div class="nav-bg"></div>
-                    <img src="img/home/logoIA.png" alt="IA">
+                    <img src="img/home/logoIA.svg" alt="IA">
                 </div>
                 <span class="neon-text-light">Assistente interativo</span>
             </button>
@@ -53,7 +53,7 @@
         <a href="login.html" class="nav-button" id="btn-sair">
             <div class="icon-wrapper">
                 <div class="nav-bg"></div>
-                <img src="img/home/sairLogo.png" alt="Sair">
+                <img src="img/home/sairLogo.svg" alt="Sair">
             </div>
             <span class="neon-text-light">Sair</span>
         </a>
@@ -61,9 +61,9 @@
         <button class="nav-button" id="btn-theme-toggle" type="button">
             <div class="icon-wrapper">
                 <div class="nav-bg"></div>
-                <img src="img/home/settingsLogo.png" alt="Alternar tema">
+                <img src="img/home/temaClaroLogo.svg" alt="Alternar tema" id="theme-toggle-icon">
             </div>
-            <span class="neon-text-light" id="theme-toggle-label">Tema: Normal</span>
+            <span class="neon-text-light" id="theme-toggle-label">Tema: Claro</span>
         </button>
     </aside>
 
@@ -219,7 +219,7 @@
                 </a>
 
                 <a class="card-button glass-rise stagger animate-in" data-exit="zoom-out" style="animation-delay:.5s" href="games/2048/2048.html">
-                    <img src="img/home/jogos/2048.png" alt="2048">
+                    <img src="img/home/jogos/2048.png" alt="2048" style="transform:scale(1.4);">
                     <p>2048</p>
                 </a>
 
@@ -250,7 +250,7 @@
             </a>
 
             <a class="card-button course-zoom animate-in" data-exit="fade-out" style="animation-delay:.4s" href="courses/course.html?curso=java">
-                <img src="img/home/cursos/JAVA.png" alt="Java">
+                <img src="img/home/cursos/JAVA.png" alt="Java" style="transform:scale(1.4);">
                 <p>Java</p>
             </a>
 
@@ -310,16 +310,31 @@
                 });
             });
         </script>
+
+        <!-- CORRIGE TELA EM BRANCO AO VOLTAR -->
+        <script>
+            // Quando o navegador restaura a home do cache de navegação (bfcache),
+            // ela pode voltar congelada no estado de SAÍDA (classes data-exit já
+            // aplicadas -> opacity:0), aparecendo em branco. Ao mostrar a página,
+            // removemos essas classes para o conteúdo reaparecer (sem precisar
+            // recarregar). Roda em todo pageshow; em carga normal é inócuo.
+            window.addEventListener("pageshow", function () {
+                document.querySelectorAll("[data-exit]").forEach(function (el) {
+                    var anim = el.dataset.exit;
+                    if (anim) el.classList.remove(anim);
+                });
+            });
+        </script>
     </main>
         </div>
     </div>
 </div>
-<script src="js/home-fit.js"></script>
+<script src="js/qc-static-base.js"></script>
 <script>
     (function() {
         const el = document.getElementById("user-display");
         if (!el) return;
-        fetch("/auth/me", { credentials: "same-origin" })
+        fetch(qcAuthUrl("/auth/me"), qcAuthFetchInit())
             .then(r => r.ok ? r.json() : { username: null })
             .then(data => { el.textContent = data?.username || "Visitante"; })
             .catch(() => { el.textContent = "Visitante"; });
@@ -339,7 +354,7 @@
             modal.classList.add("is-open");
             modal.setAttribute("aria-hidden", "false");
             msgEl.textContent = "";
-            fetch("/auth/me", { credentials: "same-origin" })
+            fetch(qcAuthUrl("/auth/me"), qcAuthFetchInit())
                 .then(r => r.ok ? r.json() : null)
                 .then(data => {
                     if (data) {
@@ -378,12 +393,11 @@
             try {
                 const body = { nome, email };
                 if (novaSenha && novaSenha.length >= 4) body.novaSenha = novaSenha;
-                const res = await fetch("/auth/me", {
+                const res = await fetch(qcAuthUrl("/auth/me"), qcAuthFetchInit({
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
-                    credentials: "same-origin",
                     body: JSON.stringify(body)
-                });
+                }));
                 const data = await res.json();
                 if (res.ok) {
                     if (userDisplay) userDisplay.textContent = data.username || nome;
@@ -425,6 +439,7 @@
         const zoomValue = document.getElementById("cfg-zoom-value");
         const quickThemeBtn = document.getElementById("btn-theme-toggle");
         const quickThemeLabel = document.getElementById("theme-toggle-label");
+        const quickThemeIcon = document.getElementById("theme-toggle-icon");
         function loadSettings() {
             try {
                 const raw = localStorage.getItem(SETTINGS_KEY);
@@ -468,7 +483,14 @@
             document.body.classList.toggle("hide-lesson", !settings.showLesson);
             document.documentElement.lang = settings.language;
             if (quickThemeLabel) {
-                quickThemeLabel.textContent = settings.theme === "contrast" ? "Tema: Escuro" : "Tema: Normal";
+                quickThemeLabel.textContent = settings.theme === "contrast" ? "Tema: Escuro" : "Tema: Claro";
+            }
+            if (quickThemeIcon) {
+                // tema escuro selecionado -> ícone de lua; tema claro -> ícone de sol
+                quickThemeIcon.src = settings.theme === "contrast"
+                    ? "img/home/temaEscuroLogo.svg"
+                    : "img/home/temaClaroLogo.svg";
+                quickThemeIcon.alt = settings.theme === "contrast" ? "Tema escuro" : "Tema claro";
             }
         }
         function openModal() {

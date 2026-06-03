@@ -1,0 +1,54 @@
+# Documentação das alterações — layout fluido na home (sem `transform: scale` global)
+
+Este documento corresponde ao trabalho descrito no plano de layout responsivo: substituir o encolhimento por JavaScript por scroll e CSS nativos, tokens de largura e viewport moderno.
+
+As entradas estão agrupadas por **ficheiro e bloco lógico** (não linha a linha), porque `home.css` e `index.html` foram reestruturados em massa.
+
+---
+
+## Tabela de referência
+
+| Ficheiro | Propriedade / bloco | Antes (resumo) | Depois (resumo) | Razão | Ajuste manual |
+|----------|---------------------|----------------|-----------------|-------|---------------|
+| `app/.../static/js/home-fit.js` | *(ficheiro removido)* | IIFE que lia `.content-viewport` / `.content-scalable`, fixava `width` em px, calculava `scale = min(vh/h, 1)` e aplicava `transform: scale(...)` + `resize`/`DOMContentLoaded`/`setTimeout` | — | O `scale()` após o layout quebra a coerência com o zoom do browser e causa “letterbox”; o plano exige scroll natural. | Não aplicável. Se precisar de comportamento semelhante, ajustar só CSS (`clamp`, media queries) — não reintroduzir escala global por JS. |
+| `app/.../static/index.html` | `<script src="js/home-fit.js">` | Script incluído antes do bloco inline de tema | Referência removida | Desativa o encolhimento automático no desktop. | — |
+| `app/.../static/css/home.css` | `:root` | Inexistente no topo | `--page-max-width`, `--sidebar-w-*`, `--content-pl-collapsed`, `--sidebar-transition-*` | Um único sítio para largura da coluna e rail da sidebar; alinha ao plano (“token” de `max-width`). | Alterar `--page-max-width` (ex.: `100%`, `min(100%, 2560px)`, `1600px`) para controlar faixas laterais ou largura máxima. |
+| `app/.../static/css/home.css` | `@media (prefers-reduced-motion: reduce)` em `:root` | — | `--sidebar-transition-duration: 0.05s` | Acessibilidade: transição da sidebar mais curta quando o utilizador pede menos movimento. | Ajustar duração ou remover a regra se não for desejado. |
+| `app/.../static/css/home.css` | `html` | (no diff antigo, corpo tinha `height: 100vh` direto) | `font-size: clamp(...)`, `min-height: 100vh` + `100dvh`, `height: 100%`, `overflow: hidden` | Tipografia fluida; altura mínima com `dvh` (fallback `vh`) para barras de UI móveis; cadeia de altura para flex. | Ajustar `clamp` para mudar escala base de texto. |
+| `app/.../static/css/home.css` | `body` | `height: 100vh`, `padding-left: 120px`, `overflow: hidden` | `min-height: 100vh` + `100dvh`, `height: 100%`, `padding-left: var(--content-pl-collapsed)`, `overflow-x: hidden`, `overflow-y: hidden` | Rail fixo alinhado à variável; viewport estável sem depender só de `100vh`. | Mudar `--sidebar-w-collapsed` / `--sidebar-rail-gap` se o deslocamento do conteúdo não bater com a rail. |
+| `app/.../static/css/home.css` | `.container` | `max-width: 1920px`, `padding: 10px 12px` | `max-width: var(--page-max-width)`, `min-width/min-height: 0`, `padding: 16px 24px` | Largura máxima configurável; evita faixas fixas sem controlo; flex children podem encolher. | Ver `--page-max-width` no `:root`. |
+| `app/.../static/css/home.css` | `.sidebar` | `width: 100px`, `min/max-height: 100vh`, scroll vertical | `width: var(--sidebar-w-collapsed)`, `top/left/bottom: 0`, transições, `z-index` maior, `overflow: hidden` | Remove hack de altura `100vh` duplicada; prepara hover/expansão e overlay. | Ajustar `--sidebar-w-collapsed` / `--sidebar-w-expanded`. |
+| `app/.../static/css/home.css` | `.sidebar span` / `.sidebar-label` | `.neon-text` / tamanhos antigos | `.sidebar-label` com JetBrains Mono, peso e cor definidos | Tipografia consistente com ícones SVG. | Alterar `font-family` / `font-size` em `.sidebar-label`. |
+| `app/.../static/css/home.css` | Ícones rail (`.profile-button`, `.nav-button`, etc.) | `img` 56×56, regras com `.nav-link .nav-button img` | SVG `.home-lucide-icon`, 48×48, `margin`, `filter` / `drop-shadow` | Ícones vetoriais e brilho controlado por CSS; alinhado ao novo layout da sidebar. | Trocar paths SVG ou classes em `index.html` se mudar ícones. |
+| `app/.../static/css/home.css` | `.content-viewport` | `overflow: hidden`, sem flex column explícito | `display: flex`, `flex-direction: column`, `overflow-y: auto`, `overflow-x: hidden`, `min-width: 0` | **Scroll na área principal** em vez de esconder overflow para o `scale` JS. | Aumentar/diminuir padding do `.container` ou gaps se o scroll parecer apertado. |
+| `app/.../static/css/home.css` | `.content-scalable` | `position: absolute`, `transform-origin: top left` | `position: static`, `flex: 1 1 auto`, `width/min-width/min-height` | Nome mantido por compatibilidade HTML; **sem posicionamento absoluto** para o fluxo flex ocupar o espaço certo. | Renomear classe no HTML/CSS só se quiser clarificar (opcional). |
+| `app/.../static/css/home.css` | `.content`, `.content > span`, `.content t` | Tamanhos fixos em px | `rem`, peso, sombras | Hierarquia tipográfica fluida. | Ajustar `font-size` / `margin-bottom` em `.content > span`. |
+| `app/.../static/css/home.css` | `body:has(aside.sidebar) ...` | — | Atrasos de animação, `@keyframes homeZoomOut`, `homeSidebarLedIcon` | Entrada sequencial da home e feedback visual na sidebar/cards. | Desativar animações com `body.animations-off` ou reduzir delays. |
+| `app/.../static/css/home.css` | `@media (min-width: 1025px)` — sidebar | — | Hover/focus expande largura, labels com `opacity`/`max-width`, layout row para ícone+texto | “Rail” estilo Instagram no desktop. | Ajustar `var(--sidebar-w-expanded)` e transições. |
+| `app/.../static/css/home.css` | `@media (min-width: 1025px)` e `max-height: 950/900/800px` | (herdado / reduções antigas) | Regras refinadas para hero, cards, tipografia em ecrãs baixos | Conteúdo cabe **sem** JS de escala. | Ajustar `clamp`, margens e gaps dentro destes media queries. |
+| `app/.../static/css/home.css` | `@media (max-width: 1024px)` | — | `html`/`body` com `min-height: 100dvh`, scroll em `body`, `.sidebar` horizontal estática, `.content-viewport` visível, `.content-scalable { transform: none !important; width/height: auto !important }` | Mobile: sem escala forçada (já era intenção do plano); layout em coluna. | Ajustar padding de `.container` e `.content` neste breakpoint. |
+| `app/.../static/css/home.css` | Várias secções (`.welcome-section`, `.cards-grid`, `.courses-grid`, jogos, modais, `hide-lesson`, etc.) | Estilos antigos compactos | Reescrita extensiva: grids, gaps, `clamp`, estados de animação | Complementar o layout fluido e reduzir necessidade de scroll excessivo no desktop. | Fazer tuning visual por secção (margens, `gap`, tamanhos de cartão). |
+| `app/.../static/index.html` | `<!DOCTYPE>` / `<head>` | DOCTYPE maiúsculo, links mínimos | `<!doctype html>`, `preconnect` + Google Fonts (JetBrains Mono, Montserrat), ordem de CSS | Performance de fontes e consistência com novos rótulos SVG. | Remover ou trocar famílias em `<link>` e em `home.css`. |
+| `app/.../static/index.html` | Folhas de estilo | `home`, `animate`, `textEffects`, `imageEffects` | `home`, `textEffects`, `imageEffects`, `animate` (ordem ligeiramente diferente) | Sobreposição desejada de animações/efeitos. | Reordenar se houver conflito de especificidade. |
+| `app/.../static/index.html` | `<aside class="sidebar">` | Botões com `<img>` + `.neon-text` | SVG inline `.home-lucide-icon` + `<span class="sidebar-label">` | Ícones escaláveis e alinhados ao CSS novo; remoção de dependência de PNGs nos ícones principais. | Editar SVGs ou `aria-label` por acessibilidade. |
+| `app/.../static/index.html` | Script ES module `auth` | `import ... from "/js/auth.js"` | `import ... from "js/auth.js"` | Caminho relativo ao documento servido em `/` ou subpaths. | Se o servidor mudar a base URL, usar caminho absoluto coerente (`/js/auth.js`). |
+| `app/.../static/index.html` | Comentário / estrutura do `main` | Comentário sobre wrapper para escala | Texto/estrutura atualizados ao novo modelo | Documentação inline alinhada ao comportamento (sem escala JS). | — |
+| `app/.../static/css/login.css` | `body` | `min-height: 100vh` | + `min-height: 100dvh` (fallback) | Consistência com `home` e melhor comportamento em mobile. | — |
+| `app/.../static/css/login.css` | `@keyframes liquidPulse` | Rotação + variação forte de escala | Pulso suave só em `scale` | Reduz movimento “nauseante”; alinha a `prefers-reduced-motion` posterior. | Ajustar percentagens de escala. |
+| `app/.../static/css/login.css` | `.welcome-area`, `.login-form` | Sem `width: 100%` explícito | `width: 100%` | Evita encolhimento estranho em flex. | — |
+| `app/.../static/css/login.css` | `.input-box` e `input` | Fundo simples | Vidro: `backdrop-filter`, bordas, sombras, `:focus-within`, estados `.has-error` / `.has-success`, `.shake` | UX de formulário e feedback visual. | Ajustar cores de erro/sucesso. |
+| `app/.../static/css/login.css` | Autofill WebKit | — | `-webkit-autofill` + cor de texto | Evita fundo amarelo quebrando o tema. | — |
+| `app/.../static/css/login.css` | `.login-error` + `@keyframes loginErrorIn` | — | Tooltip de erro acima da linha de ações | Mensagens de login sem saltar layout. | Ajustar `bottom` / `max-width`. |
+| `app/.../static/css/login.css` | `main.container.page-in` / `.page-out` e keyframes associados | — | Entrada/saída da página de login | Transição coordenada com o resto da UI. | Desativar via `@media (prefers-reduced-motion: reduce)` já incluído. |
+| `app/.../static/css/login.css` | `@media (max-width: 480px)` e fim de `@media (max-height: 700px)` | — | Ajustes de logo, inputs, `.login-error` | Melhor uso em telemóveis e ecrãs curtos. | — |
+| `app/.../static/css/login.css` | `@media (prefers-reduced-motion: reduce)` | — | Desliga animações em logo, inputs, botões, `page-in/out` | Acessibilidade. | — |
+| `app/.../static/css/login.css` | Fim do ficheiro | newline final ausente | *(diff mostra falta de newline no final)* | — | Garantir newline final no editor para POSIX/tools. |
+| `app/.../static/js/main.js` | *(ficheiro removido)* | Listeners em `.arrow-btn` para `scrollBy` em contentores horizontais | — | Código órfão ou substituído por outro mecanismo na home. | Se as setas deixaram de funcionar, reintroduzir lógica inline ou novo módulo e ligar no HTML. |
+| `app/.../static/js/guard.js` | *(ficheiro removido)* | Módulo: `getUser()` e `location.replace` para login | — | Remoção de guarda de sessão nesse ficheiro (auth pode estar noutro fluxo). | Confirmar que `index.html` ou backend protegem rotas como pretendido. |
+
+---
+
+## Notas
+
+- Alterações em **Java** (ex.: `GamificationController`, `LeaderboardController`, repos) e **`.gitignore`** não fazem parte do plano de layout estático; não entram nesta tabela.
+- Para validar visualmente: comparar a mesma resolução e zoom **com e sem** o antigo `home-fit.js` — o objetivo é o browser controlar a escala global, com scroll só na área principal quando necessário.

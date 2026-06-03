@@ -373,7 +373,11 @@ function getCourseCodigo(course) {
 function renderSidebar(course, lessons, currentLicaoId, codigo) {
   const navTitle = document.getElementById("course-nav-title");
   const nav = document.getElementById("course-nav");
-  navTitle.textContent = course.titulo || "Curso";
+  // topo da sidebar = NOME DO CURSO (com gradiente via .course-logo span)
+  const courseLogo = document.getElementById("course-logo");
+  if (courseLogo) courseLogo.innerHTML = "<span>" + escapeHtml(course.titulo || "Curso") + "</span>";
+  // rótulo abaixo passa a ser apenas o título da seção de navegação
+  navTitle.textContent = "Conteúdo";
   nav.innerHTML = "";
   lessons.forEach((l) => {
     const li = document.createElement("li");
@@ -704,6 +708,23 @@ async function loadAndShowLesson(lessonId, course, lessons, codigo, isFallback) 
   }
   const exercises = isFallback ? [] : await getExercises(lesson.id);
   renderLessonContent(lesson, exercises, codigo, isFallback);
+
+  // Ao trocar de lição, volta para o topo da página
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  const mainArea = document.querySelector(".course-main");
+  if (mainArea) mainArea.scrollTo({ top: 0, behavior: "smooth" });
+
+  // Atualiza qual item da sidebar está ativo (sem precisar re-renderizar tudo)
+  const navLinks = document.querySelectorAll("#course-nav a");
+  navLinks.forEach((a) => {
+    const url = new URL(a.href, window.location.href);
+    const linkLicaoId = url.searchParams.get("licaoId");
+    if (String(linkLicaoId) === String(lessonId)) {
+      a.classList.add("active");
+    } else {
+      a.classList.remove("active");
+    }
+  });
 
   const idx = lessons.findIndex((l) => String(l.id) === String(lessonId));
   const hasPrev = idx > 0;

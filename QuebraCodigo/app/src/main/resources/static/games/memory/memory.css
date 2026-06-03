@@ -2,7 +2,6 @@
 
 body {
     margin: 0;
-    min-height: 100vh;
     background: linear-gradient(
             180deg,
             #4a0d66 0%,
@@ -15,40 +14,97 @@ body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
     max-width: 100%;
-    max-height: 100%;
+}
+
+/* área de jogo: ocupa exatamente a altura útil abaixo do header fixo,
+   centraliza o tabuleiro e NUNCA gera scroll. */
+.game-content {
+    height: var(--play-h);
+    min-height: var(--play-h);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .memory-wrap {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 60px;
-
     width: 100%;
-    height: calc(100vh - 150px);
-    padding-top: 40px;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
+/*
+   Dimensionamento da carta — cabe simultaneamente em largura E altura.
+   Deck: --cols colunas x --rows linhas (rows = 4 fixo no JS).
+   Razão da carta (altura/largura) = --ratio (1.15).
+   --gap: espaçamento entre cartas.  --pad: respiro nas bordas.
+
+   Limite por largura:  (100vw  - --pad - (cols-1)*gap) / cols
+   Limite por altura :  ((play-h - --pad - (rows-1)*gap) / rows) / ratio
+   --w = min(dos dois) => o grid inteiro cabe na tela sem scroll.
+*/
 .memory-grid {
-    --w: min(120px, 14vw);
-    --h: calc(var(--w) * 1.15);
+    --rows: 4;
+    --cols: 4;
+    --ratio: 1.15;
+    --gap: clamp(6px, 1.4vmin, 12px);
+    --pad: clamp(12px, 4vmin, 32px);
+    /* altura útil padrão = área abaixo do header fixo (sobrescrita no mobile) */
+    --avail-h: var(--play-h);
+
+    --w: min(
+        (100vw - var(--pad) - (var(--cols) - 1) * var(--gap)) / var(--cols),
+        ((var(--avail-h) - var(--pad) - (var(--rows) - 1) * var(--gap)) / var(--rows)) / var(--ratio)
+    );
+    --h: calc(var(--w) * var(--ratio));
+
     display: grid;
-    gap: 12px;
+    gap: var(--gap);
+    grid-template-columns: repeat(var(--cols), var(--w));
+    grid-template-rows: repeat(var(--rows), var(--h));
     justify-content: center;
+    align-content: center;
     justify-self: center;
     margin: 0 auto;
 }
 
-.memory-grid.cols-4 {
-    grid-template-columns: repeat(4, var(--w));
-}
+.memory-grid.cols-4 { --cols: 4; }
+.memory-grid.cols-5 { --cols: 5; }
+.memory-grid.cols-6 { --cols: 6; }
 
-.memory-grid.cols-5 {
-    grid-template-columns: repeat(5, var(--w));
-}
+/*
+   No mobile (<=768px) o global.css torna o header relativo (em fluxo) e
+   zera o padding-top do .game-shell. Logo a área de jogo não é mais
+   (100svh - 70px): o header ocupa espaço real e pode quebrar em linhas.
+   Aqui medimos a sobra com flex e travamos a altura via svh para o
+   tabuleiro continuar cabendo sem scroll. A fórmula de --w usa --avail-h.
+*/
+@media (max-width: 768px) {
+    .game-shell {
+        height: 100svh;
+        overflow: hidden;
+    }
 
-.memory-grid.cols-6 {
-    grid-template-columns: repeat(6, var(--w));
+    .game-content {
+        flex: 1 1 auto;
+        min-height: 0;
+        height: auto;
+    }
+
+    /* header relativo (em fluxo) pode quebrar em 2 linhas: título + controles.
+       Reservamos uma faixa maior para a área útil não estourar a tela.
+       --avail-h precisa ser sobrescrito no próprio .memory-grid (custom
+       prop definida no elemento vence a herdada). */
+    .memory-grid {
+        --pad: clamp(8px, 3vmin, 18px);
+        --avail-h: calc(100svh - 124px);
+    }
 }
 
 .card3d {
@@ -56,6 +112,8 @@ body {
     height: var(--h);
     perspective: 700px;
     cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .card3d-inner {
@@ -75,12 +133,17 @@ body {
     height: 80%;
     object-fit: contain;
     padding: 5px;
+    /* impede seleção/arrasto da imagem da carta */
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .face {
     position: absolute;
     inset: 0;
-    border-radius: 14px;
+    border-radius: clamp(8px, 1.4vmin, 14px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -88,13 +151,13 @@ body {
 }
 
 .face.front {
-    background-image: url("img/cartas/versoCarta.png");
+    background-image: url("img/cartas/versoCarta.svg");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.06),
     0 10px 24px rgba(0, 0, 0, 0.35);
-    border-radius: 20px;
+    border-radius: clamp(10px, 2vmin, 20px);
 }
 
 .face.back {
@@ -126,13 +189,23 @@ body {
 .win-box {
     background: rgba(255,255,255,0.2);
     backdrop-filter: blur(16px);
-    padding: 28px 40px;
+    padding: clamp(18px, 4vmin, 28px) clamp(24px, 6vmin, 40px);
     border-radius: 18px;
     text-align: center;
     color: white;
     border: 1px solid rgba(255,255,255,0.28);
     box-shadow: 0 0 28px rgba(0,0,0,0.35);
     animation: popIn .5s ease;
+}
+
+.win-box h2 {
+    font-size: clamp(1.3rem, 4vmin, 2rem);
+    margin: 0 0 .4em;
+}
+
+.win-box p {
+    font-size: clamp(.9rem, 2.4vmin, 1.1rem);
+    margin: 0;
 }
 
 @keyframes popIn {
@@ -156,3 +229,10 @@ body {
     transform: translateY(-2px);
     background: rgba(255,255,255,0.35);
 }
+
+/* identidade de cor do header (unico override permitido) — memoria (magenta/violeta) */
+body {
+    --game-accent: linear-gradient(135deg, #d4308a, #7b2ff7);
+    --game-accent-border: rgba(212,48,138,0.5);
+}
+

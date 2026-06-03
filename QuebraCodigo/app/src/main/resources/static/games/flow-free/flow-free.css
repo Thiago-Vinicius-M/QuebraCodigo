@@ -13,27 +13,85 @@ body {
         #1C2E6C 45%,
         #3A1F78 70%,
         #5C2D91 100%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     color: white;
-    padding: 20px;
-    overflow-y: auto;
+    /* sem min-height:100vh / overflow-y:auto — html,body já têm overflow:hidden no global.css */
 }
 
-/* ===== CONTAINER PRINCIPAL ===== */
+/* ===== LAYOUT PRINCIPAL =====
+   .game-shell já recebe padding-top:70px (desktop) do global.css para limpar
+   o .game-header fixo. A área útil vertical é var(--play-h) = 100svh - header.
+   Tudo (título/controles ficam no header fixo) cabe sem scroll. */
+.game-shell {
+    /* N (tamanho da grade) é injetado via --grid-n no estilo inline do React */
+    --grid-n: 6;
+
+    /* gaps e paddings que comem espaço além das células */
+    --cell-gap: 4px;          /* gap entre células (.grid-container) */
+    --grid-pad: 12px;         /* padding interno do .grid-container */
+    --container-pad: 12px;    /* padding do .game-container */
+
+    /* espaço reservado, dentro de --play-h, para o que NÃO é a grade:
+       instruções + paddings do container + respiros. A grade usa o resto.
+       Reduzido para a grade aproveitar a altura disponível (antes sobrava
+       um vazio grande abaixo do tabuleiro). */
+    --board-chrome: clamp(160px, 24svh, 210px);
+
+    /* altura disponível só para a área da grade (sem o "chrome") */
+    --board-h: calc(var(--play-h) - var(--board-chrome));
+
+    /* largura disponível para a área da grade (viewport menos respiros laterais) */
+    --board-w: calc(100vw - 24px);
+
+    /* espaço fixo consumido por gaps + paddings dentro da grade
+       (N-1 gaps + 2*padding da grade + 2*padding do container) */
+    --grid-overhead: calc(
+        (var(--grid-n) - 1) * var(--cell-gap)
+        + 2 * var(--grid-pad)
+        + 2 * var(--container-pad)
+    );
+
+    /* >>> FÓRMULA DO --cell-size <<<
+       cabe na largura E na altura ao mesmo tempo: pega o menor orçamento por
+       célula entre (largura útil / N) e (altura útil / N), descontando o
+       overhead de gaps/paddings, e limita por um teto confortável. */
+    --cell-size: clamp(
+        28px,
+        min(
+            (var(--board-w) - var(--grid-overhead)) / var(--grid-n),
+            (var(--board-h) - var(--grid-overhead)) / var(--grid-n)
+        ),
+        108px
+    );
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* centraliza o conjunto (tabuleiro + instruções) na área útil para não
+       deixar um vazio grande embaixo; combinado com o teto maior de célula
+       e o chrome menor, o tabuleiro preenche melhor o espaço. */
+    justify-content: center;
+    gap: clamp(8px, 1.5svh, 16px);
+    width: 100%;
+    /* height 100svh + padding-top:70 (global) => área de conteúdo = --play-h.
+       (antes era height:var(--play-h) E padding-top:70 -> contagem dupla, que
+       empurrava o tabuleiro para cima encostando no header). */
+    height: 100svh;
+    padding-top: 70px;
+    padding-left: 12px;
+    padding-right: 12px;
+    overflow: hidden;
+}
+
 .container {
     max-width: 520px;
     width: 100%;
 }
 
-/* ===== CABEÇALHO ===== */
+/* ===== CABEÇALHO LOCAL (legado) ===== */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
     flex-wrap: wrap;
     gap: 15px;
 }
@@ -41,22 +99,13 @@ body {
 .back-link {
     color: #00EAFF;
     text-decoration: none;
-    font-size: 16px;
+    font-size: clamp(14px, 2.5vw, 16px);
     transition: opacity 0.2s ease;
 }
 
 .back-link:hover {
     opacity: 0.85;
     color: #a200ff;
-}
-
-h1 {
-    font-size: 36px;
-    font-weight: bold;
-    background: linear-gradient(135deg, #00EAFF, #a200ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 /* ===== PAINÉIS DE INFORMAÇÃO ===== */
@@ -75,35 +124,27 @@ h1 {
 }
 
 .info-label {
-    font-size: 12px;
+    font-size: clamp(10px, 2vw, 12px);
     color: #E0E0E0;
     text-transform: uppercase;
     margin-bottom: 5px;
 }
 
 .info-value {
-    font-size: 24px;
+    font-size: clamp(18px, 4vw, 24px);
     font-weight: bold;
     color: white;
 }
 
-/* ===== BOTÕES DE CONTROLE ===== */
-.controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
+/* ===== BOTÕES DE CONTROLE (dentro do header fixo) ===== */
 .btn {
-    flex: 1;
-    min-width: 100px;
-    padding: 12px 20px;
+    min-width: clamp(60px, 14vw, 100px);
+    padding: clamp(6px, 1.2svh, 10px) clamp(10px, 2.5vw, 18px);
     background: linear-gradient(135deg, #1C2E6C, #3A1F78);
     border: none;
     border-radius: 10px;
     color: white;
-    font-size: 16px;
+    font-size: clamp(12px, 2.6vw, 16px);
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
@@ -127,30 +168,30 @@ h1 {
 .game-container {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 16px;
-    padding: 15px;
+    padding: var(--container-pad);
     position: relative;
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex: 0 0 auto;
 }
 
 /* ===== GRID ===== */
 .grid-container {
     display: grid;
-    gap: 4px;
+    gap: var(--cell-gap);
     background: rgba(0, 0, 0, 0.3);
-    padding: 12px;
+    padding: var(--grid-pad);
     border-radius: 12px;
     position: relative;
-    --cell-size: min(50px, 11vw);
     width: fit-content;
+    touch-action: none; /* preserva drag por pointer/touch — não remover */
 }
 
 /* Célula do grid */
 .cell {
     width: var(--cell-size);
     height: var(--cell-size);
-    min-width: 36px;
-    min-height: 36px;
     background: rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     cursor: pointer;
@@ -200,6 +241,8 @@ h1 {
     justify-content: center;
     z-index: 100;
     animation: fadeIn 0.3s ease;
+    padding: 16px;
+    text-align: center;
 }
 
 @keyframes fadeIn {
@@ -212,7 +255,7 @@ h1 {
 }
 
 .message-title {
-    font-size: 36px;
+    font-size: clamp(24px, 6vw, 36px);
     font-weight: bold;
     margin-bottom: 15px;
     background: linear-gradient(135deg, #00EAFF, #a200ff);
@@ -222,41 +265,74 @@ h1 {
 }
 
 .message-text {
-    font-size: 16px;
+    font-size: clamp(13px, 3vw, 16px);
     color: #E0E0E0;
     margin-bottom: 25px;
 }
 
 /* ===== INSTRUÇÕES ===== */
 .instructions {
-    margin-top: 20px;
     background: rgba(255, 255, 255, 0.05);
-    padding: 15px;
+    padding: clamp(8px, 1.5svh, 15px) 15px;
     border-radius: 12px;
-    font-size: 14px;
+    font-size: clamp(11px, 2.6vw, 14px);
     color: #E0E0E0;
+    max-width: 520px;
+    width: 100%;
+    flex: 0 1 auto;
+    overflow: hidden;
 }
 
 .instructions p {
-    margin: 5px 0;
+    margin: clamp(2px, 0.6svh, 5px) 0;
 }
 
 .instructions strong {
     color: #00EAFF;
 }
 
-/* ===== RESPONSIVO ===== */
-@media (max-width: 600px) {
-    h1 {
-        font-size: 28px;
-    }
-
-    .grid-container {
-        --cell-size: min(44px, 14vw);
-    }
-
-    .cell {
-        min-width: 32px;
-        min-height: 32px;
+/* ===== RESPONSIVO =====
+   Em ≤768px o global.css torna o .game-header relativo (não fixo) e zera o
+   padding-top do .game-shell. A área útil vira ~100svh menos o header relativo,
+   então reservamos menos "chrome" e damos um teto de célula menor. */
+@media (max-width: 768px) {
+    .game-shell {
+        --board-chrome: clamp(120px, 30svh, 220px);
+        /* nessa faixa o header é relativo: a grade divide o que sobra do svh */
+        --board-h: calc(100svh - var(--board-chrome));
+        --cell-size: clamp(
+            26px,
+            min(
+                (var(--board-w) - var(--grid-overhead)) / var(--grid-n),
+                (var(--board-h) - var(--grid-overhead)) / var(--grid-n)
+            ),
+            64px
+        );
+        height: auto;
+        min-height: 100svh;
+        padding-top: 0;            /* mobile: header é relativo, não reservar topo */
+        justify-content: flex-start;
     }
 }
+
+@media (max-width: 600px) {
+    .header {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+
+/* identidade de cor do header (unico override permitido) — flow free (azul/roxo) */
+body {
+    --game-accent: linear-gradient(135deg, #4f46e5, #7c3aed);
+    --game-accent-border: rgba(124,58,237,0.5);
+    /* título no tema do jogo (azul -> índigo) */
+    --gh-title-grad: linear-gradient(90deg, #38bdf8, #818cf8);
+}
+

@@ -1,0 +1,340 @@
+/* =====================================================================
+   DESIGN SYSTEM — HEADER/TOPBAR DOS JOGOS  (fonte única de verdade)
+   Carregado por TODOS os jogos APÓS o CSS local. As propriedades
+   estruturais usam !important para vencer qualquer regra local antiga.
+   A ÚNICA coisa que cada jogo pode variar é a COR, via --game-accent.
+   ---------------------------------------------------------------------
+   Componentes/classes:
+     .game-header   -> barra do topo (Voltar — Título — Ações)
+     .go-back       -> botão voltar (seta)
+     .game-title    -> título centralizado
+     .controls      -> área de ações à direita (alias: .game-actions)
+     .btn-game / button / select -> botões padronizados
+     .game-stat (+ .game-stat-label / .game-stat-value) -> caixas de status
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* tipografia */
+  --gh-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* escala de espaçamento (4 / 8 / 12 / 16 / 24 / 32) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* dimensões fixas do header e botões
+     (70px casa com --header-h/--play-h usados no dimensionamento dos tabuleiros) */
+  --gh-height: 70px;
+  --gh-btn-h: 44px;
+  --gh-radius: 12px;
+
+  /* título */
+  --gh-title-grad: linear-gradient(90deg, #ffdd55, #ff66cc);
+
+  /* cor padrão dos botões (cinza) — cada jogo sobrescreve --game-accent */
+  --game-accent: rgba(255, 255, 255, 0.14);
+  --game-accent-border: rgba(255, 255, 255, 0.26);
+  --game-accent-text: #ffffff;
+}
+
+/* ---------- BARRA ---------- */
+.game-header {
+  box-sizing: border-box !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: var(--gh-height) !important;
+  min-height: var(--gh-height) !important;
+  padding: 0 var(--sp-6) !important;
+  /* GRID de 3 colunas: [voltar | título | ações].
+     As colunas laterais (1fr) têm a MESMA largura -> o título (coluna central
+     auto) fica de fato centralizado na página E nunca sobrepõe os controles
+     (responsivo: o título encolhe/elipsa em vez de passar por cima). */
+  /* FLEX: voltar(auto) | título(cresce, centralizado) | ações(auto).
+     O título é um item flex que ocupa o meio e centraliza o texto — itens flex
+     NUNCA se sobrepõem, então os controles jamais ficam por cima do título. */
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  /* voltar + título à esquerda; controles empurrados à direita (margin-left:auto).
+     Assim o título fica SEMPRE na mesma posição em todos os jogos. */
+  justify-content: flex-start !important;
+  gap: var(--sp-3) !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 9999 !important;
+  font-family: var(--gh-font) !important;
+}
+
+/* ---------- VOLTAR ---------- */
+.game-header .go-back,
+.game-header .c4-back {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  height: var(--gh-btn-h);
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.game-header .go-back:hover,
+.game-header .c4-back:hover { transform: scale(1.12); }
+.game-header .go-back img,
+.game-header .c4-back img { height: 24px !important; width: auto; display: block; }
+
+/* ---------- TÍTULO (sempre centralizado, independente das ações) ---------- */
+.game-header .game-title,
+.game-header .c4-title {
+  /* item flex central: cresce e centraliza o texto; encolhe (elipsa) se faltar
+     espaço, NUNCA sobrepõe os controles. (não mais position:absolute) */
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  /* block + sem crescer: o título fica logo após a seta de voltar, na MESMA
+     posição em todos os jogos (não cresce nem centraliza no espaço variável). */
+  display: block !important;
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  max-width: 60% !important;
+  margin: 0 !important;
+  padding: 6px 0 !important;             /* respiro p/ descendentes (g, p, ç) */
+  overflow: hidden !important;           /* elipsa se faltar espaço, em vez de invadir os controles */
+  text-overflow: ellipsis !important;
+  font-family: var(--gh-font) !important;
+  /* fonte fluida: encolhe em telas menores (notebook) p/ caber sem colidir */
+  font-size: clamp(1.25rem, 2.2vw, 2.6rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1.3 !important;           /* >1 evita corte dos descendentes no clip de texto */
+  white-space: nowrap !important;
+  text-align: left !important;
+  pointer-events: none;
+  background: var(--gh-title-grad) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ---------- ÁREA DE AÇÕES (direita) ---------- */
+.game-header .controls,
+.game-header .game-actions,
+.game-header .c4-controls {
+  flex: 0 0 auto !important;
+  /* empurra os controles para a direita (título fica fixo à esquerda).
+     margin-left:auto absorve todo o espaço livre entre título e controles. */
+  margin: 0 0 0 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: var(--sp-3) !important;          /* 12px entre cada ação */
+  flex-wrap: nowrap !important;
+}
+.game-header .ctrl-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--sp-2) !important;
+}
+
+/* ---------- BOTÕES E SELECTS (mesmo tamanho/forma/fonte em TODOS) ---------- */
+.game-header .btn-game,
+.game-header .controls button,
+.game-header .controls select,
+.game-header .c4-controls button,
+.game-header .c4-controls select,
+.game-header .difficulty-btn,
+.game-header .btn {
+  box-sizing: border-box !important;
+  height: var(--gh-btn-h) !important;
+  min-height: var(--gh-btn-h) !important;
+  padding: 0 18px !important;
+  border-radius: var(--gh-radius) !important;
+  font-family: var(--gh-font) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--sp-2) !important;
+  white-space: nowrap !important;
+  cursor: pointer;
+  border: 1px solid var(--game-accent-border) !important;
+  background: var(--game-accent) !important;
+  color: var(--game-accent-text) !important;
+  backdrop-filter: blur(6px);
+  transition: transform 0.15s ease, filter 0.2s ease !important;
+}
+
+.game-header .controls button:hover:not(:disabled),
+.game-header .controls select:hover,
+.game-header .c4-controls button:hover:not(:disabled),
+.game-header .c4-controls select:hover,
+.game-header .difficulty-btn:hover:not(:disabled),
+.game-header .btn:hover:not(:disabled),
+.game-header .btn-game:hover:not(:disabled) {
+  filter: brightness(1.14);
+  transform: translateY(-1px);
+}
+
+.game-header .controls button:active:not(:disabled),
+.game-header .c4-controls button:active:not(:disabled),
+.game-header .difficulty-btn:active:not(:disabled),
+.game-header .btn:active:not(:disabled),
+.game-header .btn-game:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+.game-header .controls button:disabled,
+.game-header .c4-controls button:disabled,
+.game-header .difficulty-btn:disabled,
+.game-header .btn:disabled,
+.game-header .btn-game:disabled {
+  opacity: 0.42 !important;
+  cursor: not-allowed;
+  transform: none !important;
+  filter: none !important;
+}
+
+.game-header select option { background: #0b1220; color: #fff; }
+
+/* variante "segmentada" (ex.: seletor de dificuldade do Minesweeper):
+   inativo fica neutro, ativo recebe a cor do jogo (--game-accent) */
+.game-header .difficulty-btn:not(.active) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* ---------- LABELS / TEXTO SECUNDÁRIO ---------- */
+.game-header .ctrl-label,
+.game-header .c4-label,
+.game-header .controls > label,
+.game-header .controls > span {
+  font-family: var(--gh-font) !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  opacity: 0.9 !important;
+  color: #e5e7eb !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: var(--sp-2);
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+
+/* ---------- VALORES / ESTATÍSTICAS ---------- */
+.game-header .game-stat,
+.game-header .score-container,
+.game-header .info-panel {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  height: var(--gh-btn-h) !important;
+  padding: 0 var(--sp-3) !important;
+  border-radius: var(--gh-radius) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  min-width: 0 !important;
+}
+
+.game-header .game-stat-label,
+.game-header .score-label,
+.game-header .info-label {
+  font-family: var(--gh-font) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.85 !important;
+  color: #cbd5e1 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+.game-header .game-stat-value,
+.game-header .score-value,
+.game-header .info-value,
+.game-header .controls strong,
+.game-header .controls b {
+  font-family: var(--gh-font) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+
+/* ---------- RESPONSIVO (uniforme para TODOS os jogos) ----------
+   No mobile o header volta ao fluxo (relative) e pode quebrar em 2 linhas,
+   mantendo o modelo responsivo já existente (shells com padding-top:0). */
+@media (max-width: 768px) {
+  .game-header {
+    position: relative !important;
+    height: auto !important;
+    min-height: 56px !important;
+    /* volta a FLEX no mobile p/ poder quebrar em linhas (grid ignora flex-wrap) */
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    row-gap: var(--sp-2) !important;
+  }
+  .game-header .game-title,
+  .game-header .c4-title {
+    position: static !important;
+    transform: none !important;
+    grid-column: auto !important;
+    justify-self: auto !important;
+    order: -1;
+    flex: 1 1 100%;
+    max-width: 100% !important;
+  }
+  .game-header .controls,
+  .game-header .c4-controls {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    margin-left: 0 !important;
+    width: 100%;
+  }
+}
+
+@media (max-width: 860px) {
+  .game-header { padding: 0 var(--sp-4) !important; gap: var(--sp-2) !important; }
+  .game-header .game-title,
+  .game-header .c4-title { font-size: 30px !important; max-width: 100% !important; }
+  .game-header .controls,
+  .game-header .c4-controls { gap: var(--sp-2) !important; }
+  .game-header .controls button,
+  .game-header .controls select,
+  .game-header .c4-controls button,
+  .game-header .c4-controls select,
+  .game-header .difficulty-btn,
+  .game-header .btn,
+  .game-header .btn-game { height: 38px !important; min-height: 38px !important; padding: 0 12px !important; font-size: 14px !important; }
+  .game-header .game-stat,
+  .game-header .score-container,
+  .game-header .info-panel { height: 38px !important; }
+}
+
+@media (max-width: 560px) {
+  .game-header .game-title,
+  .game-header .c4-title { font-size: 24px !important; }
+  .game-header .ctrl-label,
+  .game-header .controls > span { font-size: 14px !important; }
+}

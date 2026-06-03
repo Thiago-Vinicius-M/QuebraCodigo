@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tela de Login</title>
+    <link rel="icon" type="image/png" href="img/home/logoQuebraCodigo.png">
+    <link rel="shortcut icon" type="image/png" href="img/home/logoQuebraCodigo.png">
     <link rel="stylesheet" href="css/login.css">
     <link rel="stylesheet" href="css/animate.css">
 </head>
@@ -43,7 +45,7 @@
                 <nav class="action-list" aria-label="Ações rápidas">
                     <img src="img/login/Google Logo 1.png" alt="Ação 1">
                 </nav>
-                <button type="button" class="forgot-btn slide-left">Esqueci minha senha</button>
+                <a href="forgot-password.html" class="forgot-btn slide-left" id="forgot-link">Esqueci minha senha</a>
             </div>
 
             <div class="login-actions fade-in delay-3">
@@ -56,6 +58,7 @@
 
 </main>
 
+<script src="js/qc-static-base.js"></script>
 <script>
 
     function animateAndGo(url) {
@@ -97,20 +100,26 @@
         }
 
         try {
-            const res = await fetch("/auth/login", {
+            const res = await fetch(qcAuthUrl("/auth/login"), qcAuthFetchInit({
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ usuario, senha })
-            });
+            }));
             const data = await res.json();
 
             if (res.ok) {
-                animateAndGo("index.html");
+                if (window.QC_API_BASE) {
+                    window.location.href = window.QC_API_BASE + "/index.html";
+                } else {
+                    animateAndGo("index.html");
+                }
             } else {
                 showError(data.error || "Erro ao fazer login.");
             }
         } catch (err) {
-            showError("Erro de conexão. Tente novamente.");
+            showError(window.QC_API_BASE
+                ? "Servidor em localhost:8150 não respondeu. Inicie o Spring Boot."
+                : "Erro de conexão. Tente novamente.");
         }
     });
 

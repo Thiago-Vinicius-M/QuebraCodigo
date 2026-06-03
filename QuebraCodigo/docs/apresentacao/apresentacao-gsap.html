@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quebra Código — Apresentação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="apresentacao-gsap.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <div class="slide-num" id="slideNum">1 / 10</div>
+
+  <div id="deck">
+    <!-- 0 -->
+    <section class="slide" data-slide>
+      <p class="logo-mark"><span>//</span> TCC · Plataforma educacional</p>
+      <h1>Quebra Código</h1>
+      <p class="lead">Jogos interativos e trilhas de programação para praticar lógica e desenvolvimento web.</p>
+      <div class="tag-row">
+        <span class="tag">Spring Boot</span>
+        <span class="tag">PostgreSQL</span>
+        <span class="tag">REST API</span>
+        <span class="tag">Front-end vanilla</span>
+      </div>
+    </section>
+
+    <!-- 1 -->
+    <section class="slide" data-slide>
+      <p class="kicker">Problema</p>
+      <h2>Aprender programação pede prática constante</h2>
+      <ul>
+        <li>Conteúdo disperso e pouco engajador para iniciantes.</li>
+        <li>Falta de feedback imediato e sensação de progresso.</li>
+        <li>Dificuldade de unir teoria (cursos) com lógica (jogos) no mesmo lugar.</li>
+      </ul>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-slide>
+      <p class="kicker">Proposta</p>
+      <h2>Uma plataforma web integrada</h2>
+      <p class="lead lead--mb">Um único ambiente com cadastro, trilhas de cursos, minijogos, progresso e gamificação — com API REST no back-end.</p>
+      <div class="tag-row">
+        <span class="tag">Autenticação (sessão)</span>
+        <span class="tag">Ranking &amp; pontos</span>
+        <span class="tag">IA opcional (Gemini)</span>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-slide>
+      <p class="kicker">Stack</p>
+      <h2>Tecnologias principais</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Back-end</h3>
+          <p>Java 21, Spring Boot 3.3, JPA, validação, Flyway, BCrypt, PostgreSQL.</p>
+        </div>
+        <div class="card">
+          <h3>Front-end</h3>
+          <p>HTML5, CSS3, JavaScript (vanilla), layout responsivo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-slide>
+      <p class="kicker">Produto</p>
+      <h2>Jogos e desafios</h2>
+      <ul>
+        <li>Campo minado, Sudoku, Memória, Connect 4, 2048, Flow Free…</li>
+        <li>Quizzes e jogos de lógica (ex.: verdadeiro/falso, semáforo).</li>
+        <li>Experiência pensada para reforçar raciocínio antes da demo ao vivo.</li>
+      </ul>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-slide>
+      <p class="kicker">Produto</p>
+      <h2>Trilhas de programação</h2>
+      <p class="lead">Cursos com lições em sequência (HTML, CSS, JavaScript, Python, Java, C++, TypeScript…), navegação clara e foco no progresso do aluno.</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-slide>
+      <p class="kicker">Arquitetura</p>
+      <h2>API REST</h2>
+      <ul>
+        <li><strong>/auth</strong> — login, cadastro, sessão, perfil.</li>
+        <li><strong>/api</strong> — cursos, lições, jogos, progresso, leaderboard, gamificação.</li>
+        <li><strong>/api/ia</strong> — chat com IA quando configurado (Gemini).</li>
+      </ul>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide slide-demo" data-slide>
+      <p class="kicker">Demo</p>
+      <h2>Mostrar na prática</h2>
+      <p class="lead">Subir a aplicação (<kbd>mvn spring-boot:run</kbd> em <code>app</code>), acessar <strong>localhost:8150</strong> e percorrer fluxo de usuário + um jogo ou curso.</p>
+      <div class="tag-row tag-row--more-top">
+        <span class="tag">Ajustem este slide ao roteiro real da demo</span>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-slide>
+      <p class="kicker">Equipe</p>
+      <h2>Integrantes</h2>
+      <p class="lead">Substitua pelos nomes e responsabilidades de cada pessoa (ex.: back-end, jogos, cursos, UX, documentação).</p>
+      <ul class="team-list">
+        <li>Bryan Loyola — papel</li>
+        <li>Raphael Martins — papel</li>
+        <li>Thiago Vinicius — papel</li>
+        <li>Thomaz Arthur — papel</li>
+        <li>Victor Hugo — papel</li>
+      </ul>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-slide>
+      <p class="kicker">Encerramento</p>
+      <h1>Obrigado</h1>
+      <p class="lead">Quebra Código — plataforma educacional com jogos e trilhas de programação.</p>
+      <p class="lead lead--question">Perguntas?</p>
+    </section>
+  </div>
+
+  <p class="hint"><kbd>→</kbd> <kbd>Space</kbd> avançar · <kbd>←</kbd> voltar · <kbd>Home</kbd> início</p>
+
+  <script src="apresentacao-gsap.js"></script>
+</body>
+</html>

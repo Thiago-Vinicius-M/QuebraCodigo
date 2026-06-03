@@ -5,6 +5,10 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+}
+
 /* ===== Estrutura geral ===== */
 body {
     font-family: 'Roboto', 'Sofia Sans', sans-serif;
@@ -15,8 +19,8 @@ body {
     #1C2E6C 45%,
     #3A1F78 70%,
     #5C2D91 100%);
-    height: 100vh;
-    padding-left: 120px;
+    height: 100svh;
+    padding-left: clamp(72px, 8vw, 120px);
     overflow: hidden;
 }
 
@@ -31,8 +35,9 @@ h2 {
     max-width: 1920px;
     height: 100%;
     margin: 0 auto;
-    padding: 10px 12px;
+    padding: clamp(8px, 1.5vh, 14px) clamp(10px, 1.5vw, 16px);
     position: relative;
+    overflow: hidden;
 }
 
 .container a {
@@ -41,19 +46,26 @@ h2 {
 
 /* ===== Sidebar ===== */
 .sidebar {
+    /* tamanhos unificados de ícone e badge (usados por TODOS os botões) */
+    --side-icon: clamp(30px, 3.6vw, 46px);
+    --side-badge-w: clamp(46px, 5.4vw, 56px);
+    --side-badge-h: clamp(38px, 4.4vw, 44px);
+
     position: fixed;
     top: 0;
     left: 0;
-    width: 100px;
-    min-height: 100vh;
-    max-height: 100vh;
-    padding: 16px 0;
+    width: clamp(72px, 8vw, 100px);
+    height: 100svh;
+    padding: clamp(12px, 2.5vh, 28px) 0 clamp(8px, 1.5vh, 16px);
     background: rgba(0, 0, 0, 0.2);
     z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    /* itens alinhados ao topo com espaçamento fixo e confortável entre eles
+       (sem esticar pela sidebar inteira). */
+    justify-content: flex-start;
+    gap: clamp(10px, 1.8vh, 20px);
     text-align: center;
     overflow-y: auto;
     overflow-x: hidden;
@@ -90,45 +102,75 @@ h2 {
     color: #BABABA;
 }
 
+/* tamanho unificado para TODOS os ícones da sidebar.
+   Os ícones são SVGs de linha (viewBox 24×24, mesma espessura e gradiente
+   neon do sistema) — caixa quadrada igual + brilho neon padronizado para
+   ficarem visualmente idênticos em tamanho e estilo. */
 .sidebar .nav-button img,
-.nav-link .nav-button img {
-    width: 56px;
-    height: 56px;
+.nav-link .nav-button img,
+.nav-button-settings img,
+.nav-button-ia img,
+.profile-button img {
+    width: var(--side-icon);
+    height: var(--side-icon);
     max-width: 100%;
     object-fit: contain;
     pointer-events: none;
-    filter: brightness(150%);
+    filter: drop-shadow(0 0 5px rgba(0, 234, 255, 0.45))
+            drop-shadow(0 0 9px rgba(162, 0, 255, 0.35));
+    transition: filter 0.25s ease, transform 0.25s ease;
 }
 
-/* ===== Viewport e escala (caber na tela sem scroll) ===== */
+/* leve realce ao passar o mouse */
+.nav-button:hover img,
+.nav-link:hover img,
+.nav-button-settings:hover img,
+.nav-button-ia:hover img,
+.profile-button:hover img {
+    filter: drop-shadow(0 0 7px rgba(0, 234, 255, 0.7))
+            drop-shadow(0 0 12px rgba(162, 0, 255, 0.55));
+    transform: scale(1.06);
+}
+
+/* ===== Viewport (layout fluido — substitui o antigo hack de transform:scale) ===== */
 .content-viewport {
     flex: 1;
     min-height: 0;
     width: 100%;
     overflow: hidden;
     position: relative;
+    display: flex;
 }
 
 .content-scalable {
-    position: absolute;
-    left: 0;
-    top: 0;
-    transform-origin: top left;
+    position: static;
+    transform: none;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ===== Conteúdo principal ===== */
 .content {
+    flex: 1;
     width: 100%;
     max-width: 100%;
     padding: 0;
-    overflow-x: hidden;
+    overflow: hidden;
     min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2px, 0.8vh, 8px);
 }
 
 .content > span {
-    font-size: 30px;
+    font-size: clamp(18px, 2.6vw, 30px);
     margin-bottom: 4px;
     display: block;
+    flex: none;
 }
 
 .content t {
@@ -143,19 +185,21 @@ h2 {
 .welcome-section {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: clamp(8px, 1.2vw, 12px);
     position: relative;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 18px;
     margin-top: 2px;
-    padding: 6px 10px;
+    padding: clamp(4px, 1vh, 8px) clamp(8px, 1.2vw, 12px);
+    flex: none;
 }
 
 .welcome-section img {
-    width: 160px;
-    height: 160px;
+    width: clamp(88px, 13vh, 160px);
+    height: clamp(88px, 13vh, 160px);
     border-radius: 18px;
     backdrop-filter: blur(20px);
+    flex: none;
 }
 
 .welcome-section footer {
@@ -176,27 +220,27 @@ h2 {
 }
 
 .lesson-info h2 {
-    font-size: 20px;
+    font-size: clamp(15px, 2vw, 20px);
     font-weight: 500;
 }
 
 .lesson-info p {
     margin-top: 4px;
-    font-size: 15px;
+    font-size: clamp(12px, 1.5vw, 15px);
     color: #E0E0E0;
 }
 
 .lesson-info span {
     color: #00EAFF;
-    font-size: 20px;
+    font-size: clamp(15px, 2vw, 20px);
 }
 
 .lesson-info a1 {
     margin-top: 6px;
     display: block;
     width: 100%;
-    font-size: 15px;
-    line-height: 1.35;
+    font-size: clamp(11px, 1.4vw, 15px);
+    line-height: 1.3;
 }
 
 .welcome-text {
@@ -227,13 +271,14 @@ h2 {
 }
 
 .continue-button {
-    padding: 10px 20px;
-    font-size: 14px;
+    padding: clamp(6px, 1vh, 10px) clamp(12px, 1.6vw, 20px);
+    font-size: clamp(12px, 1.3vw, 14px);
     background: linear-gradient(135deg, #1C2E6C, #3A1F78);
     border: none;
     border-radius: 8px;
     color: white;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .continue-button:hover {
@@ -241,28 +286,41 @@ h2 {
 }
 /* ===== Seções de cards ===== */
 .cards-section {
-    margin-bottom: 10px;
+    margin-bottom: 0;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .cards-section h2 {
-    font-size: 36px;
+    font-size: clamp(18px, 3vw, 36px);
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: clamp(4px, 1vh, 10px);
+    flex: none;
 }
 
 /* Cursos: mesmo tamanho e peso do título Jogos */
 .content > h2 {
-    font-size: 36px;
+    font-size: clamp(18px, 3vw, 36px);
     font-weight: 600;
-    margin-top: 8px;
-    margin-bottom: 10px;
+    margin-top: clamp(2px, 0.8vh, 8px);
+    margin-bottom: clamp(4px, 1vh, 10px);
+    flex: none;
 }
 
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 14px;
+    gap: clamp(6px, 1vw, 14px);
     width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    /* os cards têm a altura do conteúdo (ícone + rótulo); a linha é
+       dimensionada pelo conteúdo e CENTRALIZADA na faixa disponível,
+       em vez de esticar e deixar o card cinza gigante. */
+    align-content: center;
+    justify-items: center;
 }
 
 /* ===== Seção de cursos (inspirada no W3Schools) ===== */
@@ -389,31 +447,50 @@ h2 {
     border-radius: 20px;
     backdrop-filter: blur(40px);
     text-align: center;
-    padding: 10px 12px;
+    padding: clamp(10px, 1.6vh, 18px) clamp(8px, 1vw, 14px);
     transition: transform 0.3s ease, background 0.3s ease;
     cursor: pointer;
+    /* card compacto: largura cheia da coluna, mas a ALTURA passa a ser a do
+       conteúdo (ícone + rótulo) — antes esticava p/ preencher a tela toda,
+       deixando o card cinza enorme em relação ao ícone. */
     width: 100%;
+    height: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(4px, 0.8vh, 8px);
 }
 
 .card-button img {
-    width: 120px;
-    height: 120px;
-    margin-bottom: 6px;
+    width: auto;
+    height: 100%;
+    max-height: clamp(56px, 12vh, 120px);
+    max-width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    margin-bottom: 0;
     border-radius: 14px;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 /* Cursos: preservar proporção dos logos (ex: Java) */
 .course-zoom img {
     width: auto;
-    height: 120px;
+    height: 100%;
+    max-height: clamp(56px, 12vh, 120px);
+    aspect-ratio: auto;
     object-fit: contain;
 }
 
 .card-button p {
     font-family: 'Bungee Inline', sans-serif;
-    font-size: 16px;
+    font-size: clamp(11px, 1.4vw, 16px);
     color: white;
     margin: 0;
+    flex: none;
 }
 
 .card-button:hover {
@@ -441,7 +518,7 @@ h2 {
 
 .nav-button:hover .nav-bg,
 .nav-link:hover .nav-bg {
-    background-color: rgb(225, 219, 219);
+    background-color: rgba(255, 255, 255, 0.12);
 }
 
 .nav-button span {
@@ -465,11 +542,12 @@ h2 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 56px;
-    height: 44px;
+    width: var(--side-badge-w);
+    height: var(--side-badge-h);
     border-radius: 16px;
-    background: rgba(229, 227, 227, 0.487);
-    backdrop-filter: blur(12px);
+    /* sem fundo atrás dos ícones (pedido); realce só no hover */
+    background: transparent;
+    backdrop-filter: none;
     z-index: -1;
     transition: 0.25s ease;
 }
@@ -487,14 +565,7 @@ h2 {
 }
 
 .nav-button-settings:hover .nav-bg {
-    background-color: rgb(225, 219, 219);
-}
-
-.nav-button-settings img {
-    width: 56px;
-    height: 56px;
-    object-fit: contain;
-    filter: brightness(150%);
+    background-color: rgba(255, 255, 255, 0.12);
 }
 
 .nav-button-settings span {
@@ -519,13 +590,6 @@ h2 {
     position: relative;
 }
 
-.nav-button-ia img {
-    width: 56px;
-    height: 56px;
-    object-fit: contain;
-    filter: brightness(150%);
-}
-
 .nav-button-ia span {
     font-size: 12px;
     color: #ffffff;
@@ -542,11 +606,12 @@ h2 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 56px;
-    height: 44px;
+    width: var(--side-badge-w);
+    height: var(--side-badge-h);
     border-radius: 16px;
-    background: rgba(229, 227, 227, 0.487);
-    backdrop-filter: blur(12px);
+    /* sem fundo atrás do ícone (pedido); realce só no hover */
+    background: transparent;
+    backdrop-filter: none;
     z-index: -1;
     transition: 0.25s ease;
 }
@@ -557,26 +622,23 @@ h2 {
     border: none;
     font-size: 12px;
     cursor: pointer;
-    padding: 8px;
+    padding: 10px;
     border-radius: 8px;
     transition: opacity 0.3s ease, background 0.3s ease, color 0.3s ease;
-    margin-bottom: 10px;
     line-height: 1.2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .profile-button:hover .nav-bg-editarPerfil {
-    background-color: rgb(225, 219, 219);
+    background-color: rgba(255, 255, 255, 0.12);
 }
 
 .profile-button:active {
     transform: scale(0.95);
 }
 
-.profile-button img {
-    height: 56px;
-    width: 56px;
-    object-fit: contain;
-}
 
 .profile-modal,
 .settings-modal {
@@ -736,7 +798,12 @@ h2 {
 }
 
 body.theme-contrast {
-    background: linear-gradient(180deg, #000 0%, #0a0a0a 40%, #171717 100%);
+    background:
+        radial-gradient(900px 500px at 85% -5%, rgba(139, 92, 246, 0.18), transparent 60%),
+        radial-gradient(800px 500px at -10% 110%, rgba(0, 234, 255, 0.10), transparent 60%),
+        radial-gradient(1100px 700px at 50% 50%, rgba(28, 46, 108, 0.25), transparent 70%),
+        linear-gradient(180deg, #05060F 0%, #07091A 35%, #0A0D24 70%, #0C0F2C 100%);
+    background-attachment: fixed;
 }
 body.glass-off .card-button,
 body.glass-off .welcome-section {
@@ -755,76 +822,36 @@ body.animations-off *::after {
 }
 
 /* ===== Responsividade ===== */
-@media (max-width: 1024px) {
-    body {
-        padding-left: 0;
-        overflow-y: auto;
-        min-height: 100vh;
-        height: auto;
-    }
-
-    .sidebar {
-        position: static;
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        justify-content: space-around;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 16px;
-        padding: 10px 0;
-        max-height: none;
-    }
-
-    .container {
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        height: auto;
-    }
-
-    .content-viewport {
-        overflow-y: visible;
-        flex: none;
-    }
-
-    .content-scalable {
-        position: static;
-        transform: none !important;
-        width: 100% !important;
-        height: auto !important;
-    }
-
-    .content {
-        padding: 20px 0 0;
-    }
-
+/* O layout fluido (clamp + vh) já cabe sem scroll na maioria das telas.
+   Em telas estreitas mantemos a sidebar vertical compacta e não
+   reintroduzimos scroll — apenas comprimimos espaçamentos. */
+@media (max-width: 768px) {
     .welcome-section {
-        flex-direction: column;
-        text-align: center;
+        /* mantém lado a lado mas pode comprimir a imagem */
+        gap: 8px;
     }
 
     .welcome-section img {
-        width: 150px;
-        height: 150px;
+        width: clamp(72px, 18vw, 120px);
+        height: clamp(72px, 18vw, 120px);
     }
 
     .cards-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 15px;
+        gap: clamp(5px, 1.5vw, 10px);
     }
 
-    .card-button img {
-        width: 100px;
-        height: 100px;
-    }
-
-    .course-zoom img {
-        height: 100px;
-    }
-
-    .settings-modal-panel {
-        max-width: 96vw;
-        max-height: 90vh;
+    .settings-modal-panel,
+    .profile-modal-panel {
+        max-width: 94vw;
+        max-height: 88svh;
         padding: 16px;
+    }
+}
+
+/* Telas muito baixas (paisagem em celular): esconde o card de lição
+   para garantir que Jogos + Cursos caibam sem scroll. */
+@media (max-height: 520px) {
+    .welcome-section {
+        display: none;
     }
 }
