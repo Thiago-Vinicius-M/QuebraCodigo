@@ -1,352 +1,266 @@
-// ===== CLASSE PRINCIPAL DO JOGO =====
-class Game2048 {
-    constructor() {
-        // CONFIGURAÇÕES BÁSICAS
-        this.size = 4; // Grid 4x4
-        this.grid = []; // Array 2D que armazena os números
-        this.score = 0; // Pontuação atual
-        this.bestScore = parseInt(localStorage.getItem('best2048')) || 0; // Melhor pontuação salva
-        this.previousState = null; // Estado anterior (para desfazer)
-        this.gameOver = false; // Flag de fim de jogo
-        this.won = false; // Flag de vitória (chegou em 2048)
+const { useState, useEffect, useRef, useCallback } = React;
 
-        // REFERÊNCIAS AOS ELEMENTOS HTML
-        this.gridContainer = document.getElementById('gridContainer');
-        this.scoreElement = document.getElementById('score');
-        this.bestElement = document.getElementById('best');
-        this.undoBtn = document.getElementById('undoBtn');
-        this.restartBtn = document.getElementById('restartBtn');
-        this.tryAgainBtn = document.getElementById('tryAgainBtn');
-        this.gameMessage = document.getElementById('gameMessage');
-        this.messageTitle = document.getElementById('messageTitle');
-        this.messageText = document.getElementById('messageText');
+const SIZE = 4;
+const PADDING = 15;
+const GAP = 15;
 
-        // INICIA O JOGO
-        this.init();
-    }
+/* ---------------------------------------------------------------------------
+   Modelo baseado em PEÇAS com identidade (id) persistente.
+   Cada peça é { id, r, c, value, isNew, merged }. Como a key do React é o id
+   (e não a posição), a MESMA célula do DOM é reaproveitada entre jogadas:
+   só mudam left/top -> a transition do CSS faz o deslize. Sem isso o React
+   trocava o elemento e a peça apenas aparecia/sumia no destino.
+--------------------------------------------------------------------------- */
 
-    // ===== INICIALIZAÇÃO =====
-    init() {
-        // Cria grid vazio 4x4 (todos zeros)
-        this.grid = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
+let _tileId = 0;
+const nextId = () => ++_tileId;
 
-        // Reseta variáveis
-        this.score = 0;
-        this.gameOver = false;
-        this.won = false;
-        this.previousState = null;
+const VECTORS = {
+  up:    { r: -1, c: 0 },
+  down:  { r: 1,  c: 0 },
+  left:  { r: 0,  c: -1 },
+  right: { r: 0,  c: 1 },
+};
 
-        // Adiciona 2 peças iniciais aleatórias
-        this.addRandomTile();
-        this.addRandomTile();
-
-        // Atualiza interface
-        this.updateScore();
-        this.updateBestScore();
-        this.render();
-        this.setupEventListeners();
-        this.updateUndoButton();
-    }
-
-    // ===== CONFIGURAÇÃO DE EVENTOS =====
-    setupEventListeners() {
-        // Remove listeners antigos (previne duplicação)
-        // Clonamos os botões para limpar todos os eventos
-        const newRestartBtn = this.restartBtn.cloneNode(true);
-        this.restartBtn.parentNode.replaceChild(newRestartBtn, this.restartBtn);
-        this.restartBtn = newRestartBtn;
-
-        const newUndoBtn = this.undoBtn.cloneNode(true);
-        this.undoBtn.parentNode.replaceChild(newUndoBtn, this.undoBtn);
-        this.undoBtn = newUndoBtn;
-
-        const newTryAgainBtn = this.tryAgainBtn.cloneNode(true);
-        this.tryAgainBtn.parentNode.replaceChild(newTryAgainBtn, this.tryAgainBtn);
-        this.tryAgainBtn = newTryAgainBtn;
-
-        // EVENTO: Teclas do teclado (↑↓←→)
-        document.addEventListener('keydown', (e) => this.handleKeyPress(e));
-
-        // EVENTO: Cliques nos botões
-        this.restartBtn.addEventListener('click', () => this.restart());
-        this.undoBtn.addEventListener('click', () => this.undo());
-        this.tryAgainBtn.addEventListener('click', () => this.restart());
-    }
-
-    // ===== HANDLER DE TECLAS =====
-    handleKeyPress(e) {
-        if (this.gameOver) return; // Não faz nada se jogo acabou
-
-        const key = e.key;
-        let moved = false;
-
-        // Detecta qual seta foi pressionada
-        if (key === 'ArrowUp') {
-            e.preventDefault(); // Previne scroll da página
-            moved = this.move('up');
-        } else if (key === 'ArrowDown') {
-            e.preventDefault();
-            moved = this.move('down');
-        } else if (key === 'ArrowLeft') {
-            e.preventDefault();
-            moved = this.move('left');
-        } else if (key === 'ArrowRight') {
-            e.preventDefault();
-            moved = this.move('right');
-        }
-
-        // Se houve movimento válido
-        if (moved) {
-            this.addRandomTile(); // Adiciona nova peça
-            this.render(); // Redesenha o grid
-            this.updateScore(); // Atualiza pontuação
-            this.checkGameState(); // Verifica vitória/derrota
-        }
-    }
-
-    // ===== SALVAR ESTADO (PARA DESFAZER) =====
-    saveState() {
-        // Clona o grid e pontuação atual
-        this.previousState = {
-            grid: this.grid.map(row => [...row]), // Deep copy
-            score: this.score
-        };
-        this.updateUndoButton();
-    }
-
-    // ===== DESFAZER ÚLTIMA JOGADA =====
-    undo() {
-        if (!this.previousState) return; // Nada para desfazer
-
-        // Restaura estado anterior
-        this.grid = this.previousState.grid;
-        this.score = this.previousState.score;
-        this.previousState = null;
-        this.gameOver = false;
-
-        this.hideMessage();
-        this.render();
-        this.updateScore();
-        this.updateUndoButton();
-    }
-
-    // ===== ATUALIZA ESTADO DO BOTÃO DESFAZER =====
-    updateUndoButton() {
-        // Desabilita se não há estado anterior
-        this.undoBtn.disabled = !this.previousState;
-    }
-
-    // ===== LÓGICA DE MOVIMENTO =====
-    // Esta é a parte mais complexa!
-    move(direction) {
-        this.saveState(); // Salva estado antes de mover
-        let moved = false;
-
-        // FUNÇÃO AUXILIAR: Rotaciona o grid 90° sentido horário
-        // Usamos rotação para simplificar a lógica:
-        // - Sempre processamos para CIMA
-        // - Rotacionamos o grid conforme a direção desejada
-        const rotateGrid = (grid) => {
-            const newGrid = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
-            for (let i = 0; i < this.size; i++) {
-                for (let j = 0; j < this.size; j++) {
-                    newGrid[j][this.size - 1 - i] = grid[i][j];
-                }
-            }
-            return newGrid;
-        };
-
-        // Quantas rotações precisamos?
-        // Rotação horária: processamos sempre "para a esquerda" no grid rotacionado.
-        // Com 1 rot: borda de BAIXO vira esquerda → move DOWN. Com 3 rot: borda de CIMA vira esquerda → move UP.
-        let rotations = 0;
-        if (direction === 'up') rotations = 3;    // cima vira esquerda com 3 rot
-        else if (direction === 'right') rotations = 2; // direita vira esquerda com 2 rot
-        else if (direction === 'down') rotations = 1;  // baixo vira esquerda com 1 rot
-        // 'left' = 0 rotações (esquerda já é esquerda)
-
-        // Rotaciona o grid
-        for (let i = 0; i < rotations; i++) {
-            this.grid = rotateGrid(this.grid);
-        }
-
-        // PROCESSA CADA LINHA (agora processando "para cima")
-        for (let i = 0; i < this.size; i++) {
-            // Remove zeros (empurra peças para cima)
-            const row = this.grid[i].filter(x => x !== 0);
-            const merged = [];
-
-            // Junta peças iguais adjacentes
-            for (let j = 0; j < row.length; j++) {
-                if (j < row.length - 1 && row[j] === row[j + 1]) {
-                    // Peças iguais: junta (dobra o valor)
-                    merged.push(row[j] * 2);
-                    this.score += row[j] * 2; // Adiciona pontos
-                    j++; // Pula a próxima (já foi juntada)
-                } else {
-                    // Peça normal: adiciona sem mudança
-                    merged.push(row[j]);
-                }
-            }
-
-            // Preenche com zeros no final
-            while (merged.length < this.size) {
-                merged.push(0);
-            }
-
-            // Verifica se a linha mudou (houve movimento)
-            if (JSON.stringify(this.grid[i]) !== JSON.stringify(merged)) {
-                moved = true;
-            }
-            this.grid[i] = merged;
-        }
-
-        // Desfaz as rotações (volta grid à orientação original)
-        for (let i = 0; i < (4 - rotations) % 4; i++) {
-            this.grid = rotateGrid(this.grid);
-        }
-
-        // Se não houve movimento, descarta o estado salvo
-        if (!moved) {
-            this.previousState = null;
-            this.updateUndoButton();
-        }
-
-        return moved;
-    }
-
-    // ===== ADICIONA PEÇA ALEATÓRIA =====
-    addRandomTile() {
-        // Encontra células vazias
-        const emptyCells = [];
-        for (let i = 0; i < this.size; i++) {
-            for (let j = 0; j < this.size; j++) {
-                if (this.grid[i][j] === 0) {
-                    emptyCells.push({ i, j });
-                }
-            }
-        }
-
-        // Se há células vazias, adiciona peça
-        if (emptyCells.length > 0) {
-            const { i, j } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            // 90% chance de ser 2, 10% chance de ser 4
-            this.grid[i][j] = Math.random() < 0.9 ? 2 : 4;
-        }
-    }
-
-    // ===== RENDERIZA O GRID NA TELA =====
-    render() {
-        // Remove todas as tiles antigas
-        const oldTiles = this.gridContainer.querySelectorAll('.tile');
-        oldTiles.forEach(tile => tile.remove());
-
-        // Mesmos valores do CSS do grid (padding e gap)
-        const padding = 15;
-        const gap = 15;
-        const contentWidth = this.gridContainer.offsetWidth - 2 * padding;
-        const contentHeight = this.gridContainer.offsetHeight - 2 * padding;
-        // Tamanho da célula: espaço total menos os gaps, dividido pelo número de linhas/colunas
-        const cellSize = Math.min(
-            (contentWidth - (this.size - 1) * gap) / this.size,
-            (contentHeight - (this.size - 1) * gap) / this.size
-        );
-
-        // Cria novas tiles baseadas no grid
-        for (let i = 0; i < this.size; i++) {
-            for (let j = 0; j < this.size; j++) {
-                const value = this.grid[i][j];
-
-                // Só cria tile se valor não for zero
-                if (value !== 0) {
-                    const tile = document.createElement('div');
-                    tile.className = `tile tile-${value}`; // Classe define cor
-                    tile.textContent = value;
-
-                    // Posiciona exatamente sobre a célula do grid (mesma lógica do CSS Grid + gap)
-                    tile.style.width = `${cellSize}px`;
-                    tile.style.height = `${cellSize}px`;
-                    tile.style.left = `${padding + j * (cellSize + gap)}px`;
-                    tile.style.top = `${padding + i * (cellSize + gap)}px`;
-
-                    this.gridContainer.appendChild(tile);
-                }
-            }
-        }
-    }
-
-    // ===== ATUALIZA PONTUAÇÃO =====
-    updateScore() {
-        this.scoreElement.textContent = this.score;
-
-        // Atualiza melhor pontuação se necessário
-        if (this.score > this.bestScore) {
-            this.bestScore = this.score;
-            this.updateBestScore();
-            localStorage.setItem('best2048', this.bestScore); // Salva no navegador
-        }
-    }
-
-    updateBestScore() {
-        this.bestElement.textContent = this.bestScore;
-    }
-
-    // ===== VERIFICA ESTADO DO JOGO =====
-    checkGameState() {
-        // VERIFICA VITÓRIA (alcançou 2048)
-        if (!this.won) {
-            for (let i = 0; i < this.size; i++) {
-                for (let j = 0; j < this.size; j++) {
-                    if (this.grid[i][j] === 2048) {
-                        this.won = true;
-                        this.showMessage('Você Venceu! 🎉', `Parabéns! Pontuação: ${this.score}`);
-                        return;
-                    }
-                }
-            }
-        }
-
-        // VERIFICA GAME OVER
-        // 1. Se há célula vazia, jogo continua
-        const hasEmptyCell = this.grid.some(row => row.includes(0));
-        if (hasEmptyCell) return;
-
-        // 2. Verifica se ainda há movimentos possíveis
-        let canMove = false;
-        for (let i = 0; i < this.size; i++) {
-            for (let j = 0; j < this.size; j++) {
-                const current = this.grid[i][j];
-                // Verifica adjacentes horizontais e verticais
-                if (j < this.size - 1 && current === this.grid[i][j + 1]) canMove = true;
-                if (i < this.size - 1 && current === this.grid[i + 1][j]) canMove = true;
-            }
-        }
-
-        // Se não pode mover, game over
-        if (!canMove) {
-            this.gameOver = true;
-            this.showMessage('Game Over!', `Pontuação final: ${this.score}`);
-        }
-    }
-
-    // ===== MOSTRA MENSAGEM =====
-    showMessage(title, text) {
-        this.messageTitle.textContent = title;
-        this.messageText.textContent = text;
-        this.gameMessage.classList.add('show');
-    }
-
-    // ===== ESCONDE MENSAGEM =====
-    hideMessage() {
-        this.gameMessage.classList.remove('show');
-    }
-
-    // ===== REINICIA O JOGO =====
-    restart() {
-        this.hideMessage();
-        this.init();
-    }
+function emptyGrid() {
+  return Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
 }
 
-// ===== INICIA O JOGO QUANDO A PÁGINA CARREGA =====
-const game = new Game2048();
+function tilesToGrid(tiles) {
+  const g = emptyGrid();
+  tiles.forEach(t => { g[t.r][t.c] = t; });
+  return g;
+}
+
+function buildTraversals(vector) {
+  const rs = [], cs = [];
+  for (let i = 0; i < SIZE; i++) { rs.push(i); cs.push(i); }
+  // processa primeiro as peças mais próximas da parede para onde estão indo
+  if (vector.r === 1) rs.reverse();
+  if (vector.c === 1) cs.reverse();
+  return { rs, cs };
+}
+
+function findFarthest(grid, r, c, vector) {
+  let pr = r, pc = c;
+  let nr = r + vector.r, nc = c + vector.c;
+  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && !grid[nr][nc]) {
+    pr = nr; pc = nc;
+    nr += vector.r; nc += vector.c;
+  }
+  return { farR: pr, farC: pc, nextR: nr, nextC: nc };
+}
+
+function addRandomTile(tiles) {
+  const grid = tilesToGrid(tiles);
+  const empty = [];
+  for (let i = 0; i < SIZE; i++)
+    for (let j = 0; j < SIZE; j++)
+      if (!grid[i][j]) empty.push([i, j]);
+  if (!empty.length) return tiles;
+  const [i, j] = empty[Math.floor(Math.random() * empty.length)];
+  return [...tiles, { id: nextId(), r: i, c: j, value: Math.random() < 0.9 ? 2 : 4, isNew: true, merged: false }];
+}
+
+/* Aplica o movimento mantendo o id das peças que deslizam.
+   No merge, a peça que se move (mais distante da parede) mantém o id e desliza
+   até a célula de destino, dobrando de valor (animação "pop"); a peça que já
+   estava lá é consumida (removida) — fica escondida sob a que chega. */
+function moveTiles(prevTiles, dir) {
+  const vector = VECTORS[dir];
+  const grid = emptyGrid();
+  prevTiles.forEach(t => { grid[t.r][t.c] = { ...t, isNew: false, merged: false }; });
+
+  const { rs, cs } = buildTraversals(vector);
+  let moved = false;
+  let scoreGain = 0;
+
+  rs.forEach(r => cs.forEach(c => {
+    const tile = grid[r][c];
+    if (!tile) return;
+    const { farR, farC, nextR, nextC } = findFarthest(grid, r, c, vector);
+    const inBounds = nextR >= 0 && nextR < SIZE && nextC >= 0 && nextC < SIZE;
+    const next = inBounds ? grid[nextR][nextC] : null;
+
+    if (next && next.value === tile.value && !next.merged) {
+      // merge: a peça atual desliza para a célula de `next` e dobra
+      grid[nextR][nextC] = { id: tile.id, r: nextR, c: nextC, value: tile.value * 2, isNew: false, merged: true };
+      grid[r][c] = null;
+      scoreGain += tile.value * 2;
+      moved = true;
+    } else {
+      grid[r][c] = null;
+      grid[farR][farC] = { ...tile, r: farR, c: farC };
+      if (farR !== r || farC !== c) moved = true;
+    }
+  }));
+
+  const tiles = [];
+  for (let i = 0; i < SIZE; i++)
+    for (let j = 0; j < SIZE; j++)
+      if (grid[i][j]) tiles.push(grid[i][j]);
+
+  return { tiles, moved, scoreGain };
+}
+
+function detectState(tiles, alreadyWon) {
+  const grid = tilesToGrid(tiles);
+  if (!alreadyWon)
+    for (let i = 0; i < SIZE; i++)
+      for (let j = 0; j < SIZE; j++)
+        if (grid[i][j] && grid[i][j].value === 2048) return 'won';
+  for (let i = 0; i < SIZE; i++)
+    for (let j = 0; j < SIZE; j++) {
+      if (!grid[i][j]) return 'playing';
+      const v = grid[i][j].value;
+      if (j + 1 < SIZE && grid[i][j + 1] && grid[i][j + 1].value === v) return 'playing';
+      if (i + 1 < SIZE && grid[i + 1][j] && grid[i + 1][j].value === v) return 'playing';
+    }
+  return 'over';
+}
+
+function initTiles() {
+  let t = [];
+  t = addRandomTile(t);
+  t = addRandomTile(t);
+  return t;
+}
+
+function Game2048() {
+  const [tiles, setTiles] = useState(initTiles);
+  const [score, setScore] = useState(0);
+  const [bestScore, setBestScore] = useState(() => parseInt(localStorage.getItem('best2048')) || 0);
+  const [prevState, setPrevState] = useState(null);
+  const [won, setWon] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const [containerW, setContainerW] = useState(0);
+  const gridRef = useRef(null);
+
+  useEffect(() => {
+    if (!gridRef.current) return;
+    const obs = new ResizeObserver(() => {
+      if (gridRef.current) setContainerW(gridRef.current.offsetWidth);
+    });
+    obs.observe(gridRef.current);
+    setContainerW(gridRef.current.offsetWidth);
+    return () => obs.disconnect();
+  }, []);
+
+  const handleMove = useCallback((direction) => {
+    if (msg && msg.type === 'over') return;
+    const { tiles: movedTiles, moved, scoreGain } = moveTiles(tiles, direction);
+    if (!moved) return;
+
+    setPrevState({ tiles, score });
+
+    const withTile = addRandomTile(movedTiles);
+    const newScore = score + scoreGain;
+    setScore(newScore);
+    if (newScore > bestScore) {
+      setBestScore(newScore);
+      localStorage.setItem('best2048', newScore);
+    }
+    setTiles(withTile);
+
+    const state = detectState(withTile, won);
+    if (state === 'won' && !won) {
+      setWon(true);
+      setMsg({ type: 'won', title: 'Você Venceu! 🎉', text: `Parabéns! Pontuação: ${newScore}` });
+    } else if (state === 'over') {
+      setMsg({ type: 'over', title: 'Game Over!', text: `Pontuação final: ${newScore}` });
+    }
+  }, [msg, tiles, score, bestScore, won]);
+
+  useEffect(() => {
+    const dirs = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' };
+    const handler = e => {
+      if (dirs[e.key]) { e.preventDefault(); handleMove(dirs[e.key]); }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [handleMove]);
+
+  const restart = () => {
+    setTiles(initTiles());
+    setScore(0);
+    setPrevState(null);
+    setWon(false);
+    setMsg(null);
+  };
+
+  const undo = () => {
+    if (!prevState) return;
+    setTiles(prevState.tiles.map(t => ({ ...t, isNew: false, merged: false })));
+    setScore(prevState.score);
+    setPrevState(null);
+    setMsg(null);
+  };
+
+  const cellSize = containerW > 0
+    ? (containerW - 2 * PADDING - (SIZE - 1) * GAP) / SIZE
+    : 0;
+
+  return (
+    <div className="game-shell">
+      <header className="game-header">
+        <a
+          href="/index.html"
+          className="go-back"
+          aria-label="Voltar"
+          onClick={e => { e.preventDefault(); window.location.href = '/index.html'; }}
+        >
+          <img src="../img/topbar/setaVoltar.png" alt="Botão retornar para a Home" />
+        </a>
+        <h1 className="game-title" style={{ pointerEvents: 'none' }}>2048</h1>
+        <div className="controls">
+          <div className="score-container">
+            <div className="score-label">Pontos</div>
+            <div className="score-value">{score}</div>
+          </div>
+          <div className="score-container">
+            <div className="score-label">Melhor</div>
+            <div className="score-value">{bestScore}</div>
+          </div>
+          <button className="btn" onClick={undo} disabled={!prevState}>↶ Desfazer</button>
+          <button className="btn" onClick={restart}>⟳ Reiniciar</button>
+        </div>
+      </header>
+
+      <div className="game-container">
+        <div className="grid-container" ref={gridRef}>
+          {Array(SIZE * SIZE).fill(0).map((_, k) => <div key={k} className="grid-cell" />)}
+          {cellSize > 0 && tiles.map(({ id, r, c, value, isNew, merged }) => (
+            <div
+              key={id}
+              className={`tile tile-${value}${isNew ? ' tile-new' : ''}${merged ? ' merged' : ''}`}
+              style={{
+                width: cellSize,
+                height: cellSize,
+                left: PADDING + c * (cellSize + GAP),
+                top: PADDING + r * (cellSize + GAP),
+              }}
+            >
+              {value}
+            </div>
+          ))}
+        </div>
+
+        {msg && (
+          <div className="game-message show">
+            <div className="message-title">{msg.title}</div>
+            <div className="message-text">{msg.text}</div>
+            <button className="btn-action" onClick={restart}>Jogar Novamente</button>
+          </div>
+        )}
+      </div>
+
+      <div className="instructions">
+        <p>Use as setas <span className="key-hint">↑</span> <span className="key-hint">↓</span> <span className="key-hint">←</span> <span className="key-hint">→</span> para mover</p>
+        <p>Quando você pressiona uma seta, <strong>TODAS as peças</strong> se movem naquela direção!</p>
+        <p>Junte números iguais para somar e chegar em <strong>2048</strong>!</p>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Game2048 />);

@@ -3,6 +3,7 @@ package br.com.user.model;
 import br.com.user.model.enums.Role;
 import br.com.user.model.enums.SubscriptionStatus;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -34,6 +35,13 @@ public class Usuario extends BaseEntity {
     @Column(name = "senha_hash")
     private String senhaHash;
 
+    @Size(max = 120)
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expira_em")
+    private LocalDateTime resetTokenExpiraEm;
+
     /** Nome da coluna evita "role", palavra reservada no PostgreSQL. */
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false)
@@ -62,6 +70,10 @@ public class Usuario extends BaseEntity {
     public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
     public String getSenhaHash() { return senhaHash; }
     public void setSenhaHash(String senhaHash) { this.senhaHash = senhaHash; }
+    public String getResetToken() { return resetToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+    public LocalDateTime getResetTokenExpiraEm() { return resetTokenExpiraEm; }
+    public void setResetTokenExpiraEm(LocalDateTime resetTokenExpiraEm) { this.resetTokenExpiraEm = resetTokenExpiraEm; }
     public Role getRole() {return role;}
     public void setRole(Role role) {this.role = role;}
     public int getPontos() {return pontos;}

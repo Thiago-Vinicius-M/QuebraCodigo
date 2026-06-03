@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    min-height: 100vh;
+    /* não força altura extra: global.css já trava html/body em height:100% e overflow:hidden */
     background: linear-gradient(
             180deg,
             #0A0D3C 7%,
@@ -13,12 +13,17 @@ body {
     color: var(--ink);
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-    max-width: 100%;
-    max-height: 100%;
-    display: flex;
-    align-items: center;
-    overflow-y: auto;
-    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* espaço vertical reservado dentro de --play-h para a mensagem de erro/folga
+   (o título e os controles vivem no header fixo, fora de --play-h) */
+:root {
+    --sudoku-chrome: 24px;
+    /* margem lateral mínima para o tabuleiro não encostar nas bordas */
+    --sudoku-gutter: 24px;
 }
 
 .game-title {
@@ -42,23 +47,40 @@ body {
 .sudoku-wrap {
     display: flex;
     justify-content: center;
-    margin: 24px 0;
+    align-items: center;
+    /* sem margem fixa: o .panel já centraliza vertical/horizontalmente em --play-h */
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
 }
 
 .sudoku-grid {
     display: grid;
-    grid-template-columns: repeat(9, 55px);
+    /* a célula respeita LARGURA e ALTURA disponíveis ao mesmo tempo:
+       - largura: (100vw - gutter) / 9
+       - altura : (play-h - chrome) / 9  (play-h já desconta o header fixo)
+       - teto de 72px para não ficar gigante em desktops largos
+       clamp/min garante que nunca estoure a tela em nenhum dos eixos */
+    --cell: clamp(
+        24px,
+        min(
+            (100vw - var(--sudoku-gutter)) / 9,
+            (var(--play-h) - var(--sudoku-chrome)) / 9
+        ),
+        72px
+    );
+    grid-template-columns: repeat(9, var(--cell));
+    grid-template-rows: repeat(9, var(--cell));
     background: #e2e8f079;
     padding: 0;
     border-radius: 10px;
     overflow: hidden;
-    /* Reduzi a borda do grid 9x9 para 2px para criar mais contraste com a nova borda de 1px das células */
     border: 2px solid rgba(248, 250, 252, 0.9);
 }
 
 .sudoku-cell {
-    width: 55px;
-    height: 55px;
+    width: var(--cell);
+    height: var(--cell);
     box-sizing: border-box;
     /* Borda padrão das células: fina e mais escura */
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -102,7 +124,8 @@ body {
     text-align: center;
     border: none;
     outline: none;
-    font-size: 24px;
+    /* fonte proporcional à célula: ~55% do tamanho da célula, com limites */
+    font-size: clamp(12px, calc(var(--cell) * 0.55), 34px);
     font-weight: 500;
     font-family: inherit;
 }
@@ -202,3 +225,23 @@ body {
         transform: scale(1);
     }
 }
+
+/* Em mobile o header vira relativo (global.css), então --play-h (que assume
+   header de 70px) subestima a folga; reduzimos o gutter e o chrome para
+   aproveitar melhor a largura. A fórmula clamp/min continua garantindo que
+   o tabuleiro caiba em ambos os eixos. */
+@media (max-width: 768px) {
+    :root {
+        --sudoku-gutter: 12px;
+        --sudoku-chrome: 12px;
+    }
+}
+
+/* identidade de cor do header (unico override permitido) — sudoku (cinza) */
+body {
+    --game-accent: rgba(255,255,255,0.14);
+    --game-accent-border: rgba(255,255,255,0.26);
+    /* título no tema do jogo (violeta -> turquesa, como o fundo roxo->teal) */
+    --gh-title-grad: linear-gradient(90deg, #a78bfa, #2dd4bf);
+}
+

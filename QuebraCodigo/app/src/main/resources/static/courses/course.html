@@ -4,14 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Curso - Quebra Código</title>
+    <link rel="icon" type="image/png" href="../img/home/logoQuebraCodigo.png">
+    <link rel="shortcut icon" type="image/png" href="../img/home/logoQuebraCodigo.png">
     <link rel="stylesheet" href="../css/course.css">
+    <script>
+        // Aplica o tema/preferências salvos na home antes do render para evitar "flash"
+        (function () {
+            try {
+                const raw = localStorage.getItem("qc:settings:v1");
+                if (!raw) return;
+                const s = JSON.parse(raw);
+                const cls = document.documentElement.classList;
+                if (s.theme === "contrast") cls.add("theme-contrast");
+                if (s.glass === false) cls.add("glass-off");
+                if (s.animations === false) cls.add("animations-off");
+                if (s.zoom && Number(s.zoom) !== 100) {
+                    document.documentElement.style.zoom = (Number(s.zoom) / 100).toString();
+                }
+            } catch (_) {}
+        })();
+    </script>
 </head>
 <body>
 <div class="course-page">
     <!-- Sidebar estilo W3Schools: navegação do curso -->
     <aside class="course-sidebar">
-        <div class="course-logo"><a href="../index.html">Quebra<span>Código</span></a></div>
-        <h2 class="course-nav-title" id="course-nav-title">Curso</h2>
+        <div class="course-logo" id="course-logo"><span>Curso</span></div>
+        <h2 class="course-nav-title" id="course-nav-title">Conteúdo</h2>
         <nav class="course-nav-wrap">
             <ul class="course-nav" id="course-nav"></ul>
         </nav>

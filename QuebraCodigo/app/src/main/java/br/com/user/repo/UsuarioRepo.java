@@ -7,6 +7,7 @@ public interface UsuarioRepo extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByNome(String nome);
 
     Optional<Usuario> findByEmailIgnoreCase(String email);
+    Optional<Usuario> findByResetToken(String resetToken);
 
     List<Usuario> findTop50ByOrderByPontosDesc();
 }
