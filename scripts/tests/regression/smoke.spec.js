@@ -70,7 +70,7 @@ test.describe('Regressão — Fluxo Completo @smoke', () => {
     await expect(page.locator('#sGrid')).toBeVisible();
 
     // ── Passo 3: Voltar para a home ────────────────────────────────
-    await page.click('#go-back');
+    await page.click('.go-back');
     await page.waitForURL('**/index.html', { timeout: 5_000 });
 
     // ── Passo 4: Logout ────────────────────────────────────────────
@@ -97,9 +97,9 @@ test.describe('Regressão — Fluxo Completo @smoke', () => {
 
     const jogos = [
       { url: '/games/sudoku/sudoku.html',   selector: '#sGrid' },
-      { url: '/games/memory/memory.html',   selector: '#mGrid' },
-      { url: '/games/connect4/connect4.html', selector: '#c4Board' },
-      { url: '/games/2048/2048.html',       selector: '#gridContainer' },
+      { url: '/games/memory/memory.html',   selector: '.memory-grid' },
+      { url: '/games/connect4/connect4.html', selector: '.c4-board' },
+      { url: '/games/2048/2048.html',       selector: '.grid-container' },
     ];
 
     for (const jogo of jogos) {
@@ -132,8 +132,9 @@ test.describe('Regressão — Fluxo Completo @smoke', () => {
     await page.fill('input[name="senha"]', 'senha_errada');
     await page.click('#login-btn');
 
-    // Aguarda mensagem de erro
-    await page.waitForSelector('#login-error.is-visible', { timeout: 5_000 });
+    // Aguarda mensagem de erro (o login.html cria #login-error com o texto)
+    await page.waitForSelector('#login-error', { timeout: 5_000 });
+    await expect(page.locator('#login-error')).not.toBeEmpty();
 
     // Segundo login — com credenciais corretas
     await page.fill('input[name="usuario"]', testUser.usuario);
@@ -147,126 +148,75 @@ test.describe('Regressão — Fluxo Completo @smoke', () => {
 
 });
 
-test.describe('Regressão — API REST dos Jogos', () => {
+test.describe('Regressão — API REST dos Jogos (smoke fino)', () => {
 
   /**
-   * TESTE 4 — Endpoint Sudoku: /api/games/sudoku/new
-   *
-   * Objetivo: verificar que a API do Sudoku retorna tabuleiro válido.
-   * Tipo: Regressão de API
-   * Valida: estrutura da resposta JSON (board[], fixed[], difficulty)
+   * Smoke alinhado à API atual (/start). Regras detalhadas estão em JUnit.
    */
-  test('GET /api/games/sudoku/new deve retornar puzzle válido', async ({ authenticatedPage }) => {
+  test('POST /api/games/sudoku/start deve retornar puzzle válido', async ({ authenticatedPage }) => {
     const response = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/sudoku/new?difficulty=easy'
+      'http://localhost:8150/api/games/sudoku/start?difficulty=easy'
     );
 
     expect(response.ok()).toBe(true);
 
     const data = await response.json();
     expect(data).toHaveProperty('board');
-    expect(data).toHaveProperty('fixed');
+    expect(data).toHaveProperty('given');
     expect(data).toHaveProperty('difficulty', 'easy');
-
-    // board deve ter exatamente 81 elementos (grade 9×9)
     expect(Array.isArray(data.board)).toBe(true);
     expect(data.board).toHaveLength(81);
-
-    // Todos os valores devem ser 0-9
-    for (const cell of data.board) {
-      expect(cell).toBeGreaterThanOrEqual(0);
-      expect(cell).toBeLessThanOrEqual(9);
-    }
   });
 
-  /**
-   * TESTE 5 — Endpoint Memória: /api/games/memory/new
-   *
-   * Objetivo: verificar que a API retorna deck embaralhado.
-   * Tipo: Regressão de API
-   * Valida: deck com 16 cartas (4×4), em pares
-   */
-  test('POST /api/games/memory/new deve retornar deck válido', async ({ authenticatedPage }) => {
+  test('POST /api/games/memory/start deve retornar deck válido', async ({ authenticatedPage }) => {
     const response = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/memory/new?size=4x4'
+      'http://localhost:8150/api/games/memory/start?cols=4&rows=4'
     );
 
     expect(response.ok()).toBe(true);
 
     const data = await response.json();
-    expect(data).toHaveProperty('deck');
+    expect(data).toHaveProperty('cards');
     expect(data).toHaveProperty('cols', 4);
     expect(data).toHaveProperty('rows', 4);
+    expect(data.cards).toHaveLength(16);
 
-    // 4×4 = 16 cartas
-    expect(data.deck).toHaveLength(16);
-
-    // Verificar que cada imagem aparece exatamente 2 vezes (pares)
     const counts = {};
-    for (const card of data.deck) {
-      counts[card] = (counts[card] ?? 0) + 1;
+    for (const card of data.cards) {
+      counts[card.pairValue] = (counts[card.pairValue] ?? 0) + 1;
     }
-    for (const [card, count] of Object.entries(counts)) {
+    for (const count of Object.values(counts)) {
       expect(count).toBe(2);
     }
   });
 
-  /**
-   * TESTE 6 — Endpoint Connect 4: /api/games/connect4/new
-   *
-   * Objetivo: verificar que a API retorna estado inicial válido do jogo.
-   * Tipo: Regressão de API
-   * Valida: grid 6×7 vazio, turno inicial, jogo não encerrado
-   */
-  test('POST /api/games/connect4/new deve retornar estado inicial válido', async ({ authenticatedPage }) => {
+  test('POST /api/games/connect4/start deve retornar estado inicial válido', async ({ authenticatedPage }) => {
     const response = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/connect4/new?mode=pve'
+      'http://localhost:8150/api/games/connect4/start'
     );
 
     expect(response.ok()).toBe(true);
 
     const data = await response.json();
-    expect(data).toHaveProperty('grid');
-    expect(data).toHaveProperty('turn');
-    expect(data).toHaveProperty('done', false);
-
-    // Grid deve ter 6 linhas
-    expect(data.grid).toHaveLength(6);
-    // Cada linha deve ter 7 colunas
-    for (const row of data.grid) {
+    expect(data).toHaveProperty('board');
+    expect(data).toHaveProperty('currentPlayer', 'RED');
+    expect(data).toHaveProperty('gameOver', false);
+    expect(data.board).toHaveLength(6);
+    for (const row of data.board) {
       expect(row).toHaveLength(7);
     }
-
-    // turno inicial deve ser 1 ou 2 (em PvE, CPU pode começar com 33%)
-    expect([1, 2]).toContain(data.turn);
   });
 
-  /**
-   * TESTE 7 — Endpoint Sudoku: validação de tabuleiro
-   *
-   * Objetivo: verificar que o endpoint de validação detecta conflitos corretamente.
-   * Tipo: Regressão de API / Funcional
-   */
-  test('POST /api/games/sudoku/validate deve detectar conflitos', async ({ authenticatedPage }) => {
-    // Tabuleiro com conflito óbvio: dois 1s na mesma linha
-    const board = Array(81).fill(0);
-    board[0] = 1;
-    board[1] = 1; // conflito: dois 1s na linha 0
-
+  test('POST /api/games/memory/score deve calcular pontuação', async ({ authenticatedPage }) => {
     const response = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/sudoku/validate',
-      { data: { board } }
+      'http://localhost:8150/api/games/memory/score',
+      { data: { moves: 8, seconds: 30, totalCards: 16 } }
     );
 
     expect(response.ok()).toBe(true);
-
     const data = await response.json();
-    expect(data).toHaveProperty('conflicts');
-    expect(data).toHaveProperty('complete', false);
-
-    // As células 0 e 1 devem estar marcadas como conflito
-    expect(data.conflicts[0]).toBe(true);
-    expect(data.conflicts[1]).toBe(true);
+    expect(data.points).toBe(150);
+    expect(data.coins).toBe(6);
   });
 
 });

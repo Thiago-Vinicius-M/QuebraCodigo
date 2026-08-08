@@ -14,6 +14,7 @@ import java.util.Map;
  *   POST   /api/games/memory/{id}/flip             → vira carta { "index": 5 }
  *   POST   /api/games/memory/{id}/reset-pending    → reverte cartas sem par (após animação)
  *   GET    /api/games/memory/{id}/state            → estado atual
+ *   POST   /api/games/memory/score                 → calcula pontos { moves, seconds, totalCards }
  *   DELETE /api/games/memory/{id}                  → encerra partida
  *
  * Todos os endpoints exigem sessão autenticada (userId na sessão).
@@ -82,6 +83,23 @@ public class MemoryController {
             return ResponseEntity.ok(service.getState(gameId));
         } catch (IllegalStateException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/score")
+    public ResponseEntity<?> score(@RequestBody Map<String, Integer> body, HttpSession session) {
+        if (!isAuthenticated(session)) return unauthorized();
+        try {
+            int moves = body.getOrDefault("moves", 0);
+            int seconds = body.getOrDefault("seconds", 0);
+            int totalCards = body.getOrDefault("totalCards", 16);
+            MemoryService.ScoreResult result = service.calculateScore(moves, seconds, totalCards);
+            return ResponseEntity.ok(Map.of(
+                    "points", result.points(),
+                    "coins", result.coins()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

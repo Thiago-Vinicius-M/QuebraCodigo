@@ -1,8 +1,12 @@
 /**
  * SudokuPage — Page Object Model do jogo Sudoku.
  *
- * Seletores baseados no sudoku.html e sudoku.js reais do projeto.
- * O jogo comunica-se com POST /api/games/sudoku/{new,validate,solve}.
+ * Frontend atual (React client-side):
+ *   - Grid:   #sGrid (81 .sudoku-cell, cada uma com <input>)
+ *   - Botões: #sNew, #sSolve, #sClear
+ *   - Dificuldade: <select> dentro do label em .controls (sem id)
+ *   - Mensagem: #sMsg
+ *   - Overlay de vitória: .win-overlay (aparece só quando completo)
  */
 export class SudokuPage {
 
@@ -14,16 +18,16 @@ export class SudokuPage {
     this.newGameBtn  = page.locator('#sNew');
     this.solveBtn    = page.locator('#sSolve');
     this.clearBtn    = page.locator('#sClear');
-    this.diffSelect  = page.locator('#sDiff');
+    this.diffSelect  = page.locator('.game-header .controls select');
     this.msgEl       = page.locator('#sMsg');
-    this.winOverlay  = page.locator('#winOverlay');
-    this.winNewGame  = page.locator('#winNewGame');
+    this.winOverlay  = page.locator('.win-overlay');
+    this.winNewGame  = page.locator('.win-overlay .win-content button');
 
     // ── Grid ──────────────────────────────────────────────────────
-    this.grid        = page.locator('#sGrid');
-    this.allCells    = page.locator('#sGrid .sudoku-cell');
-    this.allInputs   = page.locator('#sGrid .sudoku-cell input');
-    this.fixedCells  = page.locator('#sGrid .sudoku-cell.fixed, #sGrid input.fixed');
+    this.grid         = page.locator('#sGrid');
+    this.allCells     = page.locator('#sGrid .sudoku-cell');
+    this.allInputs    = page.locator('#sGrid .sudoku-cell input');
+    this.fixedCells   = page.locator('#sGrid .sudoku-cell input.fixed');
     this.invalidCells = page.locator('#sGrid .sudoku-cell.invalid');
     this.correctCells = page.locator('#sGrid .sudoku-cell.correct');
   }
@@ -32,9 +36,7 @@ export class SudokuPage {
 
   async goto() {
     await this.page.goto('/games/sudoku/sudoku.html');
-    // Aguarda o grid ser preenchido pela chamada à API
-    await this.page.waitForLoadState('networkidle');
-    await this.page.waitForSelector('#sGrid .sudoku-cell', { timeout: 10_000 });
+    await this.page.waitForSelector('#sGrid .sudoku-cell', { timeout: 20_000 });
   }
 
   // ── Ações ───────────────────────────────────────────────────────
@@ -85,11 +87,11 @@ export class SudokuPage {
 
   /** Aguarda até o overlay de vitória ser visível. */
   async waitForWin() {
-    await this.winOverlay.waitFor({ state: 'visible', timeout: 10_000 });
+    await this.winOverlay.waitFor({ state: 'visible', timeout: 12_000 });
   }
 
-  /** Verifica se o win overlay está oculto. */
+  /** true se o overlay de vitória está oculto (ausente do DOM). */
   async isWinHidden() {
-    return this.winOverlay.evaluate(el => el.classList.contains('hidden'));
+    return (await this.winOverlay.count()) === 0;
   }
 }

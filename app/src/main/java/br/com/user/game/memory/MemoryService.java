@@ -175,4 +175,26 @@ public class MemoryService {
     public void removeGame(String gameId) {
         games.remove(gameId);
     }
+
+    /**
+     * Calcula pontos e moedas ao concluir uma partida.
+     * Fórmula: base + max(0, 60 - seconds/5) + max(0, 24 - moves)
+     * base: 16 cartas → 80, 20 → 110, 24 → 140
+     * moedas: points / 25
+     */
+    public ScoreResult calculateScore(int moves, int seconds, int totalCards) {
+        if (moves < 0 || seconds < 0 || totalCards <= 0) {
+            throw new IllegalArgumentException("Parâmetros de pontuação inválidos.");
+        }
+        int base = switch (totalCards) {
+            case 20 -> 110;
+            case 24 -> 140;
+            default -> 80;
+        };
+        int points = base + Math.max(0, 60 - seconds / 5) + Math.max(0, 24 - moves);
+        int coins = points / 25;
+        return new ScoreResult(points, coins);
+    }
+
+    public record ScoreResult(int points, int coins) {}
 }
