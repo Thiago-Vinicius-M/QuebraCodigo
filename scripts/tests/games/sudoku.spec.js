@@ -1,162 +1,18 @@
 /**
- * sudoku.spec.js — Testes do Sudoku
+ * sudoku.spec.js - Testes do Sudoku
  *
- * Tipo: E2E + API + Funcional + UI
+ * Tipo: E2E / UI
  *
- * Cobre:
- *   ✓ API: novo jogo retorna tabuleiro válido (3 dificuldades)
- *   ✓ API: validação detecta conflitos e board completo
- *   ✓ API: solver resolve qualquer estado válido
- *   ✓ UI:  grid renderiza 81 células
- *   ✓ UI:  células fixas são somente-leitura
- *   ✓ UI:  células não-fixas aceitam apenas dígitos 1-9
- *   ✓ UI:  input inválido (letra) é filtrado
- *   ✓ UI:  botão Resolver preenche o board e exibe overlay de vitória
- *   ✓ UI:  botão Limpar apaga células não-fixas
- *   ✓ UI:  troca de dificuldade gera novo tabuleiro
+ * Regras de negocio (geracao, conflitos, solve) migraram para JUnit:
+ *   app/src/test/java/br/com/user/game/sudoku/SudokuServiceTest.java
  *
- * Como descrever no TCC:
- *   "Testes que validam tanto a API REST do Sudoku (SudokuService.java)
- *   quanto a interface renderizada, cobrindo o ciclo completo de uma
- *   partida do ponto de vista do usuário."
+ * Aqui permanece a validacao de interface.
  */
 
 import { test, expect } from '../../fixtures/auth.fixture.js';
 import { SudokuPage } from '../../pages/SudokuPage.js';
 
-// ── API Tests ─────────────────────────────────────────────────────────────────
-
-test.describe('Sudoku — API REST', () => {
-
-  /**
-   * TESTE 1 — Novo jogo: estrutura da resposta
-   *
-   * Objetivo: garantir que o endpoint retorna um puzzle 9×9 válido.
-   * Tipo: Teste de API / Contrato
-   * Valida: board[81], fixed[81], difficulty no JSON de resposta
-   */
-  test('POST /new deve retornar puzzle com 81 células e array de fixas @smoke', async ({ authenticatedPage }) => {
-    for (const diff of ['easy', 'medium', 'hard']) {
-      const res = await authenticatedPage.request.post(
-        `http://localhost:8150/api/games/sudoku/new?difficulty=${diff}`
-      );
-      expect(res.ok(), `dificuldade ${diff} deve retornar 200`).toBe(true);
-
-      const data = await res.json();
-      expect(data.board).toHaveLength(81);
-      expect(data.fixed).toHaveLength(81);
-      expect(data.difficulty).toBe(diff);
-
-      // Todos os valores devem ser 0-9
-      for (const v of data.board) {
-        expect(v).toBeGreaterThanOrEqual(0);
-        expect(v).toBeLessThanOrEqual(9);
-      }
-    }
-  });
-
-  /**
-   * TESTE 2 — Número de células fixas por dificuldade
-   *
-   * Objetivo: verificar que dificuldades diferentes geram densidades diferentes.
-   * Tipo: Teste de API / Regra de negócio
-   * Valida: easy > medium > hard em termos de células pré-preenchidas
-   */
-  test('POST /new deve ter mais células fixas em dificuldades mais fáceis', async ({ authenticatedPage }) => {
-    const counts = {};
-    for (const diff of ['easy', 'medium', 'hard']) {
-      const res  = await authenticatedPage.request.post(
-        `http://localhost:8150/api/games/sudoku/new?difficulty=${diff}`
-      );
-      const data = await res.json();
-      counts[diff] = data.board.filter(v => v !== 0).length;
-    }
-
-    // easy remove 40 → 41 fixas | medium remove 50 → 31 | hard remove 58 → 23
-    expect(counts.easy).toBeGreaterThan(counts.medium);
-    expect(counts.medium).toBeGreaterThan(counts.hard);
-  });
-
-  /**
-   * TESTE 3 — Validação detecta conflito óbvio
-   *
-   * Objetivo: verificar que o endpoint /validate detecta dois iguais na mesma linha.
-   * Tipo: Teste de API / Regra de negócio
-   * Valida: conflicts[0] e conflicts[1] = true quando board[0]=board[1]=1
-   */
-  test('POST /validate deve marcar conflito em células repetidas na mesma linha', async ({ authenticatedPage }) => {
-    const board = Array(81).fill(0);
-    board[0] = 1;
-    board[1] = 1; // conflito: dois 1s na linha 0
-
-    const res = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/sudoku/validate',
-      { data: { board } }
-    );
-    expect(res.ok()).toBe(true);
-
-    const data = await res.json();
-    expect(data.conflicts[0]).toBe(true);
-    expect(data.conflicts[1]).toBe(true);
-    expect(data.complete).toBe(false);
-  });
-
-  /**
-   * TESTE 4 — Validação detecta conflito em coluna
-   *
-   * Objetivo: verificar detecção de conflito vertical.
-   * Tipo: Teste de API / Regra de negócio
-   */
-  test('POST /validate deve marcar conflito em células repetidas na mesma coluna', async ({ authenticatedPage }) => {
-    const board = Array(81).fill(0);
-    board[0]  = 5; // linha 0, coluna 0
-    board[9]  = 5; // linha 1, coluna 0 → conflito na coluna 0
-
-    const res  = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/sudoku/validate',
-      { data: { board } }
-    );
-    const data = await res.json();
-    expect(data.conflicts[0]).toBe(true);
-    expect(data.conflicts[9]).toBe(true);
-  });
-
-  /**
-   * TESTE 5 — Solver retorna tabuleiro completo
-   *
-   * Objetivo: verificar que o endpoint /solve preenche todos os zeros.
-   * Tipo: Teste de API / Funcional
-   * Valida: solved[81] sem nenhum zero
-   */
-  test('POST /solve deve retornar tabuleiro sem células vazias', async ({ authenticatedPage }) => {
-    // Primeiro gera um puzzle
-    const newRes  = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/sudoku/new?difficulty=easy'
-    );
-    const { board } = await newRes.json();
-
-    // Pede ao backend para resolver
-    const solveRes = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/sudoku/solve',
-      { data: { board } }
-    );
-    expect(solveRes.ok()).toBe(true);
-
-    const { solved } = await solveRes.json();
-    expect(solved).toHaveLength(81);
-
-    // Nenhuma célula pode ser zero
-    for (const v of solved) {
-      expect(v).toBeGreaterThanOrEqual(1);
-      expect(v).toBeLessThanOrEqual(9);
-    }
-  });
-
-});
-
-// ── UI Tests ──────────────────────────────────────────────────────────────────
-
-test.describe('Sudoku — Interface (UI)', () => {
+test.describe('Sudoku - Interface (UI)', () => {
 
   /**
    * TESTE 6 — Grid renderiza 81 células @smoke

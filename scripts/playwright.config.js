@@ -11,11 +11,14 @@ export default defineConfig({
   // Diretório onde ficam os arquivos .spec.js
   testDir: './tests',
 
-  // Tempo máximo por teste (30 segundos)
-  timeout: 30_000,
+  // Tempo máximo por teste (45 segundos)
+  // As páginas de jogo transpilam JSX no navegador (Babel via CDN),
+  // então o primeiro render pode demorar alguns segundos.
+  timeout: 45_000,
 
-  // Tempo máximo para cada expect() (5 segundos)
-  expect: { timeout: 5_000 },
+  // Tempo máximo para cada expect() (12 segundos)
+  // Elevado para absorver o tempo de transpilação/render do React no browser.
+  expect: { timeout: 12_000 },
 
   // Testes de auth têm efeito colateral no banco — não paralelizar
   fullyParallel: false,

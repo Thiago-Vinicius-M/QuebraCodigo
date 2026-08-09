@@ -292,4 +292,21 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("id", novo.getId(), "username", novo.getNome()));
     }
+
+    /** Invalida a sessão HTTP e remove o cookie de username. */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session, HttpServletResponse resp) {
+        if (session != null) {
+            try {
+                session.invalidate();
+            } catch (IllegalStateException ignored) {
+                // já invalidada
+            }
+        }
+        Cookie c = new Cookie("username", "");
+        c.setPath("/");
+        c.setMaxAge(0);
+        resp.addCookie(c);
+        return ResponseEntity.ok(Map.of("ok", true));
+    }
 }
