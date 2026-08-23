@@ -204,10 +204,17 @@ function Game2048() {
     <div className="game-shell">
       <header className="game-header">
         <a
+<<<<<<< HEAD
           href="../../index.html"
           className="go-back"
           aria-label="Voltar"
           onClick={e => { e.preventDefault(); window.location.href = '../../index.html'; }}
+=======
+          href="/index.html"
+          className="go-back"
+          aria-label="Voltar"
+          onClick={e => { e.preventDefault(); window.location.href = '/index.html'; }}
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
         >
           <img src="../img/topbar/setaVoltar.png" alt="Botão retornar para a Home" />
         </a>

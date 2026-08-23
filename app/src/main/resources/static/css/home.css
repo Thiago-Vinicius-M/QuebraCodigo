@@ -9,6 +9,7 @@ html, body {
     height: 100%;
 }
 
+<<<<<<< HEAD
 /* ===== Liquid Glass (tokens compartilhados por todos os painéis/cards) ===== */
 :root {
     --glass-bg: rgba(255, 255, 255, 0.10);
@@ -85,6 +86,8 @@ html, body {
     }
 }
 
+=======
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 /* ===== Estrutura geral ===== */
 body {
     font-family: 'Roboto', 'Sofia Sans', sans-serif;
@@ -133,6 +136,10 @@ h2 {
     width: clamp(72px, 8vw, 100px);
     height: 100svh;
     padding: clamp(12px, 2.5vh, 28px) 0 clamp(8px, 1.5vh, 16px);
+<<<<<<< HEAD
+=======
+    background: rgba(0, 0, 0, 0.2);
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
     z-index: 10;
     display: flex;
     flex-direction: column;
@@ -262,12 +269,16 @@ h2 {
     align-items: center;
     gap: clamp(8px, 1.2vw, 12px);
     position: relative;
+<<<<<<< HEAD
     overflow: hidden;
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), var(--glass-shadow);
+=======
+    background: rgba(255, 255, 255, 0.15);
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
     border-radius: 18px;
     margin-top: 2px;
     padding: clamp(4px, 1vh, 8px) clamp(8px, 1.2vw, 12px);
@@ -337,7 +348,10 @@ h2 {
     width: 90%;
     height: 8px;
     background-color: rgba(255, 255, 255, 0.1);
+<<<<<<< HEAD
     border: 1px solid var(--glass-border);
+=======
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
     border-radius: 4px;
     margin-bottom: 0;
     overflow: hidden;
@@ -352,6 +366,7 @@ h2 {
 }
 
 .continue-button {
+<<<<<<< HEAD
     position: relative;
     overflow: hidden;
     padding: clamp(6px, 1vh, 10px) clamp(12px, 1.6vw, 20px);
@@ -361,10 +376,17 @@ h2 {
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 18px rgba(4, 6, 24, 0.35);
+=======
+    padding: clamp(6px, 1vh, 10px) clamp(12px, 1.6vw, 20px);
+    font-size: clamp(12px, 1.3vw, 14px);
+    background: linear-gradient(135deg, #1C2E6C, #3A1F78);
+    border: none;
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
     border-radius: 8px;
     color: white;
     cursor: pointer;
     white-space: nowrap;
+<<<<<<< HEAD
     transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -372,6 +394,12 @@ h2 {
     transform: translateY(-1px);
     background: linear-gradient(135deg, rgba(28, 46, 108, 0.7), rgba(58, 31, 120, 0.7));
     border-color: var(--glass-highlight);
+=======
+}
+
+.continue-button:hover {
+    opacity: 0.9;
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 }
 /* ===== Seções de cards ===== */
 .cards-section {
@@ -503,6 +531,7 @@ h2 {
 }
 
 .card {
+<<<<<<< HEAD
     position: relative;
     overflow: hidden;
     background: var(--glass-bg);
@@ -514,6 +543,14 @@ h2 {
     text-align: center;
     padding: 15px;
     transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+=======
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    backdrop-filter: blur(40px);
+    text-align: center;
+    padding: 15px;
+    transition: transform 0.3s ease, background 0.3s ease;
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 }
 
 .card img {
@@ -531,13 +568,18 @@ h2 {
 
 .card:hover {
     transform: scale(1.05);
+<<<<<<< HEAD
     background: var(--glass-bg-hover);
     border-color: var(--glass-highlight);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 12px 36px rgba(4, 6, 24, 0.4);
+=======
+    background: rgba(255, 255, 255, 0.25);
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 }
 
 /* ===== Botões dos cards ===== */
 .card-button {
+<<<<<<< HEAD
     position: relative;
     overflow: hidden;
     background: var(--glass-bg);
@@ -549,6 +591,15 @@ h2 {
     text-align: center;
     padding: clamp(10px, 1.6vh, 18px) clamp(8px, 1vw, 14px);
     transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+=======
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 20px;
+    backdrop-filter: blur(40px);
+    text-align: center;
+    padding: clamp(10px, 1.6vh, 18px) clamp(8px, 1vw, 14px);
+    transition: transform 0.3s ease, background 0.3s ease;
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
     cursor: pointer;
     /* card compacto: largura cheia da coluna, mas a ALTURA passa a ser a do
        conteúdo (ícone + rótulo) — antes esticava p/ preencher a tela toda,
@@ -595,14 +646,22 @@ h2 {
 
 .card-button:hover {
     transform: scale(1.05);
+<<<<<<< HEAD
     background: var(--glass-bg-hover);
     border-color: var(--glass-highlight);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 12px 36px rgba(4, 6, 24, 0.4);
+=======
+    background: rgba(255, 255, 255, 0.25);
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 }
 
 .card-button:active {
     transform: scale(0.98);
+<<<<<<< HEAD
     background: rgba(255, 255, 255, 0.24);
+=======
+    background: rgba(255, 255, 255, 0.3);
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 }
 
 /* ===== Botões da navbar ===== */
@@ -620,8 +679,12 @@ h2 {
 
 .nav-button:hover .nav-bg,
 .nav-link:hover .nav-bg {
+<<<<<<< HEAD
     background-color: var(--glass-bg-hover);
     border-color: var(--glass-highlight);
+=======
+    background-color: rgba(255, 255, 255, 0.12);
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 }
 
 .nav-button span {
@@ -648,12 +711,18 @@ h2 {
     width: var(--side-badge-w);
     height: var(--side-badge-h);
     border-radius: 16px;
+<<<<<<< HEAD
     overflow: hidden;
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+=======
+    /* sem fundo atrás dos ícones (pedido); realce só no hover */
+    background: transparent;
+    backdrop-filter: none;
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
     z-index: -1;
     transition: 0.25s ease;
 }
@@ -671,8 +740,12 @@ h2 {
 }
 
 .nav-button-settings:hover .nav-bg {
+<<<<<<< HEAD
     background-color: var(--glass-bg-hover);
     border-color: var(--glass-highlight);
+=======
+    background-color: rgba(255, 255, 255, 0.12);
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 }
 
 .nav-button-settings span {
@@ -716,12 +789,18 @@ h2 {
     width: var(--side-badge-w);
     height: var(--side-badge-h);
     border-radius: 16px;
+<<<<<<< HEAD
     overflow: hidden;
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+=======
+    /* sem fundo atrás do ícone (pedido); realce só no hover */
+    background: transparent;
+    backdrop-filter: none;
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
     z-index: -1;
     transition: 0.25s ease;
 }
@@ -742,8 +821,12 @@ h2 {
 }
 
 .profile-button:hover .nav-bg-editarPerfil {
+<<<<<<< HEAD
     background-color: var(--glass-bg-hover);
     border-color: var(--glass-highlight);
+=======
+    background-color: rgba(255, 255, 255, 0.12);
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 }
 
 .profile-button:active {
