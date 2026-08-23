@@ -1,12 +1,50 @@
 # Testes Automatizados — QuebraCódigo
 
+## Estratégia híbrida (JUnit + Playwright)
+
+| Camada | Ferramenta | O que cobre |
+|---|---|---|
+| Regras de negócio / banco / API de serviço | **JUnit 5** (`app/src/test`) | Pontuação, Memory score/deck, Sudoku, Connect4, Minesweeper, 2048, Auth, Gamificação |
+| Interface e fluxo de usuário | **Playwright** (`scripts/tests`) | Login/UI, navegação, overlays, smoke E2E |
+
+Ordem recomendada:
+
+```bash
+cd app && mvn test
+cd ../scripts && npm run test:smoke
+```
+
 ## Pré-requisitos
 
-1. Servidor Spring Boot rodando em `http://localhost:8150`
+1. Servidor Spring Boot rodando em `http://localhost:8150` (só para Playwright)
 2. Banco PostgreSQL configurado e acessível
-3. Node.js 18+
+3. Node.js 18+ (Playwright)
+4. Java 21 + Maven (JUnit)
+5. Docker Desktop (opcional; Testcontainers). Sem Docker, os testes JUnit usam PostgreSQL local.
 
-## Instalação
+## Testes Java (JUnit)
+
+```bash
+cd app
+mvn test
+```
+
+Principais suites:
+
+| Pacote | Sprint | Conteúdo |
+|---|---|---|
+| `br.com.user.database` / `repository` / `service` (Pontuacao*) | 0 | Schema, persistência e regras de pontos |
+| `br.com.user.game.memory` | 1 | Deck, pares, fórmula de score |
+| `br.com.user.game.sudoku` | 2 | Geração, conflitos, solve |
+| `br.com.user.game.connect4` | 3 | Gravidade, vitórias, coluna cheia |
+| `br.com.user.game.minesweeper` | 4 | Config, 1º clique seguro, hint |
+| `br.com.user.game.game2048` | 5 | Estado inicial, move, undo |
+| `br.com.user.service.AuthServiceTest` | 6 | Register/login |
+| `br.com.user.service.GamificationServiceTest` | 7 | Award + histórico + ranking |
+
+## Playwright (E2E / UI)
+
+### Instalação
 
 ```bash
 cd scripts
@@ -14,7 +52,7 @@ npm install
 npx playwright install chromium
 ```
 
-## Como rodar os testes
+### Como rodar
 
 | Comando | O que faz |
 |---|---|
@@ -26,33 +64,22 @@ npx playwright install chromium
 | `npm run test:ui` | Interface visual do Playwright |
 | `npm run test:debug` | Modo debug (passo a passo) |
 
-## Estrutura
+### Estrutura
 
 ```
 scripts/
-├── playwright.config.js        # Configuração central
+├── playwright.config.js
 ├── tests/
-│   ├── auth/
-│   │   ├── login.spec.js       # 9 testes de login
-│   │   ├── register.spec.js    # 9 testes de cadastro
-│   │   └── logout.spec.js      # 4 testes de logout/sessão
+│   ├── auth/          # UI de login/cadastro/logout
+│   ├── games/         # UI dos jogos (regras no JUnit)
 │   ├── navigation/
-│   │   └── pages.spec.js       # 10 testes de navegação e responsividade
-│   └── regression/
-│       └── smoke.spec.js       # 7 testes de regressão e fluxo completo
-├── pages/                      # Page Object Model
-│   ├── LoginPage.js
-│   ├── RegisterPage.js
-│   └── HomePage.js
-├── fixtures/
-│   └── auth.fixture.js         # Fixture de autenticação reutilizável
-└── screenshots/                # Screenshots capturadas automaticamente
+│   └── regression/    # smoke E2E + smoke fino de /start
+├── pages/
+└── fixtures/
 ```
 
 ## Relatório HTML
 
-Após rodar os testes:
 ```bash
 npm run test:report
 ```
-O relatório abre no browser com detalhes de cada teste, screenshots e vídeos de falhas.

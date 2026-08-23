@@ -1,12 +1,15 @@
 /**
  * MinesweeperPage — Page Object Model do Minesweeper.
  *
- * Estratégias seguras nos testes:
- *   1. Usar #hintBtn para revelar uma célula GARANTIDAMENTE segura
- *      (o código JS procura a primeira célula sem mina e a revela)
- *   2. O primeiro clique em qualquer célula é sempre seguro
- *      (placeMines exclui a célula clicada)
- *   3. Bandeiras são testadas com right-click (contextmenu)
+ * Frontend atual (React client-side):
+ *   - Grid:   .grid-container (células .cell em ordem row-major; SEM data-row/col)
+ *   - Dificuldade: botões .difficulty-btn na ordem [easy, medium, hard]
+ *   - Reiniciar/Dica: botões .btn ("Reiniciar" / "Dica")
+ *   - HUD: <span>💣 N</span> e <span>⏱ Ns</span> em .controls
+ *   - Fim de jogo: .game-message.show (título em .message-title)
+ *
+ * Como as células não têm data-row/col, calculamos o índice pela ordem:
+ *   índice = row * cols + col, com cols = √(total de células) (grids quadrados).
  */
 export class MinesweeperPage {
 
@@ -15,43 +18,51 @@ export class MinesweeperPage {
     this.page = page;
 
     // ── Controles ─────────────────────────────────────────────────
-    this.restartBtn      = page.locator('#restartBtn');
-    this.hintBtn         = page.locator('#hintBtn');
-    this.tryAgainBtn     = page.locator('#tryAgainBtn');
-    this.mineCounter     = page.locator('#mineCounter');
-    this.timerEl         = page.locator('#timer');
-    this.gameMsg         = page.locator('#gameMessage');
-    this.msgTitle        = page.locator('#messageTitle');
+    this.restartBtn = page.locator('.game-header .controls .btn', { hasText: 'Reiniciar' });
+    this.hintBtn    = page.locator('.game-header .controls .btn', { hasText: 'Dica' });
+    this.mineSpan   = page.locator('.game-header .controls span').nth(0);
+    this.timerSpan  = page.locator('.game-header .controls span').nth(1);
+    this.gameMsg    = page.locator('.game-message');
+    this.msgTitle   = page.locator('.message-title');
 
-    // ── Dificuldade ────────────────────────────────────────────────
-    this.diffBtns = {
-      easy:   page.locator('.difficulty-btn[data-difficulty="easy"]'),
-      medium: page.locator('.difficulty-btn[data-difficulty="medium"]'),
-      hard:   page.locator('.difficulty-btn[data-difficulty="hard"]'),
-    };
+    // ── Dificuldade (ordem: easy, medium, hard) ────────────────────
+    this.diffIndex = { easy: 0, medium: 1, hard: 2 };
 
     // ── Grid ──────────────────────────────────────────────────────
-    this.gridContainer = page.locator('#gridContainer');
-    this.allCells      = page.locator('#gridContainer .cell');
-    this.revealedCells = page.locator('#gridContainer .cell.revealed');
-    this.flaggedCells  = page.locator('#gridContainer .cell.flagged');
+    this.gridContainer = page.locator('.grid-container');
+    this.allCells      = page.locator('.grid-container .cell');
+    this.revealedCells = page.locator('.grid-container .cell.revealed');
+    this.flaggedCells  = page.locator('.grid-container .cell.flagged');
   }
 
   // ── Navegação ───────────────────────────────────────────────────
 
   async goto() {
     await this.page.goto('/games/minesweeper/minesweeper.html');
-    await this.page.waitForLoadState('networkidle');
-    await this.page.waitForSelector('#gridContainer .cell', { timeout: 8_000 });
+    await this.page.waitForSelector('.grid-container .cell', { timeout: 20_000 });
+  }
+
+  // ── Helpers internos ─────────────────────────────────────────────
+
+  /** Número de colunas do grid atual (grids são quadrados). */
+  async _cols() {
+    const total = await this.allCells.count();
+    return Math.round(Math.sqrt(total));
+  }
+
+  /** Localizador da célula (row, col) pela ordem row-major. */
+  async _cell(row, col) {
+    const cols = await this._cols();
+    const idx = row * cols + col;
+    return this.page.locator(`.grid-container .cell:nth-child(${idx + 1})`);
   }
 
   // ── Ações ───────────────────────────────────────────────────────
 
   async clickDifficulty(level) {
-    await this.diffBtns[level].click();
-    // Aguarda o grid ser recriado
+    await this.page.locator('.difficulty-btn').nth(this.diffIndex[level]).click();
     await this.page.waitForTimeout(300);
-    await this.page.waitForSelector('#gridContainer .cell');
+    await this.page.waitForSelector('.grid-container .cell');
   }
 
   async clickRestart() {
@@ -61,74 +72,63 @@ export class MinesweeperPage {
 
   async clickHint() {
     await this.hintBtn.click();
-    // A dica revela células — aguarda a atualização do DOM
     await this.page.waitForTimeout(200);
   }
 
-  /**
-   * Clica em uma célula específica por posição (row, col).
-   * O primeiro clique é garantidamente seguro (placeMines exclui essa posição).
-   */
+  /** Clica em uma célula (row, col). O primeiro clique é sempre seguro. */
   async clickCell(row, col) {
-    await this.page.locator(`.cell[data-row="${row}"][data-col="${col}"]`).click();
+    const cell = await this._cell(row, col);
+    await cell.click();
     await this.page.waitForTimeout(150);
   }
 
-  /**
-   * Clique direito em uma célula (coloca/remove bandeira).
-   * Playwright usa { button: 'right' }.
-   */
+  /** Clique direito (coloca/remove bandeira). */
   async rightClickCell(row, col) {
-    await this.page.locator(`.cell[data-row="${row}"][data-col="${col}"]`)
-      .click({ button: 'right' });
+    const cell = await this._cell(row, col);
+    await cell.click({ button: 'right' });
     await this.page.waitForTimeout(150);
   }
 
   // ── Leitura de estado ───────────────────────────────────────────
 
-  /** Retorna o número de minas exibido no contador. */
+  /** Extrai o número de um texto tipo "💣 10" / "⏱ 3s". */
+  _digits(text) {
+    const m = (text || '').replace(/[^\d]/g, '');
+    return m === '' ? 0 : parseInt(m, 10);
+  }
+
   async getMineCount() {
-    return parseInt(await this.mineCounter.textContent(), 10);
+    return this._digits(await this.mineSpan.textContent());
   }
 
-  /** Retorna o tempo exibido. */
   async getTimer() {
-    return parseInt(await this.timerEl.textContent(), 10);
+    return this._digits(await this.timerSpan.textContent());
   }
 
-  /** Conta células reveladas. */
   async countRevealed() {
     return this.revealedCells.count();
   }
 
-  /** Conta células com bandeira. */
   async countFlagged() {
     return this.flaggedCells.count();
   }
 
-  /** Retorna true se a mensagem de fim de jogo está visível. */
+  /** true se a mensagem de fim de jogo (.game-message.show) está presente. */
   async isGameMessageVisible() {
-    return this.gameMsg.evaluate(el => el.classList.contains('show'));
+    return (await this.gameMsg.count()) > 0;
   }
 
-  /** Retorna o título da mensagem (Game Over! / Você Venceu!). */
   async getMessageTitle() {
     return this.msgTitle.textContent();
   }
 
-  /** Verifica se uma célula específica está revelada. */
   async isCellRevealed(row, col) {
-    return this.page.evaluate(({ r, c }) => {
-      const el = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
-      return el ? el.classList.contains('revealed') : false;
-    }, { r: row, c: col });
+    const cell = await this._cell(row, col);
+    return (await cell.getAttribute('class') || '').includes('revealed');
   }
 
-  /** Verifica se uma célula específica tem bandeira. */
   async isCellFlagged(row, col) {
-    return this.page.evaluate(({ r, c }) => {
-      const el = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
-      return el ? el.classList.contains('flagged') : false;
-    }, { r: row, c: col });
+    const cell = await this._cell(row, col);
+    return (await cell.getAttribute('class') || '').includes('flagged');
   }
 }

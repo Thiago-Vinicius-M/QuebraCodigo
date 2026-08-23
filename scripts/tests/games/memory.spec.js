@@ -1,127 +1,16 @@
 /**
  * memory.spec.js — Testes do Jogo da Memória
  *
- * Tipo: E2E + API + Funcional + UI
+ * Tipo: E2E / UI
  *
- * Técnica-chave: cada .card3d tem dataset.hash com o caminho da imagem.
- *   Isso permite encontrar pares deterministicamente via page.evaluate(),
- *   sem depender da posição aleatória do deck gerado pelo backend.
+ * Regras de negócio (deck, pares, fórmula de score) migraram para JUnit:
+ *   app/src/test/java/br/com/user/game/memory/MemoryServiceTest.java
  *
- * Cobre:
- *   ✓ API: deck retorna tamanho correto para cada configuração
- *   ✓ API: deck contém pares exatos (cada imagem aparece 2×)
- *   ✓ API: cálculo de pontuação segue fórmula esperada
- *   ✓ UI:  grid renderiza número correto de cartas
- *   ✓ UI:  cartas começam viradas para baixo
- *   ✓ UI:  clicar uma carta a vira (classe .flipped)
- *   ✓ UI:  par correto fica permanentemente virado (.matched)
- *   ✓ UI:  par errado volta a virar após ~380ms
- *   ✓ UI:  contador de movimentos incrementa a cada par testado
- *   ✓ UI:  troca de tamanho recria o grid com contagem correta
- *
- * Como descrever no TCC:
- *   "Testes E2E que validam a integração entre o backend (deck gerado
- *   via API) e o frontend (animações flip, contador de movimentos),
- *   usando inspeção de atributos DOM para localizar pares de forma
- *   determinística e independente da aleatoriedade."
+ * Aqui permanece só a validação de interface (DOM, animações, contadores).
  */
 
 import { test, expect } from '../../fixtures/auth.fixture.js';
 import { MemoryPage } from '../../pages/MemoryPage.js';
-
-// ── API Tests ─────────────────────────────────────────────────────────────────
-
-test.describe('Memória — API REST', () => {
-
-  /**
-   * TESTE 1 — Tamanho do deck por configuração de grid
-   *
-   * Objetivo: verificar que cada tamanho retorna o número correto de cartas.
-   * Tipo: Teste de API / Contrato
-   */
-  test('POST /new deve retornar deck com tamanho correto para cada grid @smoke', async ({ authenticatedPage }) => {
-    const cases = [
-      { size: '4x4', expected: 16, cols: 4, rows: 4 },
-      { size: '5x4', expected: 20, cols: 5, rows: 4 },
-      { size: '6x4', expected: 24, cols: 6, rows: 4 },
-    ];
-
-    for (const { size, expected, cols, rows } of cases) {
-      const res = await authenticatedPage.request.post(
-        `http://localhost:8150/api/games/memory/new?size=${encodeURIComponent(size)}`
-      );
-      expect(res.ok(), `size=${size} deve retornar 200`).toBe(true);
-
-      const data = await res.json();
-      expect(data.deck).toHaveLength(expected);
-      expect(data.cols).toBe(cols);
-      expect(data.rows).toBe(rows);
-    }
-  });
-
-  /**
-   * TESTE 2 — Deck contém pares exatos
-   *
-   * Objetivo: verificar que cada imagem aparece exatamente 2 vezes.
-   * Tipo: Teste de API / Regra de negócio
-   * Valida: propriedade de "deck de pares" do MemoryService.java
-   */
-  test('POST /new deve retornar deck onde cada imagem aparece exatamente 2 vezes', async ({ authenticatedPage }) => {
-    const res  = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/memory/new?size=4x4'
-    );
-    const { deck } = await res.json();
-
-    const counts = {};
-    for (const card of deck) {
-      counts[card] = (counts[card] ?? 0) + 1;
-    }
-
-    for (const [card, count] of Object.entries(counts)) {
-      expect(count, `imagem ${card} deve aparecer 2×`).toBe(2);
-    }
-  });
-
-  /**
-   * TESTE 3 — Cálculo de pontuação (grid 4×4)
-   *
-   * Objetivo: verificar a fórmula de score do MemoryService.java.
-   * Tipo: Teste de API / Regra de negócio
-   * Fórmula: base(80) + bonus(moves) + bonus(tempo)
-   *   base = 80 para totalCards ≤ 16
-   *   bonus = max(0, 60 - seconds/5) + max(0, 24 - moves)
-   */
-  test('POST /score deve calcular pontuação corretamente para 4×4', async ({ authenticatedPage }) => {
-    const res = await authenticatedPage.request.post(
-      'http://localhost:8150/api/games/memory/score',
-      { data: { moves: 8, seconds: 30, totalCards: 16 } }
-    );
-    expect(res.ok()).toBe(true);
-
-    const { points, coins } = await res.json();
-    // base=80, bonus_tempo=max(0,60-6)=54, bonus_moves=max(0,24-8)=16 → 80+54+16=150
-    expect(points).toBe(150);
-    expect(coins).toBe(6);
-  });
-
-  /**
-   * TESTE 4 — Pontuação menor com mais movimentos e tempo
-   *
-   * Objetivo: verificar que desempenho pior resulta em menos pontos.
-   * Tipo: Teste de API / Regressão
-   */
-  test('POST /score com muitos movimentos e tempo deve retornar menos pontos', async ({ authenticatedPage }) => {
-    const [fast, slow] = await Promise.all([
-      authenticatedPage.request.post('http://localhost:8150/api/games/memory/score',
-        { data: { moves: 8, seconds: 10, totalCards: 16 } }).then(r => r.json()),
-      authenticatedPage.request.post('http://localhost:8150/api/games/memory/score',
-        { data: { moves: 40, seconds: 300, totalCards: 16 } }).then(r => r.json()),
-    ]);
-
-    expect(fast.points).toBeGreaterThan(slow.points);
-  });
-
-});
 
 // ── UI Tests ──────────────────────────────────────────────────────────────────
 
@@ -269,8 +158,8 @@ test.describe('Memória — Interface (UI)', () => {
     const memPage = new MemoryPage(page);
     await memPage.goto();
 
-    await memPage.setSize('6x4');
-    await page.waitForTimeout(800); // aguarda API + render
+    await memPage.setSize(6);        // 6 colunas × 4 linhas = 24 cartas
+    await page.waitForTimeout(800);  // aguarda o re-render
 
     const count = await memPage.allCards.count();
     expect(count).toBe(24);

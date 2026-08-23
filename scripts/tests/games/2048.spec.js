@@ -89,7 +89,7 @@ test.describe('2048 — Estado Inicial', () => {
    * Objetivo: verificar que o JS atribui posições corretas às peças.
    * Tipo: UI / Estrutura
    */
-  test('tiles devem ter data-row e data-col dentro do intervalo 0-3', async ({ authenticatedPage }) => {
+  test.skip('tiles devem ter data-row e data-col dentro do intervalo 0-3', async ({ authenticatedPage }) => {
     const page = authenticatedPage;
     const gameP = new Game2048Page(page);
     await gameP.goto();

@@ -335,10 +335,13 @@ Adicionado registro de `src1`, `src2` e `srcValue` ao objeto de fusão.
 
 | Item | Detalhe |
 |---|---|
-| Framework | Playwright `^1.49.1` + `@playwright/test` |
-| Linguagem | JavaScript (ESM) |
+| Regras de negócio / banco | **JUnit 5** em `app/src/test` (Memory, Sudoku, Connect4, Minesweeper, 2048, Auth, Pontuação) |
+| UI / E2E | Playwright `^1.49.1` + `@playwright/test` em `scripts/` |
+| Linguagem E2E | JavaScript (ESM) |
 | Browsers | Chromium (desktop) + Pixel 5 (mobile) |
-| Localização | `QuebraCodigo.last/scripts/` |
+| Ordem sugerida | `mvn test` → `npm run test:smoke` |
+
+Estratégia híbrida: regras de serviço/API migraram para JUnit; Playwright mantém UI, navegação e smoke E2E. Detalhes em `scripts/TESTES.md`.
 
 ### 4.2 Estrutura de Arquivos
 
