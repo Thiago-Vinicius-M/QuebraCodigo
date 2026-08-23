@@ -15,3 +15,13 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Node / npm
+node_modules/
+**/node_modules/
+
+# Playwright (artefatos gerados)
+playwright-report/
+**/playwright-report/
+test-results/
+**/test-results/

@@ -1,12 +1,14 @@
 /**
  * Game2048Page — Page Object Model do jogo 2048.
  *
- * IMPORTANTE — Limitação de timing:
- *   O jogo possui um flag `_animating` que bloqueia input por ~150ms após
- *   cada movimento. Todos os métodos de movimento já incluem waitForTimeout(250)
- *   para garantir que a animação finalizou antes da próxima ação.
+ * Frontend atual (React client-side):
+ *   - Grid:   .grid-container (16 .grid-cell de fundo)
+ *   - Peça:   .tile (posicionada por left/top; valor no textContent)
+ *   - Score:  .score-container "Pontos" .score-value
+ *   - Botões: .btn "Desfazer" / "Reiniciar" (sem id)
  *
- * Tiles têm dataset.row e dataset.col definidos pelo JS após cada renderização.
+ * NOTA: os tiles NÃO têm data-row/data-col nesta versão (posição via CSS),
+ *       então readTiles retorna apenas os valores.
  */
 export class Game2048Page {
 
@@ -15,36 +17,30 @@ export class Game2048Page {
     this.page = page;
 
     // ── Controles ─────────────────────────────────────────────────
-    this.undoBtn     = page.locator('#undoBtn');
-    this.restartBtn  = page.locator('#restartBtn');
-    this.tryAgainBtn = page.locator('#tryAgainBtn');
-    this.scoreEl     = page.locator('#score');
-    this.bestEl      = page.locator('#best');
-    this.gameMsg     = page.locator('#gameMessage');
+    this.undoBtn     = page.locator('.btn', { hasText: 'Desfazer' });
+    this.restartBtn  = page.locator('.btn', { hasText: 'Reiniciar' });
+    this.tryAgainBtn = page.locator('.btn-action');
+    this.scoreEl     = page.locator('.score-container', { hasText: 'Pontos' }).locator('.score-value');
+    this.bestEl      = page.locator('.score-container', { hasText: 'Melhor' }).locator('.score-value');
+    this.gameMsg     = page.locator('.game-message');
 
     // ── Grid ──────────────────────────────────────────────────────
-    this.gridContainer = page.locator('#gridContainer');
-    this.bgCells       = page.locator('#gridContainer .grid-cell');  // 16 células de fundo
-    this.tiles         = page.locator('#gridContainer .tile');       // peças ativas
+    this.gridContainer = page.locator('.grid-container');
+    this.bgCells       = page.locator('.grid-container .grid-cell'); // 16 células de fundo
+    this.tiles         = page.locator('.grid-container .tile');      // peças ativas
   }
 
   // ── Navegação ───────────────────────────────────────────────────
 
   async goto() {
     await this.page.goto('/games/2048/2048.html');
-    await this.page.waitForLoadState('networkidle');
     // Aguarda as 2 peças iniciais serem renderizadas
-    await this.page.waitForSelector('#gridContainer .tile', { timeout: 5_000 });
+    await this.page.waitForSelector('.grid-container .tile', { timeout: 20_000 });
   }
 
   // ── Movimentos (com espera de animação) ─────────────────────────
 
-  /**
-   * Pressiona uma seta e aguarda a animação terminar.
-   * O flag _animating bloqueia input por ~150ms — usamos 250ms de margem.
-   *
-   * @param {'ArrowUp'|'ArrowDown'|'ArrowLeft'|'ArrowRight'} direction
-   */
+  /** @param {'ArrowUp'|'ArrowDown'|'ArrowLeft'|'ArrowRight'} direction */
   async pressArrow(direction) {
     await this.page.keyboard.press(direction);
     await this.page.waitForTimeout(250);
@@ -55,7 +51,6 @@ export class Game2048Page {
   async pressLeft()  { await this.pressArrow('ArrowLeft'); }
   async pressRight() { await this.pressArrow('ArrowRight'); }
 
-  /** Pressiona uma sequência de setas com espera entre cada. */
   async pressSequence(directions) {
     for (const dir of directions) {
       await this.pressArrow(dir);
@@ -71,7 +66,7 @@ export class Game2048Page {
 
   async clickRestart() {
     await this.restartBtn.click();
-    await this.page.waitForSelector('#gridContainer .tile', { timeout: 5_000 });
+    await this.page.waitForSelector('.grid-container .tile', { timeout: 10_000 });
   }
 
   // ── Leitura de estado ───────────────────────────────────────────
@@ -87,32 +82,29 @@ export class Game2048Page {
   }
 
   /**
-   * Lê o estado do grid como objeto { row, col, value }[].
-   * Usa os atributos data-row e data-col que o JS define em cada tile.
+   * Lê os valores dos tiles atuais (não há data-row/col nesta versão).
+   * @returns {Promise<number[]>}
    */
-  async readTiles() {
+  async readTileValues() {
     return this.page.evaluate(() => {
-      return [...document.querySelectorAll('#gridContainer .tile')].map(t => ({
-        row:   parseInt(t.dataset.row, 10),
-        col:   parseInt(t.dataset.col, 10),
-        value: parseInt(t.textContent, 10),
-      }));
+      return [...document.querySelectorAll('.grid-container .tile')]
+        .map(t => parseInt(t.textContent, 10) || 0);
     });
   }
 
   /** Retorna o maior valor entre as peças atualmente no tabuleiro. */
   async getMaxTileValue() {
-    const tiles = await this.readTiles();
-    return tiles.reduce((max, t) => Math.max(max, t.value), 0);
+    const values = await this.readTileValues();
+    return values.reduce((max, v) => Math.max(max, v), 0);
   }
 
   /** Retorna true se a mensagem de game over / vitória está visível. */
   async isGameMessageVisible() {
-    return this.gameMsg.evaluate(el => el.classList.contains('show'));
+    return (await this.gameMsg.count()) > 0;
   }
 
   /** Retorna o título da mensagem final (Game Over! / Você Venceu!). */
   async getMessageTitle() {
-    return this.page.locator('#messageTitle').textContent();
+    return this.page.locator('.message-title').textContent();
   }
 }
