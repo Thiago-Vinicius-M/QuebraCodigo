@@ -1,0 +1,35 @@
+name: Glitchtip Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release-sourcemaps:
+    runs-on: ubuntu-latest
+    env:
+      SENTRY_URL: ${{ secrets.SENTRY_URL }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      # glitchtip-cli (Rust binary) must be installed separately in the runner.
+      # Download from Glitchtip releases page and place on PATH, or build via cargo.
+      - name: Install glitchtip-cli (placeholder)
+        run: |
+          echo "Install glitchtip-cli here (cargo install glitchtip-cli or download binary)"
+          # Example: curl -L <release-url> -o /usr/local/bin/glitchtip-cli && chmod +x /usr/local/bin/glitchtip-cli
+
+      - name: Create Glitchtip release
+        run: glitchtip-cli releases new "$GITHUB_SHA"
+
+      - name: Upload sourcemaps
+        run: glitchtip-cli sourcemaps upload .next

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela de Login</title>
+    <link rel="icon" type="image/png" href="img/home/logoQuebraCodigo.png">
+    <link rel="shortcut icon" type="image/png" href="img/home/logoQuebraCodigo.png">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/animate.css">
+</head>
+<body>
+
+<main class="container page-in">
+
+    <header>
+        <img class="logo" src="img/login/LogoQuebraCodigo.png" alt="Logo do sistema">
+    </header>
+
+    <section class="welcome-area">
+        <h1 class="welcome-title fade-in">Bem vindo!</h1>
+
+        <blockquote class="welcome-quote fade-in delay-1">
+            “A <a>mente</a> que se abre a uma nova <span>ideia</span> jamais voltará ao seu
+            tamanho original.” <br>– Albert Einstein
+        </blockquote>
+    </section>
+
+    <section class="form-area glass-rise" aria-labelledby="login-title">
+        <h2 id="login-title" class="visually-hidden">Área de Login</h2>
+
+        <form class="login-form">
+
+            <label class="input-box stagger delay-1">
+                <img class="input-icon" src="img/login/user.png" alt="">
+                <input type="text" name="usuario" placeholder="Usuário" required>
+            </label>
+
+            <label class="input-box stagger delay-2">
+                <img class="input-icon" src="img/login/padlock.png" alt="">
+                <input type="password" name="senha" placeholder="Senha" required>
+            </label>
+
+            <div class="actions-row fade-in delay-2">
+                <nav class="action-list" aria-label="Ações rápidas">
+                    <img src="img/login/Google Logo 1.png" alt="Ação 1">
+                </nav>
+                <a href="forgot-password.html" class="forgot-btn slide-left" id="forgot-link">Esqueci minha senha</a>
+            </div>
+
+            <div class="login-actions fade-in delay-3">
+                <button class="create-btn" id="create-btn" >Criar conta</button>
+                <button type="submit" class="login-btn" id="login-btn">Entrar</button>
+            </div>
+
+        </form>
+    </section>
+
+</main>
+
+<script src="js/qc-static-base.js"></script>
+<script>
+
+    function animateAndGo(url) {
+        const container = document.querySelector(".container");
+
+        // Remove animação de entrada
+        container.classList.remove("page-in");
+
+        // Adiciona animação de saída
+        container.classList.add("page-out");
+
+        // Espera terminar a animação para trocar a página
+        container.addEventListener("animationend", () => {
+            window.location.href = url;
+        }, { once: true });
+    }
+    function showError(msg) {
+        let el = document.getElementById("login-error");
+        if (!el) {
+            el = document.createElement("p");
+            el.id = "login-error";
+            el.className = "login-error";
+            el.style.color = "#e74c3c";
+            el.style.marginTop = "0.5rem";
+            el.style.fontSize = "0.9rem";
+            document.querySelector(".login-actions").prepend(el);
+        }
+        el.textContent = msg;
+    }
+
+    document.querySelector(".login-form").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const usuario = this.usuario.value.trim();
+        const senha = this.senha.value;
+
+        if (!usuario || !senha) {
+            showError("Preencha usuário e senha.");
+            return;
+        }
+
+        try {
+            const res = await fetch(qcAuthUrl("/auth/login"), qcAuthFetchInit({
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ usuario, senha })
+            }));
+            const data = await res.json();
+
+            if (res.ok) {
+                if (window.QC_API_BASE) {
+                    window.location.href = window.QC_API_BASE + "/index.html";
+                } else {
+                    animateAndGo("index.html");
+                }
+            } else {
+                showError(data.error || "Erro ao fazer login.");
+            }
+        } catch (err) {
+            showError(window.QC_API_BASE
+                ? "Servidor em localhost:8150 não respondeu. Inicie o Spring Boot."
+                : "Erro de conexão. Tente novamente.");
+        }
+    });
+
+    document.getElementById("create-btn").addEventListener("click", function(e) {
+        e.preventDefault();
+        animateAndGo("cadastro.html");
+    });
+</script>
+</body>
+</html>

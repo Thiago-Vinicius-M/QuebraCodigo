@@ -1,0 +1,369 @@
+/* variáveis de temas: jogos */
+:root {
+  --ink: #e5e7eb;
+  --border: rgba(148, 163, 184, 0.45);
+  --border-strong: rgba(148, 163, 184, 0.9);
+  --grid: rgba(148, 163, 184, 0.4);
+  --muted: #9ca3af;
+
+  /* altura do header fixo — usada para calcular a área util do tabuleiro */
+  --header-h: 70px;
+  /* área vertical disponível para o jogo abaixo do header (sem scroll) */
+  --play-h: calc(100svh - var(--header-h));
+}
+
+/* sem scroll global nos jogos: o tabuleiro deve caber sempre na tela */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* layout global dos jogos */
+
+header {
+  max-width: 100%;
+  display: flex;
+  margin: 0;
+}
+option {
+  background-color: #0b1220;
+}
+
+.game-shell {
+  max-width: 100%;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  padding-top: 70px;
+}
+
+@media (max-width: 768px) {
+  .game-shell {
+    padding-top: 0;
+  }
+
+  .game-header {
+    position: relative;
+    height: auto;
+    min-height: 56px;
+    padding: 8px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    row-gap: 6px;
+  }
+
+  .game-title {
+    position: static !important;
+    transform: none !important;
+    font-size: 1.3rem;
+    flex: 1 1 100%;
+    text-align: center;
+    order: -1;
+    pointer-events: auto !important;
+  }
+
+  .controls {
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-right: 0;
+    width: 100%;
+  }
+
+  .go-back {
+    order: -2;
+  }
+}
+
+.game-title {
+  display: flex;
+  position: relative;
+  text-align: center;
+  font-size: 2rem;
+  margin: 0 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #ffdd55, #ff66cc);
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+}
+
+.game-header {
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  height: 70px;
+  padding: 0 20px;
+
+  /* seta à esquerda, controles à direita; título fica absoluto/centralizado (sai do fluxo) */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.25);
+
+  z-index: 9999;
+}
+
+.game-header h1 {
+  font-size: 1.9rem;
+}
+
+.game-header a {
+  margin-left: 5px;
+}
+
+.header-spacer {
+  height: 70px;
+  display: grid;
+}
+
+/* controles do topo */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  margin-left: auto;   /* empurra para a direita; o padding do header garante o respiro */
+  min-width: 0;
+}
+
+.ctrl-group {
+  display: flex;
+  gap: 8px;
+}
+
+.ctrl-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* botões e selects */
+button,
+select {
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(6px);
+  font-weight: 600;
+  transition: 0.25s ease;
+  color: var(--ink); /* Adicionado para garantir a cor do texto nos botões/selects */
+  font-family: inherit; /* Adicionado para herdar a fonte */
+}
+
+button:hover,
+select:hover {
+  background: rgba(255, 255, 255, 0.32);
+  transform: translateY(-2px);
+}
+
+/* links */
+a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+a:hover {
+  color: #e5e7eb;
+}
+
+.go-back {
+  justify-self: start;
+  padding: 0 0.75rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+  transition: transform 0.2s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.go-back:hover {
+  transform: scale(1.15);
+}
+
+.go-back img {
+  height: 1.5rem;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: var(--play-h);
+  min-height: var(--play-h);
+  width: 100%;
+  overflow: hidden;
+}
+
+/* botão de ação pós-jogo (Jogar Novamente, Próximo Nível, etc.) */
+.btn-action {
+  flex: none;
+  padding: 10px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+.btn-action:hover {
+  background: rgba(255,255,255,0.28);
+  transform: translateY(-2px);
+}
+
+/* utilidades */
+
+.status {
+  text-align: center;
+  margin-top: 2px;
+}
+.hidden {
+  display: none;
+}
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* =====================================================================
+   PADRÃO ÚNICO DE HEADER DOS JOGOS
+   Tamanho, fonte e espaçamento iguais em todos os jogos.
+   A ÚNICA coisa livre por jogo é a COR de fundo/borda dos botões
+   (que segue a identidade visual de cada jogo).
+   Escopo em .game-header garante prioridade sobre regras locais.
+   (connect4 usa .c4-* e espelha estes mesmos valores no connect4.css)
+   ===================================================================== */
+
+/* Título — gradiente, fonte, tamanho e espaçamento únicos */
+.game-header .game-title {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: 2px;
+  line-height: 1.25;            /* evita cortar descendentes (g, ç) */
+  padding-bottom: 0.06em;
+  overflow: visible;            /* sobrescreve o overflow:hidden do .game-title base */
+  text-overflow: clip;
+  background: linear-gradient(90deg, #ffdd55, #ff66cc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+}
+
+/* Espaçamento uniforme entre os controles */
+.game-header .controls {
+  gap: 10px;
+  align-items: center;
+}
+
+.game-header .ctrl-group {
+  gap: 8px;
+}
+
+/* Botões e selects do header: MESMO tamanho/forma/fonte em todos os jogos.
+   NÃO definimos background/border/color aqui -> a cor fica por conta do jogo. */
+.game-header button:not(.go-back),
+.game-header select {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 10px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Rótulos ("Tamanho:", "Modo:", "Dificuldade:", "Nível", etc.) */
+.game-header .ctrl-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Textos de info inline ("Vez:", "Vencedor:", "Movimentos", "Tempo", "Nível") */
+.game-header .controls span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.game-header .controls span strong,
+.game-header .controls span b {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* "Cartões" de pontuação / badges (PONTOS/MELHOR do 2048, badges do minesweeper):
+   padding, raio e fontes padronizados. */
+.game-header .score-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 12px;
+  border-radius: 10px;
+  min-width: 0;
+}
+
+.game-header .score-label,
+.game-header .info-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.game-header .score-value,
+.game-header .info-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}

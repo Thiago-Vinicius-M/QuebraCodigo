@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Aventura RPG – Quebra Código</title>
+    <link rel="icon" type="image/png" href="../../img/home/logoQuebraCodigo.png">
+    <link rel="shortcut icon" type="image/png" href="../../img/home/logoQuebraCodigo.png">
+
+    <!-- CSS global do site -->
+    <link rel="stylesheet" href="/css/games.css"/>
+</head>
+<body class="rpg-page">
+<div class="container">
+    <h1>Aventura RPG <span class="tag">tema lilás</span></h1>
+
+    <div class="panel rpg-wrap">
+        <!-- Esquerda -->
+        <div>
+            <div class="controls">
+                <button id="rpgRun" class="primary">Executar</button>
+                <button id="rpgStep">Passo</button>
+                <button id="rpgStop">Parar</button>
+                <button id="rpgReset">Resetar</button>
+            </div>
+
+            <div class="muted">Programa (use <code>UP</code>, <code>DOWN</code>, <code>LEFT</code>, <code>RIGHT</code> e
+                <code>LOOP n { ... }</code>):</div>
+
+            <textarea id="rpgProg">LOOP 3 {
+  RIGHT
+}
+DOWN
+DOWN
+RIGHT
+RIGHT
+UP
+RIGHT</textarea>
+
+            <div id="rpgMsg" class="info">Escreva o programa e clique Executar.</div>
+
+            <div class="muted tips">
+                <ul>
+                    <li>Comandos: <code>UP</code>, <code>DOWN</code>, <code>LEFT</code>, <code>RIGHT</code></li>
+                    <li>Loops: <code>LOOP 4 { RIGHT DOWN }</code> (pode quebrar linha dentro do bloco)</li>
+                    <li>Chegou no <strong>G</strong>? A próxima fase carrega automaticamente.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Direita: tabuleiro -->
+        <div class="board">
+            <canvas id="rpgCanvas" aria-label="Tabuleiro do RPG"></canvas>
+        </div>
+    </div>
+
+    <!-- link “↩ Voltar” como no Connect4 -->
+    <div class="page-back">
+        <a href="/index.html" class="go-back">↩ Voltar</a>
+    </div>
+</div>
+
+<!-- JS do jogo -->
+<script src="/games/js/aventura-rpg.js?v=14" defer></script>
+</body>
+</html>

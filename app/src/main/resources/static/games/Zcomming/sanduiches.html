@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Máquina de Fazer Sanduíches – Quebra Código</title>
+    <link rel="icon" type="image/png" href="../../img/home/logoQuebraCodigo.png">
+    <link rel="shortcut icon" type="image/png" href="../../img/home/logoQuebraCodigo.png">
+    <link rel="stylesheet" href="/css/games.css"/>
+</head>
+<body>
+<div class="container">
+    <h1>Máquina de Fazer Sanduíches</h1>
+    <div class="panel">
+        <div class="controls">
+            <label>Receita:
+                <select id="sRecipe">
+                    <option value="xb">X-Básico (pão, queijo, presunto, pão)</option>
+                    <option value="xsalada">X-Salada (pão, alface, tomate, queijo, pão)</option>
+                </select>
+            </label>
+            <button id="sRun">Executar</button>
+            <button id="sClear">Limpar</button>
+            <span class="muted">Pontuação: <strong id="sScore">0</strong></span>
+        </div>
+
+        <div class="panel" style="margin-bottom:12px">
+            <div class="muted">Programa (uma instrução por linha):</div>
+            <textarea id="sProg" rows="8" style="width:100%" placeholder="Exemplos:
+ADD PAO
+ADD QUEIJO
+ADD PRESUNTO
+ADD PAO"></textarea>
+            <div class="muted" style="margin-top:8px">Comandos: ADD PAO|QUEIJO|PRESUNTO|ALFACE|TOMATE, RESET, LOOP n { ... }</div>
+        </div>
+
+        <div class="panel">
+            <div class="muted">Montagem:</div>
+            <div id="sView" style="min-height:160px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center"></div>
+            <div id="sMsg" class="muted" style="text-align:center"></div>
+        </div>
+    </div>
+    <p><a href="/">↩ Voltar</a></p>
+</div>
+<script src="/games/js/achievements.js"></script>
+<script src="/games/js/sanduiches.js"></script>
+</body>
+</html>

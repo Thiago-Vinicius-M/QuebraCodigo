@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Assistente IA - Plataforma</title>
+    <link rel="icon" type="image/png" href="../img/home/logoQuebraCodigo.png">
+    <link rel="shortcut icon" type="image/png" href="../img/home/logoQuebraCodigo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- mesmo fundo e fonte da home -->
+    <link rel="stylesheet" href="../css/home.css">
+    <!-- estilo específico da página da IA -->
+    <link rel="stylesheet" href="../css/ia.css">
+</head>
+<body>
+<main class="page-layout">
+    <!-- Área onde você encaixa o jogo/curso -->
+    <section class="content-area">
+        <div class="content-placeholder">
+            <h1>Seu Jogo / Curso Aqui</h1>
+            <p>
+                Essa área é para o jogo ou para a aula.
+                A IA ao lado pode explicar regras, tirar dúvidas, dar dicas etc.
+            </p>
+        </div>
+    </section>
+
+    <!-- Chat com a IA -->
+    <section class="ai-chat" id="ai-chat-widget">
+        <header class="ai-chat-header">
+            <h2>Assistente IA</h2>
+            <span class="ai-chat-subtitle">Pergunte sobre o jogo, curso ou exercícios</span>
+        </header>
+
+        <div class="ai-chat-context">
+            <label for="context-type">Contexto:</label>
+            <select id="context-type">
+                <option value="geral">Geral</option>
+                <option value="jogo">Jogo</option>
+                <option value="curso">Curso</option>
+                <option value="exercicio">Exercício / Atividade</option>
+            </select>
+
+            <input
+                    id="context-details"
+                    type="text"
+                    placeholder="Ex: Jogo da Memória - fase 2, ou Curso Lógica - aula 3">
+        </div>
+
+        <div class="ai-chat-messages" id="ai-chat-messages">
+            <div class="message message-ai">
+                <div class="message-content">
+                    Oi! Sou a IA da plataforma.
+                    Pode me perguntar sobre as regras do jogo, dúvidas da aula ou pedir exemplos.
+                </div>
+                <div class="message-meta">IA</div>
+            </div>
+        </div>
+
+        <form class="ai-chat-input-area" id="ai-chat-form">
+            <textarea
+                    id="ai-chat-input"
+                    rows="2"
+                    placeholder="Digite sua pergunta aqui..."></textarea>
+            <button type="submit" id="ai-chat-send">Enviar</button>
+        </form>
+    </section>
+</main>
+
+<script>
+    // Endpoint da sua API de IA
+    const API_URL = "http://localhost:8090/api/ia";
+
+    const messagesContainer = document.getElementById("ai-chat-messages");
+    const form = document.getElementById("ai-chat-form");
+    const input = document.getElementById("ai-chat-input");
+    const contextTypeSelect = document.getElementById("context-type");
+    const contextDetailsInput = document.getElementById("context-details");
+
+    let typingIndicatorEl = null;
+
+    // Adiciona mensagem na tela
+    function addMessage(text, sender = "user") {
+        const msgEl = document.createElement("div");
+        msgEl.classList.add("message");
+        msgEl.classList.add(sender === "user" ? "message-user" : "message-ai");
+
+        const contentEl = document.createElement("div");
+        contentEl.classList.add("message-content");
+        contentEl.textContent = text;
+
+        const metaEl = document.createElement("div");
+        metaEl.classList.add("message-meta");
+        metaEl.textContent = sender === "user" ? "Você" : "IA";
+
+        msgEl.appendChild(contentEl);
+        msgEl.appendChild(metaEl);
+
+        messagesContainer.appendChild(msgEl);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showTyping() {
+        if (typingIndicatorEl) return;
+        typingIndicatorEl = document.createElement("div");
+        typingIndicatorEl.classList.add("typing-indicator");
+        typingIndicatorEl.textContent = "IA está pensando...";
+        messagesContainer.appendChild(typingIndicatorEl);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function hideTyping() {
+        if (typingIndicatorEl) {
+            typingIndicatorEl.remove();
+            typingIndicatorEl = null;
+        }
+    }
+
+    async function sendToAI(message) {
+        const contextType = contextTypeSelect.value;
+        const contextDetails = contextDetailsInput.value.trim();
+
+        showTyping();
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: message,
+                    contextType: contextType,
+                    contextDetails: contextDetails
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("Erro na resposta da API: " + response.status);
+            }
+
+            const data = await response.json();
+            hideTyping();
+
+            const aiReply = data.reply || data.resposta || "Não consegui entender a resposta da API de IA.";
+            addMessage(aiReply, "ai");
+        } catch (error) {
+            console.error(error);
+            hideTyping();
+            addMessage("Tive um problema para falar com o servidor de IA em localhost:8090. Verifique se ele está rodando e tente novamente.", "ai");
+        }
+    }
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage(text, "user");
+        input.value = "";
+        sendToAI(text);
+    });
+
+    input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            form.dispatchEvent(new Event("submit"));
+        }
+    });
+
+    window.enviarPerguntaIA = function (texto) {
+        if (!texto) return;
+        addMessage(texto, "user");
+        sendToAI(texto);
+    };
+</script>
+</body>
+</html>

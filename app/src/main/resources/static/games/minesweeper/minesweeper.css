@@ -1,0 +1,420 @@
+/* ===== RESET E BASE ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Corpo da página: gradiente da plataforma */
+/* FIX: removidos min-height:100vh e overflow-y:auto que reintroduziam scroll.
+   O global.css já define html,body{height:100%;overflow:hidden}. Mantemos só o fundo. */
+body {
+    font-family: 'Roboto', 'Sofia Sans', sans-serif;
+    background: linear-gradient(180deg,
+    #0A0F2C 0%,
+    #111A3A 20%,
+    #1C2E6C 45%,
+    #3A1F78 70%,
+    #5C2D91 100%);
+    color: white;
+    margin: 0;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+/* O global.css define .game-shell como flex-column com padding-top:70px (header fixo).
+   Aqui transformamos a área ABAIXO do header (--play-h) numa coluna centralizada
+   que nunca gera scroll: tabuleiro + instruções cabem em var(--play-h). */
+.game-shell {
+    box-sizing: border-box;
+    height: 100svh;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 2svh, 20px);
+    padding: 70px clamp(8px, 3vw, 24px) clamp(8px, 2svh, 20px);
+    overflow: hidden;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+}
+
+/* ===== CABEÇALHO ===== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* ===== TEXTO COM GRADIENTE (compartilhado entre h1 e .message-title) ===== */
+/* FIX: eliminada duplicação — as mesmas 4 propriedades existiam em h1 e .message-title */
+h1,
+.message-title {
+    background: linear-gradient(135deg, #00EAFF, #a200ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h1 {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+/* ===== PAINÉIS DE INFORMAÇÃO ===== */
+.info-panels {
+    display: flex;
+    gap: 10px;
+}
+
+/* Painel individual (minas/tempo) */
+.info-panel {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    border-radius: 12px;
+    padding: 10px 20px;
+    text-align: center;
+    min-width: 80px;
+}
+
+.info-label {
+    font-size: 12px;
+    color: #E0E0E0;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+/* ===== SELETOR DE DIFICULDADE ===== */
+.difficulty-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+/* ===== BASE COMPARTILHADA DE BOTÕES ===== */
+/* FIX: eliminada duplicação — .difficulty-btn e .btn tinham 6 propriedades idênticas */
+.difficulty-btn,
+.btn {
+    flex: 1;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+/* Botões de dificuldade */
+.difficulty-btn {
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+}
+
+.difficulty-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Dificuldade ativa (selecionada) */
+.difficulty-btn.active {
+    background: linear-gradient(135deg, #1C2E6C, #3A1F78);
+    border-color: #a200ff;
+    box-shadow: 0 0 15px rgba(162, 0, 255, 0.4);
+}
+
+/* ===== BOTÕES DE CONTROLE ===== */
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #1C2E6C, #3A1F78);
+    border: none;
+    font-size: 16px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(162, 0, 255, 0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===== CONTAINER DO JOGO ===== */
+/* A grade é sempre QUADRADA (8x8 / 14x14 / 20x20). O container do tabuleiro é
+   dimensionado como um quadrado cujo lado é o MENOR entre a largura e a altura
+   disponíveis — assim cabe inteiro em qualquer dificuldade, sem scroll.
+
+   --board-reserve = espaço vertical consumido por header(70px), gaps, paddings do
+   shell e a altura das instruções abaixo do tabuleiro. Subtraímos de --play-h para
+   obter o orçamento de ALTURA; --board-area-w é o orçamento de LARGURA.
+   O lado final do tabuleiro = min(largura, altura). */
+.game-container {
+    --board-reserve: 200px;                 /* header + gaps + paddings + instruções */
+    --board-h: calc(var(--play-h) - var(--board-reserve));
+    --board-w: min(92vw, 760px);
+    --board: min(var(--board-w), var(--board-h));
+
+    width: var(--board);
+    height: var(--board);
+    max-width: 100%;
+
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: clamp(6px, 1.2vmin, 15px);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: none;
+}
+
+/* ===== GRID DO CAMPO MINADO ===== */
+/* O grid ocupa 100% do container quadrado. Colunas = 1fr (qtde vem do JS via
+   grid-template-columns inline) e linhas = 1fr (grid-auto-rows) para preencher o
+   quadrado. Como há N colunas e N linhas num quadrado, cada célula fica quadrada
+   automaticamente — sem precisar saber a contagem no CSS. */
+.grid-container {
+    display: grid;
+    grid-auto-rows: 1fr;
+    gap: clamp(1px, 0.4vmin, 2px);
+    background: rgba(0, 0, 0, 0.3);
+    padding: clamp(4px, 1vmin, 10px);
+    border-radius: 12px;
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+}
+
+/* ===== CÉLULAS DO CAMPO ===== */
+/* Sem aspect-ratio: o tamanho da célula é DERIVADO do container quadrado
+   (1fr coluna × 1fr linha). min-width/height:0 evita que o conteúdo force overflow.
+   Fonte fluida via clamp(vmin) — escala junto com o tabuleiro e com a dificuldade. */
+.cell {
+    min-width: 0;
+    min-height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: clamp(2px, 0.5vmin, 4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(9px, 2.2vmin, 18px);
+    line-height: 1;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+/* Hover: leve destaque */
+.cell:hover:not(.revealed):not(.flagged) {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0.95);
+}
+
+/* Célula revelada */
+.cell.revealed {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
+    cursor: default;
+}
+
+/* Célula com bandeira */
+.cell.flagged {
+    background: rgba(255, 215, 0, 0.3);
+    cursor: pointer;
+}
+
+.cell.flagged::after {
+    content: '🚩';
+    font-size: clamp(9px, 2.2vmin, 18px);
+}
+
+/* Célula com mina (mostrada ao perder) */
+.cell.mine {
+    background: linear-gradient(135deg, #ff4757, #c0392b);
+}
+
+.cell.mine::after {
+    content: '💣';
+    font-size: clamp(9px, 2.2vmin, 18px);
+}
+
+/* Mina que causou game over */
+.cell.mine.exploded {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    animation: explode 0.3s ease;
+}
+
+@keyframes explode {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* ===== CORES DOS NÚMEROS ===== */
+.cell[data-count="0"] { color: transparent; }
+.cell[data-count="1"] { color: #4a9eff; }
+.cell[data-count="2"] { color: #27ae60; }
+.cell[data-count="3"] { color: #e74c3c; }
+.cell[data-count="4"] { color: #8e44ad; }
+.cell[data-count="5"] { color: #d35400; }
+.cell[data-count="6"] { color: #16a085; }
+.cell[data-count="7"] { color: #000; }
+.cell[data-count="8"] { color: #7f8c8d; }
+
+/* ===== MENSAGEM DE GAME OVER / VITÓRIA ===== */
+.game-message {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10, 15, 44, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.game-message.show {
+    display: flex;
+}
+
+.message-icon {
+    font-size: clamp(36px, 12vmin, 80px);
+    margin-bottom: clamp(6px, 1.5vmin, 15px);
+    animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.message-title {
+    font-size: clamp(24px, 7vmin, 48px);
+    font-weight: bold;
+    margin-bottom: clamp(6px, 1.5vmin, 15px);
+}
+
+.message-text {
+    font-size: clamp(12px, 2.4vmin, 18px);
+    color: #E0E0E0;
+    margin-bottom: clamp(10px, 3vmin, 25px);
+    text-align: center;
+    padding: 0 12px;
+}
+
+/* ===== INSTRUÇÕES ===== */
+/* Compactas e com flex:none para não roubar o espaço do tabuleiro.
+   A margin-top vira o gap do .game-shell (removida aqui). */
+.instructions {
+    flex: none;
+    margin-top: 0;
+    background: rgba(255, 255, 255, 0.05);
+    padding: clamp(6px, 1.2vmin, 14px) clamp(10px, 2vw, 18px);
+    border-radius: 12px;
+    font-size: clamp(11px, 1.6vmin, 14px);
+    line-height: 1.35;
+    color: #E0E0E0;
+    text-align: center;
+    max-width: 760px;
+    width: 100%;
+}
+
+.instructions p {
+    margin: clamp(1px, 0.4vmin, 5px) 0;
+}
+
+.instructions strong {
+    color: #00EAFF;
+}
+
+/* ===== AJUSTES RESPONSIVOS ===== */
+/* O lado do tabuleiro = min(largura, altura disponível). Cada breakpoint só ajusta
+   o orçamento de largura (--board-w) e a reserva vertical (--board-reserve, que cobre
+   header + gaps + paddings + instruções). A célula deriva sempre do quadrado. */
+
+/* Desktop largo: permite tabuleiro maior */
+@media (min-width: 900px) {
+    .game-container {
+        --board-w: min(88vw, 820px);
+        --board-reserve: 210px;
+    }
+}
+
+/* Tablet/Mobile (header passa a relative e ocupa o fluxo; reserva maior) */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 28px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .difficulty-selector {
+        flex-wrap: wrap;
+    }
+
+    .game-shell {
+        height: 100svh;
+        justify-content: flex-start;
+        padding-top: clamp(6px, 1.5svh, 14px);
+    }
+
+    .game-container {
+        /* header relativo (com controles que podem quebrar linha) + instruções */
+        --board-w: min(96vw, 560px);
+        --board-h: calc(100svh - 230px);
+        --board: min(var(--board-w), var(--board-h));
+    }
+}
+
+/* Telas muito pequenas: reserva ainda maior pois os controles quebram em +linhas */
+@media (max-width: 480px) {
+    .game-container {
+        --board-w: min(98vw, 460px);
+        --board-h: calc(100svh - 250px);
+        --board: min(var(--board-w), var(--board-h));
+    }
+}
+
+/* identidade de cor do header (unico override permitido) — minesweeper (neon/roxo) */
+body {
+    --game-accent: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    --game-accent-border: rgba(139,92,246,0.55);
+    /* título no tema do jogo (neon ciano -> roxo) */
+    --gh-title-grad: linear-gradient(90deg, #22d3ee, #a855f7);
+}
+

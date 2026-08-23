@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Semáforo Lógico – Quebra Código</title>
+    <link rel="icon" type="image/png" href="../../img/home/logoQuebraCodigo.png">
+    <link rel="shortcut icon" type="image/png" href="../../img/home/logoQuebraCodigo.png">
+    <link rel="stylesheet" href="/css/games.css"/>
+</head>
+<body>
+<div class="container">
+    <h1>Semáforo Lógico</h1>
+    <div class="panel semaforo-card">
+        <div class="semaforo-controls">
+            <button id="sfStart">Iniciar</button>
+            <button id="sfPause">Pausar</button>
+            <label>Ciclo (s): <input id="sfCycle" type="number" value="6" min="4" max="20" style="width:64px"/></label>
+        </div>
+        <div class="semaforo-wrap">
+            <canvas id="sfCanvas" class="semaforo-canvas" width="680" height="420" aria-label="Cruz de ruas com semáforos"></canvas>
+        </div>
+        <div id="sfMsg" class="muted" style="text-align:center"></div>
+    </div>
+    <p><a href="/">↩ Voltar</a></p>
+    <script src="/games/js/achievements.js"></script>
+    <script src="/games/js/semaforo.js"></script>
+</div>
+</body>
+</html>

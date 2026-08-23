@@ -1,0 +1,247 @@
+body {
+    margin: 0;
+    /* não força altura extra: global.css já trava html/body em height:100% e overflow:hidden */
+    background: linear-gradient(
+            180deg,
+            #0A0D3C 7%,
+            #3C1361 28%,
+            #006A60 58%,
+            #008080 75%,
+            #3D485D 100%
+    );
+
+    color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* espaço vertical reservado dentro de --play-h para a mensagem de erro/folga
+   (o título e os controles vivem no header fixo, fora de --play-h) */
+:root {
+    --sudoku-chrome: 24px;
+    /* margem lateral mínima para o tabuleiro não encostar nas bordas */
+    --sudoku-gutter: 24px;
+}
+
+.game-title {
+    display: flex;
+    position: relative;
+    text-align: center;
+    font-size: 2rem;
+    margin: 0 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 800;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #3C1361, #008080);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+}
+
+.sudoku-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* sem margem fixa: o .panel já centraliza vertical/horizontalmente em --play-h */
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+.sudoku-grid {
+    display: grid;
+    /* a célula respeita LARGURA e ALTURA disponíveis ao mesmo tempo:
+       - largura: (100vw - gutter) / 9
+       - altura : (play-h - chrome) / 9  (play-h já desconta o header fixo)
+       - teto de 72px para não ficar gigante em desktops largos
+       clamp/min garante que nunca estoure a tela em nenhum dos eixos */
+    --cell: clamp(
+        24px,
+        min(
+            (100vw - var(--sudoku-gutter)) / 9,
+            (var(--play-h) - var(--sudoku-chrome)) / 9
+        ),
+        72px
+    );
+    grid-template-columns: repeat(9, var(--cell));
+    grid-template-rows: repeat(9, var(--cell));
+    background: #e2e8f079;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid rgba(248, 250, 252, 0.9);
+}
+
+.sudoku-cell {
+    width: var(--cell);
+    height: var(--cell);
+    box-sizing: border-box;
+    /* Borda padrão das células: fina e mais escura */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff56;
+    position: relative;
+}
+
+/* Bordas dos blocos 3×3 (linhas e colunas) */
+
+/* 1. Bordas verticais (após as colunas 3 e 6) */
+.sudoku-cell:nth-child(9n + 3):not(:nth-child(9n)),
+.sudoku-cell:nth-child(9n + 6):not(:nth-child(9n)) {
+    /* Borda mais clara (0.5 opacity) e menos grossa (2px) para destacar os blocos 3x3 */
+    border-right: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 2. Bordas horizontais (após as linhas 3 e 6) */
+.sudoku-cell:nth-child(n+19):nth-child(-n+27), /* 3ª linha */
+.sudoku-cell:nth-child(n+46):nth-child(-n+54) /* 6ª linha */ {
+    /* Borda mais clara (0.5 opacity) e menos grossa (2px) para destacar os blocos 3x3 */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 3. Ajuste para fechar os quadrados:
+   As células nas linhas 3 e 6 que têm borda direita (colunas 3 e 6) precisam que sua borda inferior
+   seja igualmente destacada para criar a intersecção clara. */
+.sudoku-cell:nth-child(9n + 3):nth-child(n + 19):nth-child(-n + 27),
+.sudoku-cell:nth-child(9n + 6):nth-child(n + 19):nth-child(-n + 27),
+.sudoku-cell:nth-child(9n + 3):nth-child(n + 46):nth-child(-n + 54),
+.sudoku-cell:nth-child(9n + 6):nth-child(n + 46):nth-child(-n + 54) {
+    /* Garantir que as bordas de intersecção sejam as mais claras */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* input */
+.sudoku-cell input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    color: #1e293b;
+    text-align: center;
+    border: none;
+    outline: none;
+    /* fonte proporcional à célula: ~55% do tamanho da célula, com limites */
+    font-size: clamp(12px, calc(var(--cell) * 0.55), 34px);
+    font-weight: 500;
+    font-family: inherit;
+}
+
+/* =========================
+   ESTILOS DE DESTAQUE E VALIDAÇÃO
+   ========================= */
+
+/* Destaque para Linha, Coluna e Bloco (Cor azulada suave) */
+.sudoku-cell.highlight {
+    background-color: #bfdbfe44 !important;
+}
+
+.sudoku-cell.fixed {
+    background-color: #334155;
+}
+
+/* Destaque para a célula que está selecionada (Azul mais forte) */
+.sudoku-cell.active {
+    background-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+/* Erro: Fundo avermelhado quando o número está errado */
+.sudoku-cell.invalid {
+    background-color: rgba(239, 68, 68, 0.25) !important; /* Vermelho translúcido */
+}
+
+/* Erro: Input muda de cor */
+.sudoku-cell.invalid input {
+    color: #fca5a5 !important; /* Texto vermelho claro */
+}
+
+.sudoku-cell.correct input {
+    color: #11664a !important; /* Texto verde para feedback positivo */
+}
+
+/* Opcional: Efeito de hover suave */
+.sudoku-cell:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Estilos para o Win Overlay */
+.win-overlay {
+    position: fixed; /* Fixa na tela */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9); /* Fundo escuro e semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Garante que fique acima de tudo */
+    backdrop-filter: blur(5px); /* Efeito de desfoque (opcional, moderno) */
+}
+
+/* Esconde o overlay por padrão */
+.win-overlay.hidden {
+    display: none;
+}
+
+.win-content {
+    background: #1f2937; /* Fundo do modal de parabéns */
+    color: #f3f4f6;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    transform: scale(0.8);
+    animation: scaleIn 0.3s forwards;
+}
+
+.win-content h2 {
+    color: #34d399; /* Verde de sucesso */
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.win-time {
+    font-size: 1.2em;
+    margin: 15px 0;
+}
+
+.win-content button {
+    padding: 10px 20px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 20px;
+}
+
+@keyframes scaleIn {
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Em mobile o header vira relativo (global.css), então --play-h (que assume
+   header de 70px) subestima a folga; reduzimos o gutter e o chrome para
+   aproveitar melhor a largura. A fórmula clamp/min continua garantindo que
+   o tabuleiro caiba em ambos os eixos. */
+@media (max-width: 768px) {
+    :root {
+        --sudoku-gutter: 12px;
+        --sudoku-chrome: 12px;
+    }
+}
+
+/* identidade de cor do header (unico override permitido) — sudoku (cinza) */
+body {
+    --game-accent: rgba(255,255,255,0.14);
+    --game-accent-border: rgba(255,255,255,0.26);
+    /* título no tema do jogo (violeta -> turquesa, como o fundo roxo->teal) */
+    --gh-title-grad: linear-gradient(90deg, #a78bfa, #2dd4bf);
+}
+
