@@ -20,6 +20,9 @@ Thumbs.db
 node_modules/
 **/node_modules/
 
+# Segredos locais (Docker). O modelo .env.example pode ir para o Git.
+.env
+
 # Playwright (artefatos gerados)
 playwright-report/
 **/playwright-report/

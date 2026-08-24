@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-quebra_codigo}
+      POSTGRES_USER: ${POSTGRES_USER:-qc_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qc_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  app:
+    build: .
+    ports:
+      - "8150:8150"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-quebra_codigo}?currentSchema=app
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-qc_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-qc_pass}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8150}
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-mailhog}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-1025}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-nao-responda@quebracodigo.local}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: ${SPRING_MAIL_SMTP_AUTH:-false}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: ${SPRING_MAIL_SMTP_STARTTLS:-false}
+      APP_MAIL_FROM: ${APP_MAIL_FROM:-nao-responda@quebracodigo.local}
+    depends_on:
+      db:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    restart: on-failure
+
+volumes:
+  pgdata:
