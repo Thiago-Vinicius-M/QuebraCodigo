@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.*;
 
 public interface ProgressoRepo extends JpaRepository<Progresso, Long> {
-    Optional<Progresso> findByUsuarioIdAndLicaoId(Long usuarioId, Long licaoId);
+    Optional<Progresso> findByUsuarioIdAndAulaId(Long usuarioId, Long aulaId);
     List<Progresso> findByUsuarioId(Long usuarioId);
 }

@@ -29,7 +29,7 @@ public class Curso extends BaseEntity {
 
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("ordem ASC")
-    private List<Licao> licoes = new ArrayList<>();
+    private List<Aula> aulas = new ArrayList<>();
 
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
@@ -43,5 +43,5 @@ public class Curso extends BaseEntity {
     public void setPreco(BigDecimal preco) { this.preco = preco; }
     public boolean isPublicado() { return publicado; }
     public void setPublicado(boolean publicado) { this.publicado = publicado; }
-    public List<Licao> getLicoes() { return licoes; }
+    public List<Aula> getAulas() { return aulas; }
 }

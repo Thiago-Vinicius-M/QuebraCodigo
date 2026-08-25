@@ -9,7 +9,7 @@ import jakarta.validation.constraints.*;
 @Table(name = "exercicios")
 public class Exercicio extends BaseEntity {
     @ManyToOne(optional = false)
-    private Licao licao;
+    private Aula aula;
 
     @ManyToOne
     private Jogo jogo; // se o exercício estiver acoplado a um jogo específico
@@ -32,8 +32,8 @@ public class Exercicio extends BaseEntity {
     @Column(nullable = false)
     private int pontos = 10;
 
-    public Licao getLicao() { return licao; }
-    public void setLicao(Licao licao) { this.licao = licao; }
+    public Aula getAula() { return aula; }
+    public void setAula(Aula aula) { this.aula = aula; }
     public Jogo getJogo() { return jogo; }
     public void setJogo(Jogo jogo) { this.jogo = jogo; }
     public ExerciseType getTipo() { return tipo; }

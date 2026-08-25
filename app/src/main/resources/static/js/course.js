@@ -301,7 +301,7 @@ function parseQuery() {
   return {
     curso: p.get("curso") || undefined,
     cursoId: p.get("cursoId") ? Number(p.get("cursoId")) : undefined,
-    licaoId: p.get("licaoId") || undefined,
+    aulaId: p.get("aulaId") || undefined,
   };
 }
 
@@ -349,19 +349,19 @@ function getCourseOrFallback(codigo) {
 
 async function getLessons(cursoId) {
   if (String(cursoId).startsWith("fallback")) return [];
-  const r = await fetch(`${API}/licoes/curso/${cursoId}`);
+  const r = await fetch(`${API}/aulas/curso/${cursoId}`);
   if (!r.ok) return [];
   return r.json();
 }
 
-async function getLesson(licaoId) {
-  const r = await fetch(`${API}/licoes/${licaoId}`);
-  if (!r.ok) throw new Error("Lição não encontrada.");
+async function getLesson(aulaId) {
+  const r = await fetch(`${API}/aulas/${aulaId}`);
+  if (!r.ok) throw new Error("Aula não encontrada.");
   return r.json();
 }
 
-async function getExercises(licaoId) {
-  const r = await fetch(`${API}/exercicios/licao/${licaoId}`);
+async function getExercises(aulaId) {
+  const r = await fetch(`${API}/exercicios/aula/${aulaId}`);
   if (!r.ok) return [];
   return r.json();
 }
@@ -370,7 +370,7 @@ function getCourseCodigo(course) {
   return course.codigo || course.titulo?.toLowerCase().replace(/\s+/g, "-") || "curso";
 }
 
-function renderSidebar(course, lessons, currentLicaoId, codigo) {
+function renderSidebar(course, lessons, currentAulaId, codigo) {
   const navTitle = document.getElementById("course-nav-title");
   const nav = document.getElementById("course-nav");
   // topo da sidebar = NOME DO CURSO (com gradiente via .course-logo span)
@@ -383,9 +383,9 @@ function renderSidebar(course, lessons, currentLicaoId, codigo) {
     const li = document.createElement("li");
     const a = document.createElement("a");
     const id = l.id;
-    a.href = `course.html?curso=${encodeURIComponent(codigo)}&licaoId=${encodeURIComponent(id)}`;
-    a.textContent = l.titulo || `Lição ${l.ordem}`;
-    if (String(currentLicaoId) === String(id)) a.classList.add("active");
+    a.href = `course.html?curso=${encodeURIComponent(codigo)}&aulaId=${encodeURIComponent(id)}`;
+    a.textContent = l.titulo || `Aula ${l.ordem}`;
+    if (String(currentAulaId) === String(id)) a.classList.add("active");
     li.appendChild(a);
     nav.appendChild(li);
   });
@@ -718,8 +718,8 @@ async function loadAndShowLesson(lessonId, course, lessons, codigo, isFallback) 
   const navLinks = document.querySelectorAll("#course-nav a");
   navLinks.forEach((a) => {
     const url = new URL(a.href, window.location.href);
-    const linkLicaoId = url.searchParams.get("licaoId");
-    if (String(linkLicaoId) === String(lessonId)) {
+    const linkAulaId = url.searchParams.get("aulaId");
+    if (String(linkAulaId) === String(lessonId)) {
       a.classList.add("active");
     } else {
       a.classList.remove("active");
@@ -734,21 +734,21 @@ async function loadAndShowLesson(lessonId, course, lessons, codigo, isFallback) 
   document.getElementById("btn-prev").onclick = () => {
     if (idx > 0) {
       const prev = lessons[idx - 1];
-      setUrlParams({ curso: codigo, licaoId: prev.id });
+      setUrlParams({ curso: codigo, aulaId: prev.id });
       loadAndShowLesson(prev.id, course, lessons, codigo, isFallback);
     }
   };
   document.getElementById("btn-next").onclick = () => {
     if (idx < lessons.length - 1) {
       const next = lessons[idx + 1];
-      setUrlParams({ curso: codigo, licaoId: next.id });
+      setUrlParams({ curso: codigo, aulaId: next.id });
       loadAndShowLesson(next.id, course, lessons, codigo, isFallback);
     }
   };
 }
 
 async function init() {
-  const { curso, cursoId, licaoId } = parseQuery();
+  const { curso, cursoId, aulaId } = parseQuery();
   const codigoParam = (cursoId ?? curso ?? "").toString().toLowerCase();
   showError("");
   showContent(false);
@@ -772,13 +772,13 @@ async function init() {
 
     document.title = `${course.titulo || "Curso"} - Quebra Código`;
 
-    renderSidebar(course, lessons, licaoId, codigo);
+    renderSidebar(course, lessons, aulaId, codigo);
 
     const firstLesson = lessons[0];
-    const toShowId = licaoId ?? (firstLesson && firstLesson.id);
+    const toShowId = aulaId ?? (firstLesson && firstLesson.id);
 
     if (toShowId && firstLesson) {
-      setUrlParams({ curso: codigo, licaoId: toShowId });
+      setUrlParams({ curso: codigo, aulaId: toShowId });
       await loadAndShowLesson(toShowId, course, lessons, codigo, isFallback);
     } else {
       document.getElementById("lesson-area").innerHTML =

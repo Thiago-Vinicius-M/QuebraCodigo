@@ -5,8 +5,8 @@ import jakarta.validation.constraints.*;
 import java.util.*;
 
 @Entity
-@Table(name = "licoes")
-public class Licao extends BaseEntity{
+@Table(name = "aulas")
+public class Aula extends BaseEntity{
     @ManyToOne(optional = false)
     private Curso curso;
 
@@ -19,11 +19,11 @@ public class Licao extends BaseEntity{
     @Column(nullable = false)
     private int ordem = 1;
 
-    @OneToMany(mappedBy = "licao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Exercicio> exercicios = new ArrayList<>();
 
     @OneToOne
-    private Jogo jogo; // link para um jogo dessa lição - opcional
+    private Jogo jogo; // link para um jogo dessa aula - opcional
 
     public Curso getCurso() { return curso; }
     public void setCurso(Curso curso) { this.curso = curso; }
