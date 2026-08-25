@@ -54,8 +54,13 @@ body {
   padding: clamp(4px, 1.5vh, 10px) 0;
   flex-shrink: 0;
   /* por padrão não rola (evita o flash do scrollbar durante o load);
-     em telas muito baixas o fallback de scroll é reativado abaixo */
-  overflow: hidden;
+     em telas muito baixas o fallback de scroll é reativado abaixo.
+     overflow:visible (nos dois eixos — nunca misturar hidden com visible:
+     a spec do CSS converte o eixo "visible" para "auto" quando o outro
+     não é visible, o que transformaria o container num scroll container)
+     para que a notificação de erro, posicionada logo abaixo do
+     formulário, não seja cortada pela caixa. */
+  overflow: visible;
   overscroll-behavior: contain;
 }
 
@@ -115,6 +120,7 @@ body {
   flex-direction: column;
   gap: clamp(10px, 2vh, 20px);
   align-items: center;
+  position: relative;
 }
 
 .input-box {
@@ -145,6 +151,19 @@ body {
   color: white;
   font-size: clamp(15px, 2.4vw, 18px);
   outline: none;
+}
+
+/* Remove o fundo branco imposto pelo autofill do navegador,
+   mantendo o input integrado ao vidro translúcido do design. */
+.input-box input:-webkit-autofill,
+.input-box input:-webkit-autofill:hover,
+.input-box input:-webkit-autofill:focus,
+.input-box input:-webkit-autofill:active {
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
+  box-shadow: 0 0 0 1000px transparent inset;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  transition: background-color 600000s ease-in-out 0s, box-shadow 600000s ease-in-out 0s;
 }
 
 /* ============================
@@ -233,6 +252,75 @@ a.forgot-btn {
   box-shadow: 0 0 20px #00eaffaa;
   transform: scale(1.03);
   transition: 0.3s;
+}
+
+/* ============================
+  NOTIFICAÇÃO DE FEEDBACK (ex.: login inválido)
+============================ */
+.login-error {
+  /* posição absoluta: espaço visual próprio abaixo dos botões,
+     sem nunca deslocá-los, disputar espaço ou empurrar o formulário.
+     Centralizado via margin auto (não transform) para não colidir com
+     o transform: translateY(...) da animação .fade-in reutilizada abaixo. */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: clamp(10px, 1.8vh, 16px) auto 0;
+  width: min(94%, 380px);
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px 10px 16px;
+  border-radius: 14px;
+
+  background: rgba(231, 76, 60, 0.18);
+  border: 1px solid rgba(231, 76, 60, 0.45);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+
+  color: #ffe3e0;
+  font-size: clamp(13px, 2vw, 14px);
+  text-align: left;
+  line-height: 1.35;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+
+.login-error.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.login-error-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.login-error-msg {
+  flex: 1;
+  min-width: 0;
+}
+
+.login-error-close {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 8px;
+  opacity: 0.8;
+}
+
+.login-error-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* Telas com pouca altura: reduzir blocos e reativar scroll interno do card

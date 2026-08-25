@@ -1,30 +1,39 @@
 # Workflows de CI/CD
 
-> Local correto: os arquivos de workflow **precisam** ficar em `.github/workflows/`
-> **na raiz do repositório**. Antes desta reestruturação eles estavam em
-> `QuebraCodigo/app/.github/workflows/`, por isso o GitHub Actions **não os executava**.
+Os arquivos de workflow precisam ficar em `.github/workflows/` **na raiz**
+do repositório. O GitHub Actions ignora YAML em pastas internas.
 
 ## Ativos
 
 | Workflow | Quando roda | O que faz |
 |----------|-------------|-----------|
-| `sync-to-dev.yml` | `release: published` e **manual** (`workflow_dispatch`) | Faz fast-forward de `main` em `dev`. Se houver divergência, abre uma PR `chore/sync-main-to-dev`. |
+| `ci.yml` | push/PR em `main` e `dev`, e **manual** (`workflow_dispatch`) | Restore Maven → `mvn verify` (JUnit + Testcontainers) → `docker build` |
+| `sync-to-dev.yml` | `release: published` e **manual** | Fast-forward de `main` em `dev`. Se divergir, abre PR `chore/sync-main-to-dev`. |
 
-### Como sincronizar `main` → `dev` manualmente
-GitHub → aba **Actions** → **Sync main to dev** → **Run workflow**.
-(Ou, via API/CLI, atualizar a ref `dev` para o SHA de `main` quando for fast-forward.)
+### CI (este projeto)
+
+GitHub → aba **Actions** → **CI** → **Run workflow**.
+
+Etapas do job:
+
+1. **Restore** — `mvn -f app/pom.xml dependency:resolve` (baixa Spring, PostgreSQL, Flyway, etc.) com cache de `~/.m2`
+2. **Test** — `mvn -f app/pom.xml verify` (Java 21). Os testes de integração sobem Postgres via Testcontainers
+3. **Imagem** — `docker build` com o `Dockerfile` da raiz (mesmo fluxo do `docker compose`)
+
+Não há deploy automático: não há servidor/registry configurado. Publicar continua sendo `docker compose up --build` na máquina ou no servidor da banca.
+
+Playwright (`scripts/`) não entra neste workflow (precisa da app + Postgres + Mailhog no ar).
+
+### Sync `main` → `dev`
+
+GitHub → **Actions** → **Sync main to dev** → **Run workflow**.
 
 ## Desativados (`.yml.disabled`)
 
-Estes workflows vieram de um **scaffold voltado para Next.js/Node** e **não se aplicam**
-a este projeto, que é **Spring Boot / Maven**. Ativá-los faria o CI **falhar** em todo PR
-(usam `npm ci`, `npm run lint`, `npm run build`, `.next`, `release-type: node`, etc.,
-sem um `package.json` correspondente na raiz).
+Scaffold antigo de **Next.js/Node**. Não ligar: quebram o PR (`npm ci`, `.next`, `release-type: node`).
 
-| Arquivo | Por que está desativado | Para reativar |
-|---------|-------------------------|---------------|
-| `ci.yml.disabled` | `npm ci` + `npm run lint` + `commitlint` (Node) | Adaptar para Maven (ex.: `mvn -q -f app/pom.xml verify`) e manter só o `commitlint` se houver `package.json` na raiz. |
-| `release-please.yml.disabled` | `release-type: node` | Trocar para versionamento compatível com Maven (ou remover). |
-| `glitchtip-release.yml.disabled` | Faz `npm run build` e sobe sourcemaps de `.next` (Next.js) | Adaptar ao build real do projeto (ou remover). |
-
-> Para reativar qualquer um, remova o sufixo `.disabled` **após** adaptá-lo ao Maven.
+| Arquivo | Motivo |
+|---------|--------|
+| `ci.yml.disabled` | CI Node; o CI real é o `ci.yml` Maven |
+| `release-please.yml.disabled` | Versionamento Node |
+| `glitchtip-release.yml.disabled` | Sourcemaps Next.js |

@@ -4,18 +4,11 @@ body {
     margin: 0;
     background: linear-gradient(
             180deg,
-<<<<<<< HEAD
             #0A0F2C 0%,
             #111A3A 20%,
             #1C2E6C 45%,
             #3A1F78 70%,
             #5C2D91 100%
-=======
-            #4a0d66 0%,
-            #d81e5b 38%,
-            #f95738 69%,
-            #f9964f 100%
->>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
     );
 
     color: var(--ink);
@@ -238,16 +231,9 @@ body {
     background: rgba(255,255,255,0.35);
 }
 
-<<<<<<< HEAD
 /* identidade de cor do header (unico override permitido) — memoria (azul/violeta, paleta da home) */
 body {
     --game-accent: linear-gradient(135deg, #3A1F78, #5C2D91);
     --game-accent-border: rgba(92,45,145,0.5);
-=======
-/* identidade de cor do header (unico override permitido) — memoria (magenta/violeta) */
-body {
-    --game-accent: linear-gradient(135deg, #d4308a, #7b2ff7);
-    --game-accent-border: rgba(212,48,138,0.5);
->>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
 }
 
