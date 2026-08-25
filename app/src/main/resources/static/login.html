@@ -49,9 +49,11 @@
             </div>
 
             <div class="login-actions fade-in delay-3">
-                <button class="create-btn" id="create-btn" >Criar conta</button>
+                <button type="button" class="create-btn" id="create-btn">Criar conta</button>
                 <button type="submit" class="login-btn" id="login-btn">Entrar</button>
             </div>
+
+            <div class="login-error" id="login-error" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
         </form>
     </section>
@@ -76,17 +78,37 @@
         }, { once: true });
     }
     function showError(msg) {
-        let el = document.getElementById("login-error");
-        if (!el) {
-            el = document.createElement("p");
-            el.id = "login-error";
-            el.className = "login-error";
-            el.style.color = "#e74c3c";
-            el.style.marginTop = "0.5rem";
-            el.style.fontSize = "0.9rem";
-            document.querySelector(".login-actions").prepend(el);
-        }
-        el.textContent = msg;
+        const box = document.getElementById("login-error");
+        box.innerHTML = "";
+
+        const icon = document.createElement("span");
+        icon.className = "login-error-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = "⚠";
+
+        const text = document.createElement("span");
+        text.className = "login-error-msg";
+        text.textContent = msg;
+
+        const closeBtn = document.createElement("button");
+        closeBtn.type = "button";
+        closeBtn.className = "login-error-close";
+        closeBtn.setAttribute("aria-label", "Fechar aviso");
+        closeBtn.textContent = "×";
+        closeBtn.addEventListener("click", hideError);
+
+        box.append(icon, text, closeBtn);
+
+        // reinicia a animação de entrada mesmo se já estava visível
+        box.classList.remove("fade-in", "is-visible");
+        void box.offsetWidth;
+        box.classList.add("fade-in", "is-visible");
+    }
+
+    function hideError() {
+        const box = document.getElementById("login-error");
+        box.classList.remove("fade-in", "is-visible");
+        box.innerHTML = "";
     }
 
     document.querySelector(".login-form").addEventListener("submit", async function(e) {

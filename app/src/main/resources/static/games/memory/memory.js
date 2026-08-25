@@ -138,16 +138,12 @@ function MemoryGame() {
   return (
     <div className="game-shell">
       <header className="game-header">
-<<<<<<< HEAD
         <a
           href="../../index.html"
           className="go-back"
           aria-label="Voltar"
           onClick={e => { e.preventDefault(); window.location.href = '../../index.html'; }}
         >
-=======
-        <a href="/index.html" className="go-back" aria-label="Voltar">
->>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
           <img src="../img/topbar/setaVoltar.png" alt="Botão retornar para a Home" />
         </a>
         <h1 className="game-title" style={{ pointerEvents: 'none' }}>Jogo da Memória</h1>
