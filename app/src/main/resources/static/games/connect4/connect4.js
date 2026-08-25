@@ -164,7 +164,16 @@ function Connect4() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <header className="game-header">
+<<<<<<< HEAD
+        <a
+          href="../../index.html"
+          className="go-back"
+          aria-label="Voltar"
+          onClick={e => { e.preventDefault(); window.location.href = '../../index.html'; }}
+        >
+=======
         <a href="/index.html" className="go-back" aria-label="Voltar">
+>>>>>>> d36c645b3978686bb1842d72ff0b10ab717f5fb2
           <img src="../img/topbar/setaVoltar.png" alt="Voltar" />
         </a>
         <h1 className="game-title" style={{ pointerEvents: 'none' }}>Connect 4</h1>
