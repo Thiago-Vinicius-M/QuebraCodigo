@@ -1,266 +1,161 @@
-# Quebra-Código
+# QuebraCodigo - README detalhado
 
-> 🇧🇷 Português | [🇺🇸 English below](#-quebra-código-1)
+Documentacao tecnica do projeto QuebraCodigo, com foco em execucao, arquitetura e operacao do ambiente.
 
----
+## Visao geral
 
-## 🇧🇷 Quebra Código
+O QuebraCodigo e uma plataforma web academica com:
 
-Plataforma web acadêmica com minijogos interativos e trilhas de programação, desenvolvida como projeto escolar para praticar lógica, desenvolvimento web e integração entre front-end e back-end. Inclui **cadastro e login** de usuários (sessão HTTP, senha com BCrypt), **perfil** (`/auth/me`) e persistência em **PostgreSQL** com migrações **Flyway** (schema `app`). O back-end expõe APIs REST para **cursos, lições, exercícios, jogos, progresso, ranking e gamificação**; há também endpoint de **IA** (`POST /api/ia`, Gemini) para o chat quando configurado.
+- autenticacao (cadastro, login e sessao HTTP);
+- cursos com licoes e exercicios;
+- jogos educativos;
+- persistencia em PostgreSQL;
+- back-end Spring Boot (Java 21).
 
-### Jogos disponíveis
+O modulo principal ativo no repositorio e `app`.
 
-| Jogo | Descrição |
-|------|-----------|
-| 💣 Campo Minado | Clássico Minesweeper com dificuldades ajustáveis |
-| 🔢 Sudoku | Puzzle numérico 9x9 |
-| 🧠 Memória | Jogo de pares de cartas |
-| 🔗 Connect 4 | Conecte 4 peças na vertical, horizontal ou diagonal |
-| 🚦 Semáforo | Jogo de lógica com semáforos |
-| ✅ Verdadeiro ou Falso | Quiz de verdadeiro/falso |
-| 🥪 Sanduíches | Jogo de montagem de sanduíches |
-| 2️⃣ 2048 | Junte números iguais até chegar em 2048 (setas do teclado) |
-| 🌊 Flow Free | Conecte pares de cores preenchendo todo o tabuleiro; 10 níveis com dicas (2 por fase, acumuláveis) |
-| ⚔️ Aventura RPG | Jogo de aventura em texto |
+## Stack tecnica
 
-### Cursos
+- **Back-end:** Spring Boot 3.3, Spring Web, Spring Data JPA
+- **Banco:** PostgreSQL
+- **Migracoes:** Flyway (`app/src/main/resources/db/migration`)
+- **Autenticacao:** sessao HTTP + BCrypt
+- **Front-end:** HTML, CSS e JavaScript
 
-Além dos jogos, a plataforma oferece **cursos de programação** (HTML, CSS, JavaScript, Python, TypeScript, C++, Java, etc.). Cada curso tem lições em sequência, com navegação pela sidebar: nome do curso no topo, lista de lições e link **Home** no canto inferior esquerdo para voltar à página inicial. A área principal exibe o título da lição em destaque e o conteúdo.
+## Estrutura principal
 
-### Tecnologias
+```text
+QuebraCodigo/
+├── app/
+│   ├── Dockerfile
+│   ├── pom.xml
+│   ├── scripts/
+│   │   ├── postgres-setup.sql
+│   │   └── docker-init.sql
+│   └── src/main/
+│       ├── java/
+│       └── resources/
+│           ├── application.properties
+│           ├── db/migration/
+│           └── static/
+├── docker-compose.yml
+└── docs/
+    └── README-detalhado.md
+```
 
-- **Back-end:** Java **21**, Spring Boot **3.3**, Spring Web, Spring Data JPA, Validação, Actuator
-- **Dados:** PostgreSQL, Hibernate, **Flyway** (migrações em `src/main/resources/db/migration`)
-- **Segurança:** BCrypt (senhas), sessão HTTP para autenticação
-- **Front-end:** HTML5, CSS3, JavaScript (Vanilla)
-- **Estilização:** CSS com variáveis customizadas e design responsivo
-- **Opcional no `pom`:** H2 (runtime), integração Google GenAI (Gemini no endpoint `/api/ia`)
-- **Controle de versão:** Git / GitHub
-- **Análise de código:** Qodana (JetBrains)
+## Como subir com Docker (recomendado)
 
-### API REST (visão geral)
+### Pre-requisitos
 
-| Prefixo / rota | Função |
-|----------------|--------|
-| `/auth/*` | Login, cadastro, sessão, perfil (`/auth/me`) |
-| `/api/cursos`, `/api/licoes`, `/api/exercicios` | Catálogo de cursos, lições e exercícios |
-| `/api/jogos` | Lista de jogos cadastrados |
-| `/api/progresso` | Progresso do usuário |
-| `/api/leaderboard` | Ranking |
-| `/api/gamification/award`, `/api/ranking` | Pontuação e gamificação |
-| `/api/ia` | Chat com IA (Gemini), uso opcional |
+- Docker Desktop
+- Docker Compose
 
-Erros de validação e negócio são tratados de forma centralizada (`GlobalExceptionHandler`).
+### Passo a passo
 
-### Como rodar o projeto
-
-#### Pré-requisitos
-
-- [Java 21](https://www.oracle.com/java/technologies/downloads/) (alinhado ao `pom.xml`)
-- [Maven](https://maven.apache.org/) 3.8+
-- [PostgreSQL](https://www.postgresql.org/) (acesso para criar banco e usuário)
-- Git
-
-#### Banco de dados (uma vez)
-
-1. Crie o banco `quebra_codigo` e o usuário da aplicação (ex.: `qc_user` / `qc_pass`, como em `application.properties`).
-2. Conectado como superusuário (`postgres`), execute o script **`scripts/postgres-setup.sql`** (cria o schema `app` com permissões adequadas no PostgreSQL 15+).
-
-Ajuste `spring.datasource.*` em `src/main/resources/application.properties` se usar outro host, porta ou credenciais.
-
-#### Passo a passo
-
-Na raiz do repositório, o projeto Maven principal fica em **`app`** (pasta que contém o `pom.xml`).
+Na raiz do repositorio:
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/Thiago-Vinicius-M/QuebraCodigo.git
-cd QuebraCodigo
+docker compose up --build
+```
 
-# 2. Entre na pasta do modulo Spring Boot (onde esta o pom.xml)
+Depois abra:
+
+- `http://localhost:8150`
+
+### O que sobe no compose
+
+- `db` (PostgreSQL 16):
+  - banco `quebra_codigo`
+  - usuario `qc_user`
+  - senha `qc_pass`
+- `app` (Spring Boot):
+  - porta `8150`
+  - conecta no host `db` interno da rede Docker
+
+### Comandos de operacao
+
+```bash
+# parar containers
+docker compose down
+
+# parar e apagar volumes (reset completo do banco)
+docker compose down -v
+
+# ver logs em tempo real
+docker compose logs -f app
+docker compose logs -f db
+```
+
+## Como subir sem Docker (local)
+
+### Pre-requisitos
+
+- Java 21
+- Maven 3.9+
+- PostgreSQL 14+ em `localhost:5432`
+
+### Setup do banco (uma vez por maquina)
+
+1. Criar role e database:
+
+```sql
+CREATE ROLE qc_user LOGIN PASSWORD 'qc_pass';
+CREATE DATABASE quebra_codigo OWNER qc_user;
+```
+
+2. Aplicar setup do schema:
+
+```bash
+psql -U postgres -d quebra_codigo -f app/scripts/postgres-setup.sql
+```
+
+### Rodar a aplicacao
+
+```bash
 cd app
-
-# 3. Execute com Maven
 mvn spring-boot:run
 ```
 
-No **Windows** (PowerShell ou CMD), o passo 2 pode ser `cd app` dentro da pasta clonada; o importante e estar na pasta que contem o `pom.xml`.
+Aplicacao disponivel em `http://localhost:8150`.
 
-> Após iniciar, acesse **http://localhost:8150**. **Login** e **cadastro:** `/login.html` e `/cadastro.html`. Página de **IA** (jogo/chat): `games/ia.html`.
+## Configuracoes importantes
 
-#### Build para produção
+Arquivo: `app/src/main/resources/application.properties`
 
-```bash
-mvn clean package
-java -jar target/edu-platform-1.0.0.jar
-```
+- `spring.datasource.url`
+- `spring.datasource.username`
+- `spring.datasource.password`
+- `server.port=8150`
 
-(O artefato segue o `artifactId` **edu-platform** e a versão do `pom.xml`.)
+No modo Docker, o `docker-compose.yml` sobrescreve as variaveis de datasource via `environment`.
 
-### Estrutura do projeto
+## Endpoints principais (visao geral)
 
-```
-app/                              # modulo Maven (Spring Boot)
-├── pom.xml
-├── scripts/
-│   └── postgres-setup.sql        # setup do schema app (PostgreSQL 15+)
-├── src/main/
-│   ├── java/                     # API REST, modelos, segurança
-│   └── resources/
-│       ├── application.properties
-│       ├── db/migration/         # Flyway
-│       └── static/
-│           ├── index.html        # Página inicial
-│           ├── login.html, cadastro.html
-│           ├── css/, js/
-│           ├── courses/          # Páginas de curso (sidebar + lições)
-│           └── games/
-│               ├── ia.html       # Chat com IA (consome /api/ia)
-│               ├── minesweeper/
-│               ├── sudoku/
-│               ├── memory/
-│               ├── connect4/
-│               ├── 2048/
-│               ├── flow-free/
-│               └── Zcomming/     # semáforo, sanduíches, verdadeiro/falso, RPG, etc.
-```
+- `POST /auth/login` - autentica usuario
+- `POST /auth/register` - cadastra usuario
+- `GET /auth/me` - dados do usuario logado
+- `GET /api/cursos` - lista cursos
+- `GET /api/licoes` - lista licoes
+- `GET /api/exercicios` - lista exercicios
+- `GET /api/jogos` - lista jogos
+- `GET /api/leaderboard` - ranking
 
-### Equipe
+## Jogos incluidos
 
-> Bryan Loyola
-> Raphael Martins
-> Thiago Vinicius
-> Thomaz Arthur
-> Victor Hugo
+- Minesweeper
+- Sudoku
+- Memory
+- Connect4
+- 2048
+- Flow Free
+- outros jogos em `app/src/main/resources/static/games`
 
----
----
+## Troubleshooting rapido
 
-## 🇺🇸 Quebra-Código
+- **Porta 8150 ocupada:** altere o mapeamento no `docker-compose.yml` ou feche o processo concorrente.
+- **Falha de conexao com banco no local:** verifique se PostgreSQL esta ativo e se credenciais batem com `application.properties`.
+- **Reset total do ambiente Docker:** use `docker compose down -v` e depois `docker compose up --build`.
 
-An academic web platform with interactive mini-games and programming tracks, built as a school project to practice logic, web development, and front-end/back-end integration. It includes **sign-up and login** (HTTP session, BCrypt passwords), a **profile** endpoint (`/auth/me`), and **PostgreSQL** persistence with **Flyway** migrations (in the `app` schema). The back-end exposes REST APIs for **courses, lessons, exercises, games, progress, leaderboard, and gamification**, plus an optional **AI** endpoint (`POST /api/ia`, Gemini) for the chat when configured.
+## Fluxo de contribuicao
 
-### Available Games
-
-| Game | Description |
-|------|-------------|
-| 💣 Minesweeper | Classic Minesweeper with adjustable difficulty |
-| 🔢 Sudoku | 9x9 number puzzle |
-| 🧠 Memory | Card matching game |
-| 🔗 Connect 4 | Connect 4 pieces vertically, horizontally or diagonally |
-| 🚦 Traffic Light | Logic game with traffic lights |
-| ✅ True or False | True/false quiz |
-| 🥪 Sandwiches | Sandwich assembly game |
-| 2️⃣ 2048 | Merge equal numbers to reach 2048 (keyboard arrows) |
-| 🌊 Flow Free | Connect color pairs by filling the entire board; 10 levels with hints (2 per level, stackable) |
-| ⚔️ RPG Adventure | Text-based adventure game |
-
-### Courses
-
-Besides the games, the platform includes **programming courses** (HTML, CSS, JavaScript, Python, TypeScript, C++, Java, etc.). Each course has sequential lessons, with sidebar navigation: course name at the top, lesson list, and **Home** link in the bottom-left corner to return to the main page. The main area shows the lesson title and content.
-
-### Tech Stack
-
-- **Back-end:** Java **21**, Spring Boot **3.3**, Spring Web, Spring Data JPA, Validation, Actuator
-- **Data:** PostgreSQL, Hibernate, **Flyway** (migrations under `src/main/resources/db/migration`)
-- **Security:** BCrypt (passwords), HTTP session authentication
-- **Front-end:** HTML5, CSS3, Vanilla JavaScript
-- **Styling:** CSS with custom properties and responsive design
-- **Optional in `pom`:** H2 (runtime), Google GenAI (Gemini at `/api/ia`)
-- **Version control:** Git / GitHub
-- **Code analysis:** Qodana (JetBrains)
-
-### REST API (overview)
-
-| Prefix / route | Purpose |
-|----------------|---------|
-| `/auth/*` | Login, sign-up, session, profile (`/auth/me`) |
-| `/api/cursos`, `/api/licoes`, `/api/exercicios` | Courses, lessons, exercises |
-| `/api/jogos` | Registered games |
-| `/api/progresso` | User progress |
-| `/api/leaderboard` | Leaderboard |
-| `/api/gamification/award`, `/api/ranking` | Points and gamification |
-| `/api/ia` | AI chat (Gemini), optional |
-
-Validation and business errors are handled centrally (`GlobalExceptionHandler`).
-
-### How to Run
-
-#### Prerequisites
-
-- [Java 21](https://www.oracle.com/java/technologies/downloads/) (matches `pom.xml`)
-- [Maven](https://maven.apache.org/) 3.8+
-- [PostgreSQL](https://www.postgresql.org/)
-- Git
-
-#### Database (one-time)
-
-1. Create database `quebra_codigo` and the app user (e.g. `qc_user` / `qc_pass`, as in `application.properties`).
-2. While connected as a superuser (`postgres`), run **`scripts/postgres-setup.sql`** (creates the `app` schema with correct privileges on PostgreSQL 15+).
-
-Adjust `spring.datasource.*` in `src/main/resources/application.properties` if you use different host, port, or credentials.
-
-#### Steps
-
-From the repository root, the main Maven module is **`app`** (folder that contains `pom.xml`).
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Thiago-Vinicius-M/QuebraCodigo.git
-cd QuebraCodigo
-
-# 2. Enter the Spring Boot module (folder with pom.xml)
-cd app
-
-# 3. Run with Maven
-mvn spring-boot:run
-```
-
-On **Windows**, use `cd app` under the cloned folder; you must be in the directory that contains `pom.xml`.
-
-> Open **http://localhost:8150**. **Login** and **sign-up:** `/login.html` and `/cadastro.html`. **AI** page: `games/ia.html`.
-
-#### Production Build
-
-```bash
-mvn clean package
-java -jar target/edu-platform-1.0.0.jar
-```
-
-(The artifact follows **edu-platform** and the version from `pom.xml`.)
-
-### Project Structure
-
-```
-app/                              # Maven module (Spring Boot)
-├── pom.xml
-├── scripts/
-│   └── postgres-setup.sql        # app schema setup (PostgreSQL 15+)
-├── src/main/
-│   ├── java/                     # REST API, models, security
-│   └── resources/
-│       ├── application.properties
-│       ├── db/migration/         # Flyway
-│       └── static/
-│           ├── index.html        # Home page
-│           ├── login.html, cadastro.html
-│           ├── css/, js/
-│           ├── courses/          # Course pages (sidebar + lessons)
-│           └── games/
-│               ├── ia.html       # AI chat (calls /api/ia)
-│               ├── minesweeper/
-│               ├── sudoku/
-│               ├── memory/
-│               ├── connect4/
-│               ├── 2048/
-│               ├── flow-free/
-│               └── Zcomming/     # traffic light, sandwiches, true/false, RPG, etc.
-```
-
-### 👥 Team
-
-> Bryan Loyola
-> Raphael Martins
-> Thiago Vinicius
-> Thomaz Arthur
-> Victor Hugo
+Padroes de commit e colaboracao estao em `CONTRIBUTING.md`.
