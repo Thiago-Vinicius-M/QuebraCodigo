@@ -1,39 +1,28 @@
-services:
-  db:
-    image: postgres:16-alpine
-    container_name: quebracodigo-db
-    environment:
-      POSTGRES_DB: quebra_codigo
-      POSTGRES_USER: qc_user
-      POSTGRES_PASSWORD: qc_pass
-    ports:
-      - "5432:5432"
-    volumes:
-      - qc_postgres_data:/var/lib/postgresql/data
-      - ./app/scripts/docker-init.sql:/docker-entrypoint-initdb.d/01-init-schema.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U qc_user -d quebra_codigo"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+# App Spring Boot + banco Supabase (nuvem).
+# Credenciais em .env (copie de .env.example).
+#
+# Subir:  docker compose up --build
+# Parar:  docker compose down
+#
+# Postgres local (opcional): docker compose -f docker-compose.yml -f docker-compose.local-db.yml up --build
 
+services:
   app:
     build:
       context: ./app
       dockerfile: Dockerfile
+      # Usa a rede do host no build para o Maven alcançar o Central (evita "Network is unreachable")
+      network: host
     container_name: quebracodigo-app
-    depends_on:
-      db:
-        condition: service_healthy
+    # Mesma rede do host: evita timeout SSL com o pooler Supabase em alguns ambientes Docker
+    network_mode: host
+    env_file:
+      - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/quebra_codigo?currentSchema=app
-      SPRING_DATASOURCE_USERNAME: qc_user
-      SPRING_DATASOURCE_PASSWORD: qc_pass
-      SPRING_MAIL_USERNAME: SEU_EMAIL_AQUI
-      SPRING_MAIL_PASSWORD: SUA_SENHA_DE_APP_AQUI
-    ports:
-      - "8150:8150"
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: "60000"
     restart: unless-stopped
-
-volumes:
-  qc_postgres_data:

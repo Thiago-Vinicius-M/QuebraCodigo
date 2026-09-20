@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Verdadeiro ou Falso – Lição 2</title>
+    <link rel="icon" type="image/png" href="../../img/home/logoQuebraCodigo.png">
+    <link rel="stylesheet" href="../css/global.css"/>
+    <link rel="stylesheet" href="verdadeiro-falso.css"/>
+    <link rel="stylesheet" href="../css/header.css"/>
+</head>
+<body class="game-page">
+<div class="game-shell">
+    <header class="game-header" style="--game-accent:#7c3aed; --game-accent-border:rgba(124,58,237,.55);">
+        <a class="go-back" href="../../index.html" aria-label="Voltar para a home">
+            <img src="../../img/games/sidebar-topbar/setaVoltar.png" alt="">
+        </a>
+        <h1 class="game-title">Verdadeiro ou Falso</h1>
+        <div class="controls">
+            <div class="game-stat">
+                <span class="game-stat-label">Acertos</span>
+                <strong class="game-stat-value" id="vfHits">0</strong>
+            </div>
+            <div class="game-stat">
+                <span class="game-stat-label">Pontos</span>
+                <strong class="game-stat-value" id="vfPoints">0</strong>
+            </div>
+            <div class="game-stat">
+                <span class="game-stat-label">Tempo</span>
+                <strong class="game-stat-value" id="vfTime">00:00</strong>
+            </div>
+            <label class="ctrl-label vf-mode-label">
+                Modo
+                <select id="vfMode">
+                    <option value="classico">Clássico (V/F)</option>
+                    <option value="conectivos">Conectivos</option>
+                    <option value="tabela">Tabela-Verdade</option>
+                    <option value="competitivo">Competitivo</option>
+                </select>
+            </label>
+            <button type="button" id="vfNew" class="btn-game">Nova</button>
+        </div>
+    </header>
+
+    <main class="vf-board">
+        <div class="vf-panel">
+            <p class="vf-lesson-tag">Lição 2 · Lógica</p>
+            <div id="vfQ" class="vf-question" aria-live="polite">Carregando…</div>
+            <div class="vf-actions">
+                <button type="button" id="btnTrue" class="vf-btn vf-true">Verdadeiro</button>
+                <button type="button" id="btnFalse" class="vf-btn vf-false">Falso</button>
+            </div>
+            <div id="vfExplain" class="vf-explain" aria-live="polite"></div>
+            <button type="button" id="btnNext" class="vf-next" hidden>Próxima pergunta</button>
+        </div>
+    </main>
+</div>
+
+<script src="../js/achievements.js"></script>
+<script src="verdadeiro-falso.js"></script>
+</body>
+</html>

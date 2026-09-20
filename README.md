@@ -11,7 +11,9 @@ QuebraCodigo/
 │   ├── pom.xml
 │   ├── scripts/
 │   └── src/
-├── docker-compose.yml            # sobe app + PostgreSQL
+├── docker-compose.yml            # sobe a app (banco no Supabase)
+├── docker-compose.local-db.yml   # override opcional com Postgres local
+├── .env.example                  # modelo de credenciais
 ├── docs/
 │   └── README-detalhado.md
 ├── CONTRIBUTING.md
@@ -20,11 +22,14 @@ QuebraCodigo/
 
 ## Como executar
 
-### Docker (recomendado)
+### Docker (recomendado) — com Supabase
 
-Na raiz do projeto:
+1. Configure o banco na nuvem (schema `app` criado uma vez no SQL Editor).
+2. Na raiz do projeto:
 
 ```bash
+cp .env.example .env
+# edite .env com URL/usuario/senha do Session pooler (Connect no dashboard)
 docker compose up --build
 ```
 
@@ -36,8 +41,8 @@ Comandos uteis:
 # para os containers
 docker compose down
 
-# para e remove volumes (zera o banco)
-docker compose down -v
+# Postgres local (sem Supabase)
+docker compose -f docker-compose.yml -f docker-compose.local-db.yml up --build
 ```
 
 ### Sem Docker (modo local)

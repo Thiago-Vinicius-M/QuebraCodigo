@@ -194,7 +194,15 @@ h2 {
     flex: none;
 }
 
-.welcome-section img {
+/* no flip, o fundo fica nas faces — evita ver a frente espelhada */
+.welcome-section.lesson-flip {
+    background: transparent;
+    padding: 0;
+    gap: 0;
+}
+
+.welcome-section .lesson-flip-front img,
+.lesson-flip-face img#lesson-hero-img {
     width: clamp(88px, 13vh, 160px);
     height: clamp(88px, 13vh, 160px);
     border-radius: 18px;
@@ -283,6 +291,154 @@ h2 {
 
 .continue-button:hover {
     opacity: 0.9;
+}
+
+/* ===== Card da lição com flip ===== */
+.lesson-flip {
+    perspective: 1200px;
+    display: block;
+    padding: 0;
+    background: transparent;
+}
+
+.lesson-flip-inner {
+    position: relative;
+    width: 100%;
+    min-height: clamp(140px, 22vh, 220px);
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.lesson-flip.is-flipped .lesson-flip-inner {
+    transform: rotateY(180deg);
+}
+
+.lesson-flip-face {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1.2vw, 12px);
+    width: 100%;
+    min-height: clamp(140px, 22vh, 220px);
+    padding: clamp(4px, 1vh, 8px) clamp(8px, 1.2vw, 12px);
+    border-radius: 18px;
+    /* fundo opaco: evita ver a face da frente espelhada pelo verso */
+    background: linear-gradient(145deg, rgba(28, 46, 108, 0.96), rgba(58, 31, 120, 0.96));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.lesson-flip-front {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(0deg);
+}
+
+.lesson-flip-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(145deg, rgba(28, 46, 108, 0.96), rgba(58, 31, 120, 0.96));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.lesson-flip.is-flipped .lesson-flip-front {
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.lesson-flip:not(.is-flipped) .lesson-flip-back {
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.lesson-game-launch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #fff;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    height: auto;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    outline: none;
+    box-shadow: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.lesson-game-launch:hover,
+.lesson-game-launch:focus,
+.lesson-game-launch:focus-visible,
+.lesson-game-launch:active,
+.lesson-game-launch:visited {
+    transform: scale(1.06);
+    color: #fff;
+    background: none;
+    border: 0;
+    outline: none;
+    box-shadow: none;
+    filter: drop-shadow(0 0 16px rgba(0, 234, 255, 0.35));
+}
+
+.welcome-section .lesson-game-launch img,
+.lesson-flip-back img,
+.lesson-game-launch img {
+    width: auto;
+    height: clamp(96px, 16vh, 168px);
+    max-width: min(42vw, 180px);
+    aspect-ratio: auto;
+    object-fit: contain;
+    display: block;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    outline: none;
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.lesson-game-launch strong {
+    font-size: clamp(15px, 1.8vw, 20px);
+    font-weight: 600;
+    text-align: center;
+    pointer-events: none;
+    text-shadow: 0 0 10px rgba(0, 234, 255, 0.25);
+}
+
+.lesson-back-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: none;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.lesson-back-close:hover {
+    background: rgba(0, 0, 0, 0.5);
 }
 /* ===== Seções de cards ===== */
 .cards-section {
@@ -831,7 +987,8 @@ body.animations-off *::after {
         gap: 8px;
     }
 
-    .welcome-section img {
+    .welcome-section .lesson-flip-front img,
+    .lesson-flip-face img#lesson-hero-img {
         width: clamp(72px, 18vw, 120px);
         height: clamp(72px, 18vw, 120px);
     }

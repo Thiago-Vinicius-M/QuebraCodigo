@@ -169,27 +169,39 @@
     <main class="content animate-in fade-in" data-exit="fade-out">
         <span class="slide-left delay-2 animate-in">Bem vindo, <t id="user-display">Carregando...</t></span>
 
-        <section class="welcome-section animate-in fade-in" data-exit="fade-out">
-            <img src="img/home/iconeLicao.png" alt="Lição" class="zoom-blur delay-1 animate-in" decoding="async">
-            <div class="lesson-info">
-                <h2 class="zoom-blur delay-1 animate-in"><span>Lição 2</span> - Lógica</h2>
-                <p class="zoom-blur delay-2 animate-in">Verdadeiro ou falso?</p>
+        <section class="welcome-section lesson-flip animate-in fade-in" data-exit="fade-out" id="lesson-panel">
+            <div class="lesson-flip-inner" id="lesson-flip-inner">
+                <div class="lesson-flip-face lesson-flip-front" id="lesson-intro">
+                    <img src="img/home/iconeLicao.png" alt="Lição" class="zoom-blur delay-1 animate-in" decoding="async" id="lesson-hero-img">
+                    <div class="lesson-info">
+                        <h2 class="zoom-blur delay-1 animate-in"><span>Lição 2</span> - Lógica</h2>
+                        <p class="zoom-blur delay-2 animate-in">Verdadeiro ou falso?</p>
 
-                <a1 class="zoom-blur delay-2 animate-in">
-                    Dê um superpoder para o seu cérebro! Nossa academia de lógica é o lugar
-                    para treinar a sua mente de um jeito muito legal. <br>Falso ou Verdadeiro? <br>Pense rápido e responda para
-                    passar de fase. Quanto mais você joga, mais rápido você aprende a desvendar todos os segredos da lógica.
-                    <br> Vamos lá, o seu QI vai agradecer!
-                </a1>
+                        <a1 class="zoom-blur delay-2 animate-in">
+                            Dê um superpoder para o seu cérebro! Nossa academia de lógica é o lugar
+                            para treinar a sua mente de um jeito muito legal. <br>Falso ou Verdadeiro? <br>Pense rápido e responda para
+                            passar de fase. Quanto mais você joga, mais rápido você aprende a desvendar todos os segredos da lógica.
+                            <br> Vamos lá, o seu QI vai agradecer!
+                        </a1>
 
-                <footer>
-                    <div class="progress-container zoom-blur delay-3 animate-in">
-                        <div class="progress-bar" style="width: 60%;"></div>
+                        <footer>
+                            <div class="progress-container zoom-blur delay-3 animate-in">
+                                <div class="progress-bar" id="lesson-progress-bar" style="width: 60%;"></div>
+                            </div>
+                            <button type="button" class="continue-button zoom-blur delay-3 animate-in" id="btn-start-lesson">
+                                Continuar
+                            </button>
+                        </footer>
                     </div>
-                    <button class="continue-button zoom-blur delay-3 animate-in" data-exit="zoom-out">
-                        Continuar
-                    </button>
-                </footer>
+                </div>
+
+                <div class="lesson-flip-face lesson-flip-back" id="lesson-back" aria-hidden="true">
+                    <button type="button" class="lesson-back-close" id="btn-back-lesson" aria-label="Voltar à lição">✕</button>
+                    <a class="lesson-game-launch" href="games/verdadeiro-falso/verdadeiro-falso.html" id="btn-open-vf" aria-label="Verdadeiro ou Falso">
+                        <img src="img/home/jogos/BRAIN OUT.png" alt="">
+                        <strong>Verdadeiro ou Falso</strong>
+                    </a>
+                </div>
             </div>
         </section>
 
@@ -546,5 +558,7 @@
         applySettings(loadSettings());
     })();
 </script>
+<script src="games/js/achievements.js"></script>
+<script src="js/lesson-verdadeiro-falso.js"></script>
 </body>
 </html>

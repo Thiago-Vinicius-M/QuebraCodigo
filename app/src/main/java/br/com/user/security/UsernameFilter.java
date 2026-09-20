@@ -45,6 +45,11 @@ public class UsernameFilter extends OncePerRequestFilter {
         if (uri.startsWith("/img")) return true;
         if (uri.startsWith("/webjars")) return true;
 
+        // CSS/JS/imagens dos jogos (evita redirect→login e CSS “preso” no cache errado)
+        if (uri.startsWith("/games/") && uri.matches(".*\\.(css|js|mjs|png|jpg|jpeg|gif|svg|webp|ico|woff2?)$")) {
+            return true;
+        }
+
         // Assets do build React (html, js, css, ícones)
         if (uri.startsWith("/react/assets/")) return true;
         if (uri.equals("/react/index.html")) return true;

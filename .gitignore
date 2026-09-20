@@ -15,3 +15,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Segredos locais (Docker / Supabase)
+.env
+.env.local

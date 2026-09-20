@@ -1,0 +1,180 @@
+/* Verdadeiro/Falso — mesma paleta, vidro e raios da home */
+body.game-page {
+  margin: 0;
+  font-family: "Roboto", "Sofia Sans", system-ui, sans-serif;
+  color: #fff;
+  background:
+    radial-gradient(900px 420px at 88% -8%, rgba(162, 0, 255, 0.22), transparent 58%),
+    radial-gradient(760px 420px at -12% 108%, rgba(0, 234, 255, 0.12), transparent 55%),
+    linear-gradient(
+      180deg,
+      #0a0f2c 0%,
+      #111a3a 20%,
+      #1c2e6c 45%,
+      #3a1f78 70%,
+      #5c2d91 100%
+    );
+  background-attachment: fixed;
+}
+
+.vf-board {
+  box-sizing: border-box;
+  height: var(--play-h, calc(100svh - 70px));
+  display: grid;
+  place-items: start center;
+  padding: clamp(20px, 4vh, 40px) clamp(12px, 2vw, 20px) clamp(12px, 2.4vh, 24px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.vf-panel {
+  width: min(760px, 100%);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: clamp(18px, 2.6vh, 28px);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.38);
+}
+
+.vf-lesson-tag {
+  margin: 0 0 12px;
+  color: #00eaff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(0, 234, 255, 0.35);
+}
+
+.vf-question {
+  min-height: 4.6em;
+  padding: clamp(16px, 2vh, 22px);
+  border-radius: 18px;
+  background: rgba(7, 10, 40, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: clamp(16px, 2.1vw, 22px);
+  line-height: 1.45;
+  color: #eef2ff;
+  margin-bottom: 18px;
+}
+
+.vf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.vf-btn {
+  flex: 1 1 180px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.vf-true {
+  background: linear-gradient(135deg, #12d18a, #0a9b62);
+  box-shadow: 0 0 16px rgba(18, 209, 138, 0.22);
+}
+
+.vf-false {
+  background: linear-gradient(135deg, #ff5a7a, #c6284a);
+  box-shadow: 0 0 16px rgba(255, 90, 122, 0.22);
+}
+
+.vf-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+
+.vf-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.vf-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.vf-explain {
+  min-height: 2.4em;
+  color: #e0e0e0;
+  font-size: 15px;
+  line-height: 1.45;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid transparent;
+}
+
+.vf-explain.vf-ok {
+  color: #b8f7d4;
+  background: rgba(18, 209, 138, 0.14);
+  border-color: rgba(18, 209, 138, 0.35);
+}
+
+.vf-explain.vf-bad {
+  color: #ffd0d9;
+  background: rgba(255, 90, 122, 0.14);
+  border-color: rgba(255, 90, 122, 0.35);
+}
+
+.vf-next {
+  margin-top: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #a200ff, #5c2d91);
+  box-shadow: 0 0 16px rgba(162, 0, 255, 0.22);
+}
+
+.vf-next:hover {
+  filter: brightness(1.08);
+}
+
+.vf-next[hidden] {
+  display: none !important;
+}
+
+.vf-mode-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vf-mode-label select {
+  height: var(--gh-btn-h, 44px);
+  border-radius: var(--gh-radius, 12px);
+  border: 1px solid var(--game-accent-border, rgba(255, 255, 255, 0.26));
+  background: var(--game-accent, rgba(124, 58, 237, 0.85));
+  color: #fff;
+  padding: 0 10px;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .vf-board {
+    height: auto;
+    min-height: calc(100svh - 110px);
+  }
+}
