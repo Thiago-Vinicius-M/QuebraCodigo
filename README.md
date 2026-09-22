@@ -106,3 +106,7 @@ Use `CONTRIBUTING.md` para fluxo de trabalho e padrao de commits.
 ## Documentacao detalhada
 
 Detalhes tecnicos (funcionalidades, APIs, stack e equipe) em `docs/README-detalhado.md`.
+
+Alteracoes de banco (schema `app`, Flyway, Supabase/pooler) em `docs/alteracoes-banco-schema-app-supabase.md`.
+
+Apresentacao site (GSAP, sem scrollbar): abra `docs/apresentacao/site/index.html` no navegador.

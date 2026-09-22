@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuebraCódigo — Docker · Supabase · VPS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="progress" id="progress" role="presentation"></div>
+
+  <header class="topbar">
+    <span class="brand"><span class="brand-mark">QC</span> QuebraCódigo</span>
+    <span class="slide-num" id="slideNum">01 / 12</span>
+  </header>
+
+  <nav class="dots" id="dots" aria-label="Seções"></nav>
+
+  <main id="deck" tabindex="0">
+    <!-- 0 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">TCC · Implementações</p>
+        <h1 class="anim brand-title">Quebra<span>Código</span></h1>
+        <p class="lead anim">Plataforma educacional — o foco desta fala: como o projeto sobe e fica no ar.</p>
+        <p class="meta anim">Docker · Supabase · VPS</p>
+      </div>
+    </section>
+
+    <!-- 1 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">Contexto</p>
+        <h2 class="anim">O projeto em 20 segundos</h2>
+        <ul class="clean anim">
+          <li>App web: cursos, jogos, login e progresso</li>
+          <li>Spring Boot (Java 21) + HTML/CSS/JS · porta <strong>8150</strong></li>
+          <li>Antes: cada um rodava na máquina · Agora: container + nuvem + servidor</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">Pilares</p>
+        <h2 class="anim">Três implementações</h2>
+        <div class="split split--3 anim">
+          <div class="block">
+            <h3>Docker</h3>
+            <p>Empacota e sobe a app igual em qualquer máquina.</p>
+          </div>
+          <div class="block">
+            <h3>Supabase</h3>
+            <p>PostgreSQL na nuvem — banco compartilhado do time.</p>
+          </div>
+          <div class="block">
+            <h3>VPS</h3>
+            <p>Servidor 24h com a imagem Docker + .env.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">Docker</p>
+        <h2 class="anim">O que implementamos</h2>
+        <ul class="clean anim">
+          <li><code>app/Dockerfile</code> — build multi-stage (Maven → JAR → JRE)</li>
+          <li><code>docker-compose.yml</code> — sobe a app com credenciais do <code>.env</code></li>
+          <li><code>network_mode: host</code> — evita timeout SSL com o pooler Supabase</li>
+          <li><code>docker-compose.local-db.yml</code> — override opcional com Postgres local</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">Docker</p>
+        <h2 class="anim">Por que importa</h2>
+        <ul class="clean anim">
+          <li><strong>Mesmo ambiente</strong> — sem “na minha máquina funciona”</li>
+          <li><strong>Um comando</strong> — <code>docker compose up --build</code></li>
+          <li><strong>Base da VPS</strong> — o que roda local é o que sobe no servidor</li>
+          <li><strong>Local opcional</strong> — Postgres no Docker quando precisar offline / não sujar o banco da nuvem</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">Supabase</p>
+        <h2 class="anim">O que implementamos</h2>
+        <ul class="clean anim">
+          <li>PostgreSQL gerenciado na nuvem (banco oficial do projeto)</li>
+          <li>Schema <strong>app</strong> — evita <code>permission denied for schema public</code></li>
+          <li><strong>Session Pooler</strong> (IPv4) — URL direta <code>db.*</code> falha em redes só IPv4</li>
+          <li>Flyway + Hibernate apontam para <code>currentSchema=app</code></li>
+          <li>Credenciais via <code>.env</code> (modelo em <code>.env.example</code>)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">Supabase</p>
+        <h2 class="anim">Por que importa</h2>
+        <ul class="clean anim">
+          <li><strong>Banco único</strong> — time e VPS falam com a mesma base</li>
+          <li><strong>Sem instalar Postgres</strong> em cada PC para o fluxo padrão</li>
+          <li><strong>Backup e acesso</strong> pelo dashboard (SQL Editor, etc.)</li>
+          <li><strong>Produção de verdade</strong> — a app na VPS não depende do notebook de ninguém</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">VPS</p>
+        <h2 class="anim">O que implementamos</h2>
+        <ul class="clean anim">
+          <li><code>docker-compose.vps.yml</code> — usa imagem pronta <code>quebracodigo-app:latest</code></li>
+          <li>Sem Maven na VPS — só sobe o container (mais leve e rápido)</li>
+          <li>App na VPS · banco no Supabase · secrets no <code>.env</code></li>
+          <li>Limite de memória (<code>-Xmx384m</code>) + pool Hikari menor + <code>restart: unless-stopped</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">VPS</p>
+        <h2 class="anim">Por que importa</h2>
+        <ul class="clean anim">
+          <li><strong>URL pública</strong> — banca e time acessam sem “abre aí no teu PC”</li>
+          <li><strong>Disponibilidade</strong> — servidor ligado 24h, com reinício automático</li>
+          <li><strong>Controle</strong> — nós definimos porta, RAM e como atualizar o deploy</li>
+          <li><strong>Entrega de TCC</strong> — demonstra ops real: container + nuvem + hospedagem</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">Juntos</p>
+        <h2 class="anim">Como as peças se ligam</h2>
+        <ol class="steps anim">
+          <li><strong>Docker</strong> empacota a app Spring</li>
+          <li><strong>Supabase</strong> guarda os dados (schema <code>app</code>)</li>
+          <li><strong>VPS</strong> roda o container e expõe a porta 8150</li>
+        </ol>
+        <p class="meta anim">Usuário → VPS (Docker) → Supabase (PostgreSQL)</p>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">Na prática</p>
+        <h2 class="anim">Como o time sobe</h2>
+        <ol class="steps anim">
+          <li><strong>Padrão</strong> — <code>.env</code> + <code>docker compose up --build</code> → Supabase</li>
+          <li><strong>Opcional</strong> — + <code>docker-compose.local-db.yml</code> → Postgres no PC</li>
+          <li><strong>Produção</strong> — imagem + <code>docker-compose.vps.yml</code> na VPS</li>
+        </ol>
+        <p class="meta anim">Local Postgres = plano B · Supabase = banco oficial</p>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section class="panel" data-panel>
+      <div class="panel-inner">
+        <p class="eyebrow anim">Fechamento</p>
+        <h2 class="anim">Em uma frase</h2>
+        <p class="lead anim">Docker padroniza a execução; Supabase centraliza o banco; a VPS coloca o QuebraCódigo no ar.</p>
+        <ul class="check anim">
+          <li>Docker — build, compose, mesmo ambiente</li>
+          <li>Supabase — schema <code>app</code> + Session Pooler</li>
+          <li>VPS — imagem pronta, sempre disponível</li>
+        </ul>
+        <p class="thanks anim">Obrigado — perguntas?</p>
+      </div>
+    </section>
+  </main>
+
+  <p class="hint" id="hint">Role ou use <kbd>↓</kbd> <kbd>→</kbd> · <kbd>↑</kbd> <kbd>←</kbd> voltar</p>
+
+  <script src="site.js"></script>
+</body>
+</html>

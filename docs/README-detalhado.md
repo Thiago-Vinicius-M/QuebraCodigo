@@ -129,6 +129,8 @@ Arquivo: `app/src/main/resources/application.properties`
 
 No modo Docker, o `docker-compose.yml` sobrescreve as variaveis de datasource via `environment`.
 
+Documentacao dedicada das mudancas de banco (schema `app`, Flyway, Supabase Session Pooler, impacto ao rodar e checklist do time): `docs/alteracoes-banco-schema-app-supabase.md`.
+
 ## Endpoints principais (visao geral)
 
 - `POST /auth/login` - autentica usuario
@@ -154,6 +156,9 @@ No modo Docker, o `docker-compose.yml` sobrescreve as variaveis de datasource vi
 
 - **Porta 8150 ocupada:** altere o mapeamento no `docker-compose.yml` ou feche o processo concorrente.
 - **Falha de conexao com banco no local:** verifique se PostgreSQL esta ativo e se credenciais batem com `application.properties`.
+- **`permission denied for schema public`:** o projeto usa o schema `app` — veja `docs/alteracoes-banco-schema-app-supabase.md` e rode o setup uma vez.
+- **Timeout / falha IPv6 no Supabase:** use Session Pooler (`*.pooler.supabase.com`), nao a URL direta `db.*`.
+- **Nao ve tabelas no DBeaver:** inspecione o schema `app`, nao so `public`.
 - **Reset total do ambiente Docker:** use `docker compose down -v` e depois `docker compose up --build`.
 
 ## Fluxo de contribuicao
