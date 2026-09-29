@@ -1,0 +1,12 @@
+.logo-neon {
+    filter: drop-shadow(0 0 5px #fff)
+    drop-shadow(0 0 15px #04adbc)
+    drop-shadow(0 0 30px #FF00FF);
+    transition: filter 0.3s ease;
+}
+
+.logo-neon:hover {
+    filter: drop-shadow(0 0 10px #fff)
+    drop-shadow(0 0 25px #0fa)
+    drop-shadow(0 0 50px #0fa);
+}

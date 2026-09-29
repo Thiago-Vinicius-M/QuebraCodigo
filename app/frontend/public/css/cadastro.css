@@ -1,0 +1,214 @@
+/* -----------------------------
+   RESET
+------------------------------ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Shell de tela cheia — sem scroll na página */
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: "Sofia Sans", sans-serif;
+    color: #fff;
+}
+
+.go-back {
+    justify-self: start;
+    padding: 0 0.75rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: white;
+    transition: transform 0.2s ease;
+    margin: 0;
+    padding: 0;
+}
+
+.go-back:hover {
+    transform: scale(1.15);
+}
+
+.go-back img {
+    height: 1.5rem;
+}
+
+/* -----------------------------
+   BACKGROUND
+------------------------------ */
+.page-container {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(12px, 3vh, 32px) clamp(16px, 5vw, 32px);
+
+    background: linear-gradient(
+            180deg,
+            #0A0F2C 0%,
+            #111A3A 20%,
+            #1C2E6C 45%,
+            #3A1F78 70%,
+            #5C2D91 90%
+    );
+
+    /* Fallback: rola dentro do card, nunca na página */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* -----------------------------
+   FORM HEADER
+------------------------------ */
+.form-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: clamp(16px, 3.5vh, 40px);
+    flex-shrink: 0;
+    /* centraliza o conjunto verticalmente, mas mantém scroll-safe quando estoura */
+    margin-top: auto;
+}
+
+.back-button {
+    font-size: 32px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.form-title {
+    font-size: clamp(22px, 4.5vw, 32px);
+    font-weight: 700;
+}
+
+/* -----------------------------
+   FORM STRUCTURE
+------------------------------ */
+.register-form {
+    width: min(92vw, 720px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vh, 20px);
+    flex-shrink: 0;
+    margin-bottom: auto;
+}
+
+/* Name fields side by side */
+.name-group {
+    display: flex;
+    gap: 16px;
+}
+
+.name-group .input-wrapper {
+    flex: 1;
+}
+
+/* -----------------------------
+   INPUTS
+------------------------------ */
+.input-wrapper {
+    position: relative;
+    background: rgba(186, 186, 186, 0.25);
+    border-radius: 24px;
+    padding: clamp(10px, 1.6vh, 16px) 20px;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: clamp(15px, 2.4vw, 20px);
+    outline: none;
+}
+
+.icon-left .icon {
+    margin-right: 10px;
+    font-size: clamp(18px, 3vw, 22px);
+    opacity: 0.9;
+}
+
+/* -----------------------------
+   SOCIAL LOGIN
+------------------------------ */
+.social-section {
+    text-align: center;
+    margin-top: clamp(8px, 1.5vh, 20px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.5vh, 16px);
+}
+
+.social-section p {
+    font-size: clamp(15px, 2.6vw, 20px);
+    font-weight: 700;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.social-icons img {
+    width: clamp(32px, 6vw, 40px);
+    height: clamp(32px, 6vw, 40px);
+}
+
+/* -----------------------------
+   BUTTON
+------------------------------ */
+.submit-button {
+    background: rgba(186, 186, 186, 0.25);
+    border: none;
+    border-radius: 24px;
+    padding: clamp(10px, 1.6vh, 12px) 24px;
+    font-size: clamp(16px, 2.6vw, 20px);
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.submit-button:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* -----------------------------
+   RESPONSIVE
+------------------------------ */
+@media (max-width: 768px) {
+    .name-group {
+        flex-direction: column;
+    }
+}
+
+/* Telas baixas: comprime ainda mais para tentar caber sem scroll interno */
+@media (max-height: 720px) {
+    .form-header {
+        margin-bottom: clamp(8px, 2vh, 20px);
+    }
+
+    .register-form {
+        gap: clamp(8px, 1.4vh, 14px);
+    }
+
+    .input-wrapper {
+        padding: clamp(8px, 1.2vh, 12px) 18px;
+    }
+
+    .social-section {
+        margin-top: clamp(4px, 1vh, 12px);
+    }
+}

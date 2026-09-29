@@ -20,7 +20,9 @@ import java.util.Set;
 public class UsernameFilter extends OncePerRequestFilter {
 
     private static final Set<String> PUBLIC_PATHS = new HashSet<>(List.of(
-            "/",              // login controller
+            "/",
+            "/home",
+            "/index.html",
             "/login",
             "/login.html",
             "/cadastro.html",
@@ -51,6 +53,7 @@ public class UsernameFilter extends OncePerRequestFilter {
         }
 
         // Assets do build React (html, js, css, ícones)
+        if (uri.startsWith("/assets/")) return true; // saída do Vite (app/frontend → static/assets)
         if (uri.startsWith("/react/assets/")) return true;
         if (uri.equals("/react/index.html")) return true;
 

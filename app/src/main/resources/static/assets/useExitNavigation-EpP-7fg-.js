@@ -1,0 +1,1 @@
+import{r as t}from"./api-BMjvXjy_.js";const a=600;function u(o=a){const[i,n]=t.useState(!1),s=t.useCallback(e=>{n(!0),window.setTimeout(()=>{window.location.href=e},o)},[o]);return t.useEffect(()=>{function e(){n(!1)}return window.addEventListener("pageshow",e),()=>window.removeEventListener("pageshow",e)},[]),{exiting:i,goTo:s}}export{u};

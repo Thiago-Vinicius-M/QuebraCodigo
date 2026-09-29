@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,15 +19,41 @@ public class NoCacherFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         // só aplica em rotas dinâmicas. Ajuste conforme seu projeto.
-        return !(path.startsWith("/api/") || path.startsWith("/app/"));
+        return !(path.startsWith("/api/")
+                || path.startsWith("/app/")
+                || "/".equals(path)
+                || path.endsWith(".html"));
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse resp, FilterChain chain)
             throws ServletException, IOException {
-        resp.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
-        resp.setHeader("Pragma", "no-cache");
-        resp.setDateHeader("Expires", 0);
-        chain.doFilter(req, resp);
+        HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(resp) {
+            private void noStore() {
+                super.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+                super.setHeader("Pragma", "no-cache");
+                super.setDateHeader("Expires", 0);
+            }
+
+            @Override
+            public void setHeader(String name, String value) {
+                if ("Cache-Control".equalsIgnoreCase(name) || "Pragma".equalsIgnoreCase(name)) {
+                    noStore();
+                    return;
+                }
+                super.setHeader(name, value);
+            }
+
+            @Override
+            public void addHeader(String name, String value) {
+                if ("Cache-Control".equalsIgnoreCase(name) || "Pragma".equalsIgnoreCase(name)) {
+                    noStore();
+                    return;
+                }
+                super.addHeader(name, value);
+            }
+        };
+        wrapper.setHeader("Cache-Control", "no-store");
+        chain.doFilter(req, wrapper);
     }
 }
