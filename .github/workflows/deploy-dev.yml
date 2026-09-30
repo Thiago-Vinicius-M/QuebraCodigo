@@ -1,0 +1,28 @@
+name: Deploy dev to VPS
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Atualizar a VPS a partir da dev
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 30m
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd "$HOME/quebracodigo-dev"
+            git pull --ff-only origin dev
+            docker build -t quebracodigo-app:latest ./app
+            docker rm -f quebracodigo-app
+            docker compose -f docker-compose.vps.yml up -d
+            docker ps --filter name=quebracodigo-app
