@@ -212,6 +212,7 @@ h1 {
    (1fr coluna × 1fr linha). min-width/height:0 evita que o conteúdo force overflow.
    Fonte fluida via clamp(vmin) — escala junto com o tabuleiro e com a dificuldade. */
 .cell {
+    --cell-font: clamp(9px, calc(var(--board) / var(--cols, 8) * 0.45), 40px);
     min-width: 0;
     min-height: 0;
     background: rgba(255, 255, 255, 0.2);
@@ -220,7 +221,8 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(9px, 2.2vmin, 18px);
+    /* proporcional ao tamanho da célula (lado do tabuleiro / nº de colunas) */
+    font-size: var(--cell-font);
     line-height: 1;
     font-weight: bold;
     cursor: pointer;
@@ -249,7 +251,7 @@ h1 {
 
 .cell.flagged::after {
     content: '🚩';
-    font-size: clamp(9px, 2.2vmin, 18px);
+    font-size: var(--cell-font);
 }
 
 /* Célula com mina (mostrada ao perder) */
@@ -259,7 +261,7 @@ h1 {
 
 .cell.mine::after {
     content: '💣';
-    font-size: clamp(9px, 2.2vmin, 18px);
+    font-size: var(--cell-font);
 }
 
 /* Mina que causou game over */
@@ -367,11 +369,44 @@ h1 {
    o orçamento de largura (--board-w) e a reserva vertical (--board-reserve, que cobre
    header + gaps + paddings + instruções). A célula deriva sempre do quadrado. */
 
-/* Desktop largo: permite tabuleiro maior */
+/* Desktop largo: instruções vão para a LATERAL do tabuleiro. Assim a altura
+   deixa de ser dividida com elas e o tabuleiro usa quase toda a área abaixo
+   do header (o lado do quadrado é limitado pela altura da tela).
+   Grid [vazio | tabuleiro | instruções] com laterais iguais (1fr): o tabuleiro
+   fica no centro exato da tela, não o conjunto tabuleiro + instruções. */
 @media (min-width: 900px) {
+    .game-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        column-gap: clamp(16px, 2.5vw, 36px);
+    }
+
     .game-container {
-        --board-w: min(88vw, 820px);
-        --board-reserve: 210px;
+        grid-column: 2;
+        /* só o padding inferior do shell + respiro */
+        --board-reserve: calc(clamp(8px, 2svh, 20px) * 2);
+        /* largura: tela - paddings laterais - (painel de instruções + gap) dos
+           DOIS lados, p/ o tabuleiro continuar no centro */
+        --board-w: calc(100vw - 48px - 2 * (240px + clamp(16px, 2.5vw, 36px)));
+    }
+
+    .instructions {
+        grid-column: 3;
+        justify-self: start;
+    }
+
+    .instructions {
+        width: 240px;
+        max-width: 240px;
+        text-align: left;
+        font-size: 14px;
+        line-height: 1.5;
+        padding: 14px 16px;
+    }
+
+    .instructions p {
+        margin: 8px 0;
     }
 }
 

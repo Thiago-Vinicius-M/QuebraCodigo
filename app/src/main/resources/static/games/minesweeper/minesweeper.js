@@ -195,7 +195,7 @@ function Minesweeper() {
       <div className="game-container">
         <div
           className="grid-container"
-          style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+          style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, '--cols': cols }}
         >
           {grid.map((rowArr, r) =>
             rowArr.map((cell, c) => {

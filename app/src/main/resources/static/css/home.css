@@ -9,82 +9,6 @@ html, body {
     height: 100%;
 }
 
-/* ===== Liquid Glass (tokens compartilhados por todos os painéis/cards) ===== */
-:root {
-    --glass-bg: rgba(255, 255, 255, 0.10);
-    --glass-bg-hover: rgba(255, 255, 255, 0.18);
-    --glass-border: rgba(255, 255, 255, 0.28);
-    --glass-highlight: rgba(255, 255, 255, 0.55);
-    --glass-blur: blur(28px) saturate(180%);
-    --glass-shadow: 0 8px 32px rgba(4, 6, 24, 0.35);
-}
-
-/* brilho líquido em movimento contínuo por cima do vidro
-   (o pseudo-elemento não extrapola a caixa: só o gradiente "escorre"
-   dentro dele via background-position, então não cria scroll extra
-   em containers com overflow, como a sidebar) */
-.welcome-section::before,
-.card::before,
-.card-button::before,
-.continue-button::before,
-.nav-bg::before,
-.nav-bg-editarPerfil::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        100deg,
-        rgba(255, 255, 255, 0) 30%,
-        rgba(255, 255, 255, 0.4) 45%,
-        rgba(255, 255, 255, 0.6) 50%,
-        rgba(255, 255, 255, 0.4) 55%,
-        rgba(255, 255, 255, 0) 70%
-    );
-    background-size: 300% 300%;
-    background-position: 0% 50%;
-    pointer-events: none;
-    animation: liquid-sheen 6s ease-in-out infinite;
-}
-
-@keyframes liquid-sheen {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-/* varredura em onda pelos cards, um pouco defasada entre eles */
-.cards-grid > .card-button:nth-child(1)::before { animation-delay: 0s; }
-.cards-grid > .card-button:nth-child(2)::before { animation-delay: .3s; }
-.cards-grid > .card-button:nth-child(3)::before { animation-delay: .6s; }
-.cards-grid > .card-button:nth-child(4)::before { animation-delay: .9s; }
-.cards-grid > .card-button:nth-child(5)::before { animation-delay: 1.2s; }
-.cards-grid > .card-button:nth-child(6)::before { animation-delay: 1.5s; }
-
-/* mesma varredura em onda descendo pelos ícones da sidebar */
-.sidebar > *:nth-child(1) .nav-bg::before,
-.sidebar > *:nth-child(1) .nav-bg-editarPerfil::before { animation-delay: 0s; }
-.sidebar > *:nth-child(2) .nav-bg::before,
-.sidebar > *:nth-child(2) .nav-bg-editarPerfil::before { animation-delay: .3s; }
-.sidebar > *:nth-child(3) .nav-bg::before,
-.sidebar > *:nth-child(3) .nav-bg-editarPerfil::before { animation-delay: .6s; }
-.sidebar > *:nth-child(4) .nav-bg::before,
-.sidebar > *:nth-child(4) .nav-bg-editarPerfil::before { animation-delay: .9s; }
-.sidebar > *:nth-child(5) .nav-bg::before,
-.sidebar > *:nth-child(5) .nav-bg-editarPerfil::before { animation-delay: 1.2s; }
-.sidebar > *:nth-child(6) .nav-bg::before,
-.sidebar > *:nth-child(6) .nav-bg-editarPerfil::before { animation-delay: 1.5s; }
-
-@media (prefers-reduced-motion: reduce) {
-    .welcome-section::before,
-    .card::before,
-    .card-button::before,
-    .continue-button::before,
-    .nav-bg::before,
-    .nav-bg-editarPerfil::before {
-        animation: none;
-    }
-}
-
 /* ===== Estrutura geral ===== */
 body {
     font-family: 'Roboto', 'Sofia Sans', sans-serif;
@@ -103,6 +27,51 @@ body {
 h2 {
     margin-top: 8px;
 }
+
+/* ===== Liquid Glass (fundo animado das superfícies de vidro) ===== */
+@keyframes liquidGlassFlow {
+    0% {
+        background-position: -30% -20%, 15% 5%, 85% 95%, 0 0;
+    }
+    100% {
+        background-position: 130% 90%, 30% 25%, 70% 75%, 0 0;
+    }
+}
+
+/* Faixa de brilho que atravessa o vidro (o "reflexo" que fica passando).
+   .welcome-section e .card-button já têm position:relative + overflow:hidden
+   nas próprias regras; .sidebar é position:fixed, que também serve de contexto. */
+.sidebar::before,
+.welcome-section::before,
+.card-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.55) 48%,
+        rgba(255, 255, 255, 0.15) 52%,
+        transparent 70%);
+    transform: translateX(-160%) skewX(-12deg);
+    animation: liquidSweep 4.5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes liquidSweep {
+    0% { transform: translateX(-160%) skewX(-12deg); }
+    45% { transform: translateX(160%) skewX(-12deg); }
+    100% { transform: translateX(160%) skewX(-12deg); }
+}
+
+.welcome-section::before { animation-delay: 0.6s; }
+.sidebar::before { animation-duration: 6s; }
+
+.card-button:nth-child(2n)::before { animation-delay: 0.9s; animation-duration: 5s; }
+.card-button:nth-child(3n)::before { animation-delay: 1.6s; animation-duration: 4s; }
+.card-button:nth-child(4n)::before { animation-delay: 0.3s; animation-duration: 5.5s; }
+.card-button:nth-child(5n)::before { animation-delay: 2.1s; }
+
 
 .container {
     display: flex;
@@ -133,6 +102,17 @@ h2 {
     width: clamp(72px, 8vw, 100px);
     height: 100svh;
     padding: clamp(12px, 2.5vh, 28px) 0 clamp(8px, 1.5vh, 16px);
+    background:
+        linear-gradient(115deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.35) 48%, rgba(255,255,255,0.06) 54%, rgba(255,255,255,0) 65%) no-repeat,
+        radial-gradient(45% 45% at 25% 15%, rgba(0,234,255,0.28), transparent 70%) no-repeat,
+        radial-gradient(45% 45% at 75% 90%, rgba(162,0,255,0.26), transparent 70%) no-repeat,
+        rgba(0, 0, 0, 0.2);
+    background-size: 260% 260%, 180% 180%, 180% 180%, 100% 100%;
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border-right: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.06);
+    animation: liquidGlassFlow 14s ease-in-out infinite alternate;
     z-index: 10;
     display: flex;
     flex-direction: column;
@@ -144,12 +124,6 @@ h2 {
     text-align: center;
     overflow-y: auto;
     overflow-x: hidden;
-    /* continua rolando em telas baixas, mas sem mostrar a barra */
-    scrollbar-width: none;
-}
-
-.sidebar::-webkit-scrollbar {
-    display: none;
 }
 
 .sidebar .profile-icon {
@@ -269,18 +243,54 @@ h2 {
     gap: clamp(8px, 1.2vw, 12px);
     position: relative;
     overflow: hidden;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), var(--glass-shadow);
+    background:
+        linear-gradient(115deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.4) 48%, rgba(255,255,255,0.08) 54%, rgba(255,255,255,0) 65%) no-repeat,
+        radial-gradient(45% 45% at 22% 20%, rgba(0,234,255,0.32), transparent 70%) no-repeat,
+        radial-gradient(45% 45% at 82% 85%, rgba(162,0,255,0.3), transparent 70%) no-repeat,
+        rgba(255, 255, 255, 0.15);
+    background-size: 260% 260%, 170% 170%, 170% 170%, 100% 100%;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 8px rgba(0, 0, 0, 0.12);
+    animation: liquidGlassFlow 11s ease-in-out infinite alternate;
     border-radius: 18px;
     margin-top: 2px;
     padding: clamp(4px, 1vh, 8px) clamp(8px, 1.2vw, 12px);
     flex: none;
 }
 
-.welcome-section img {
+/* liquid glass fica na própria caixa (.welcome-section); as faces do flip são
+   transparentes e a face escondida some via visibility (regras .is-flipped) */
+.welcome-section.lesson-flip {
+    padding: 0;
+    gap: 0;
+    /* overflow:hidden aqui impede o verso do flip 3D de aparecer (Chrome) */
+    overflow: visible;
+}
+
+/* sem overflow:hidden a faixa de brilho não pode atravessar a caixa (vazaria):
+   ela fica parada, com os cantos da caixa, e o reflexo anda pelo fundo */
+.welcome-section.lesson-flip::before {
+    border-radius: inherit;
+    transform: none;
+    /* mesma faixa do original (40% da largura), num fundo 3x mais largo */
+    background: linear-gradient(100deg,
+        transparent 43.3%,
+        rgba(255, 255, 255, 0.55) 49.3%,
+        rgba(255, 255, 255, 0.15) 50.7%,
+        transparent 56.7%);
+    background-size: 300% 100%;
+    background-repeat: no-repeat;
+    animation-name: liquidSweepBg;
+}
+
+@keyframes liquidSweepBg {
+    0% { background-position: 100% 0; }
+    45% { background-position: 0% 0; }
+    100% { background-position: 0% 0; }
+}
+
+.welcome-section .lesson-flip-front img,
+.lesson-flip-face img#lesson-hero-img {
     width: clamp(88px, 13vh, 160px);
     height: clamp(88px, 13vh, 160px);
     border-radius: 18px;
@@ -343,7 +353,6 @@ h2 {
     width: 90%;
     height: 8px;
     background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--glass-border);
     border-radius: 4px;
     margin-bottom: 0;
     overflow: hidden;
@@ -358,26 +367,164 @@ h2 {
 }
 
 .continue-button {
-    position: relative;
-    overflow: hidden;
     padding: clamp(6px, 1vh, 10px) clamp(12px, 1.6vw, 20px);
     font-size: clamp(12px, 1.3vw, 14px);
-    background: linear-gradient(135deg, rgba(28, 46, 108, 0.55), rgba(58, 31, 120, 0.55));
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 18px rgba(4, 6, 24, 0.35);
+    background: linear-gradient(135deg, #1C2E6C, #3A1F78);
+    border: none;
     border-radius: 8px;
     color: white;
     cursor: pointer;
     white-space: nowrap;
-    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .continue-button:hover {
-    transform: translateY(-1px);
-    background: linear-gradient(135deg, rgba(28, 46, 108, 0.7), rgba(58, 31, 120, 0.7));
-    border-color: var(--glass-highlight);
+    opacity: 0.9;
+}
+
+/* ===== Card da lição com flip ===== */
+.lesson-flip {
+    perspective: 1200px;
+    display: block;
+    padding: 0;
+}
+
+.lesson-flip-inner {
+    position: relative;
+    width: 100%;
+    min-height: clamp(140px, 22vh, 220px);
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.lesson-flip.is-flipped .lesson-flip-inner {
+    transform: rotateY(180deg);
+}
+
+.lesson-flip-face {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1.2vw, 12px);
+    width: 100%;
+    min-height: clamp(140px, 22vh, 220px);
+    padding: clamp(4px, 1vh, 8px) clamp(8px, 1.2vw, 12px);
+    border-radius: 18px;
+    background: transparent;
+    border: none;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* frente no fluxo: a caixa cresce até caber o conteúdo (o liquid glass da
+   .welcome-section tem overflow:hidden e cortaria título/botão). O verso
+   continua absoluto, ocupando a mesma área. */
+.lesson-flip-front {
+    position: relative;
+    transform: rotateY(0deg);
+}
+
+.lesson-flip-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+    justify-content: center;
+    align-items: center;
+}
+
+.lesson-flip.is-flipped .lesson-flip-front {
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.lesson-flip:not(.is-flipped) .lesson-flip-back {
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.lesson-game-launch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #fff;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    height: auto;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    outline: none;
+    box-shadow: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.lesson-game-launch:hover,
+.lesson-game-launch:focus,
+.lesson-game-launch:focus-visible,
+.lesson-game-launch:active,
+.lesson-game-launch:visited {
+    transform: scale(1.06);
+    color: #fff;
+    background: none;
+    border: 0;
+    outline: none;
+    box-shadow: none;
+    filter: drop-shadow(0 0 16px rgba(0, 234, 255, 0.35));
+}
+
+.welcome-section .lesson-game-launch img,
+.lesson-flip-back img,
+.lesson-game-launch img {
+    width: auto;
+    height: clamp(96px, 16vh, 168px);
+    max-width: min(42vw, 180px);
+    aspect-ratio: auto;
+    object-fit: contain;
+    display: block;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    outline: none;
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.lesson-game-launch strong {
+    font-size: clamp(15px, 1.8vw, 20px);
+    font-weight: 600;
+    text-align: center;
+    pointer-events: none;
+    text-shadow: 0 0 10px rgba(0, 234, 255, 0.25);
+}
+
+.lesson-back-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: none;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.lesson-back-close:hover {
+    background: rgba(0, 0, 0, 0.5);
 }
 /* ===== Seções de cards ===== */
 .cards-section {
@@ -509,17 +656,12 @@ h2 {
 }
 
 .card {
-    position: relative;
-    overflow: hidden;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), var(--glass-shadow);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 24px;
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: blur(40px);
     text-align: center;
     padding: 15px;
-    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
 }
 
 .card img {
@@ -537,24 +679,27 @@ h2 {
 
 .card:hover {
     transform: scale(1.05);
-    background: var(--glass-bg-hover);
-    border-color: var(--glass-highlight);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 12px 36px rgba(4, 6, 24, 0.4);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 /* ===== Botões dos cards ===== */
 .card-button {
     position: relative;
     overflow: hidden;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), var(--glass-shadow);
+    background:
+        linear-gradient(115deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.4) 48%, rgba(255,255,255,0.08) 54%, rgba(255,255,255,0) 65%) no-repeat,
+        radial-gradient(45% 45% at 25% 20%, rgba(0,234,255,0.3), transparent 70%) no-repeat,
+        radial-gradient(45% 45% at 80% 85%, rgba(162,0,255,0.28), transparent 70%) no-repeat,
+        rgba(255, 255, 255, 0.15);
+    background-size: 260% 260%, 180% 180%, 180% 180%, 100% 100%;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 6px rgba(0, 0, 0, 0.12);
+    animation: liquidGlassFlow 9s ease-in-out infinite alternate;
     border-radius: 20px;
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: blur(40px);
     text-align: center;
     padding: clamp(10px, 1.6vh, 18px) clamp(8px, 1vw, 14px);
-    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, filter 0.3s ease;
     cursor: pointer;
     /* card compacto: largura cheia da coluna, mas a ALTURA passa a ser a do
        conteúdo (ícone + rótulo) — antes esticava p/ preencher a tela toda,
@@ -601,14 +746,12 @@ h2 {
 
 .card-button:hover {
     transform: scale(1.05);
-    background: var(--glass-bg-hover);
-    border-color: var(--glass-highlight);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 12px 36px rgba(4, 6, 24, 0.4);
+    filter: brightness(1.18) saturate(1.15);
 }
 
 .card-button:active {
     transform: scale(0.98);
-    background: rgba(255, 255, 255, 0.24);
+    filter: brightness(0.95);
 }
 
 /* ===== Botões da navbar ===== */
@@ -626,8 +769,7 @@ h2 {
 
 .nav-button:hover .nav-bg,
 .nav-link:hover .nav-bg {
-    background-color: var(--glass-bg-hover);
-    border-color: var(--glass-highlight);
+    background-color: rgba(255, 255, 255, 0.12);
 }
 
 .nav-button span {
@@ -654,12 +796,9 @@ h2 {
     width: var(--side-badge-w);
     height: var(--side-badge-h);
     border-radius: 16px;
-    overflow: hidden;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    /* sem fundo atrás dos ícones (pedido); realce só no hover */
+    background: transparent;
+    backdrop-filter: none;
     z-index: -1;
     transition: 0.25s ease;
 }
@@ -677,8 +816,7 @@ h2 {
 }
 
 .nav-button-settings:hover .nav-bg {
-    background-color: var(--glass-bg-hover);
-    border-color: var(--glass-highlight);
+    background-color: rgba(255, 255, 255, 0.12);
 }
 
 .nav-button-settings span {
@@ -722,12 +860,9 @@ h2 {
     width: var(--side-badge-w);
     height: var(--side-badge-h);
     border-radius: 16px;
-    overflow: hidden;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    /* sem fundo atrás do ícone (pedido); realce só no hover */
+    background: transparent;
+    backdrop-filter: none;
     z-index: -1;
     transition: 0.25s ease;
 }
@@ -748,8 +883,7 @@ h2 {
 }
 
 .profile-button:hover .nav-bg-editarPerfil {
-    background-color: var(--glass-bg-hover);
-    border-color: var(--glass-highlight);
+    background-color: rgba(255, 255, 255, 0.12);
 }
 
 .profile-button:active {
@@ -922,10 +1056,17 @@ body.theme-contrast {
         linear-gradient(180deg, #05060F 0%, #07091A 35%, #0A0D24 70%, #0C0F2C 100%);
     background-attachment: fixed;
 }
+body.glass-off .sidebar,
 body.glass-off .card-button,
 body.glass-off .welcome-section {
     backdrop-filter: none;
     background: rgba(20, 25, 65, 0.95);
+    animation: none;
+}
+body.glass-off .sidebar::before,
+body.glass-off .card-button::before,
+body.glass-off .welcome-section::before {
+    display: none;
 }
 body.compact-cards .cards-grid { gap: 8px; }
 body.compact-cards .card-button { padding: 8px; }
@@ -948,7 +1089,8 @@ body.animations-off *::after {
         gap: 8px;
     }
 
-    .welcome-section img {
+    .welcome-section .lesson-flip-front img,
+    .lesson-flip-face img#lesson-hero-img {
         width: clamp(72px, 18vw, 120px);
         height: clamp(72px, 18vw, 120px);
     }

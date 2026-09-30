@@ -1,18 +1,16 @@
-/* wrapper central, igual vibe do sudoku/connect4 */
+/* fundo: mesmo gradiente da plataforma (home.css / 2048) */
 
 body {
     margin: 0;
-    background: linear-gradient(
-            180deg,
-            #4a0d66 0%,
-            #d81e5b 38%,
-            #f95738 69%,
-            #f9964f 100%
-    );
+    background: linear-gradient(180deg,
+    #0A0F2C 0%,
+    #111A3A 20%,
+    #1C2E6C 45%,
+    #3A1F78 70%,
+    #5C2D91 100%);
 
-    color: var(--ink);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+    color: #fff;
+    font-family: 'Roboto', 'Sofia Sans', sans-serif;
     max-width: 100%;
 }
 
@@ -150,28 +148,43 @@ body {
     backface-visibility: hidden;
 }
 
+/* verso: cartão no estilo dos cards da home, com o "?" dourado por cima */
 .face.front {
-    background-image: url("img/cartas/versoCarta.svg");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.06),
+    background:
+        url("img/cartas/versoCarta.svg") center / 70% no-repeat,
+        linear-gradient(145deg, #1C2E6C, #3A1F78);
+    border: 1px solid rgba(0, 234, 255, 0.35);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06),
     0 10px 24px rgba(0, 0, 0, 0.35);
     border-radius: clamp(10px, 2vmin, 20px);
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.card3d:hover .face.front {
+    border-color: rgba(0, 234, 255, 0.8);
+    box-shadow: 0 0 16px rgba(0, 234, 255, 0.35),
+    0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
 .face.back {
-    background: linear-gradient(180deg, #fff);
+    background: #fff;
+    border: 1px solid rgba(162, 0, 255, 0.35);
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
     transform: rotateY(180deg);
     font-size: 56px;
+}
+
+/* par encontrado: brilho roxo da plataforma */
+.card3d.matched .face.back {
+    border-color: #a200ff;
+    box-shadow: 0 0 18px rgba(162, 0, 255, 0.55);
 }
 
 /* overlay que aparece por cima das cartas */
 .win-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.55); /* escurece e deixa cartas atrás */
+    background: rgba(10, 15, 44, 0.7); /* escurece em azul-marinho e deixa cartas atrás */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -187,13 +200,13 @@ body {
 
 /* caixa de mensagem */
 .win-box {
-    background: rgba(255,255,255,0.2);
+    background: linear-gradient(145deg, rgba(28, 46, 108, 0.96), rgba(58, 31, 120, 0.96));
     backdrop-filter: blur(16px);
     padding: clamp(18px, 4vmin, 28px) clamp(24px, 6vmin, 40px);
     border-radius: 18px;
     text-align: center;
     color: white;
-    border: 1px solid rgba(255,255,255,0.28);
+    border: 1px solid rgba(0, 234, 255, 0.35);
     box-shadow: 0 0 28px rgba(0,0,0,0.35);
     animation: popIn .5s ease;
 }
@@ -218,8 +231,8 @@ body {
     margin-top: 18px;
     padding: 10px 24px;
     border-radius: 12px;
-    background: rgba(255,255,255,0.25);
-    border: 1px solid rgba(255,255,255,0.4);
+    background: linear-gradient(135deg, #a200ff, #5C2D91);
+    border: 1px solid rgba(162, 0, 255, 0.6);
     color: white;
     font-weight: 600;
     cursor: pointer;
@@ -227,12 +240,45 @@ body {
 }
 .win-box button:hover {
     transform: translateY(-2px);
-    background: rgba(255,255,255,0.35);
+    box-shadow: 0 0 16px rgba(162, 0, 255, 0.5);
 }
 
-/* identidade de cor do header (unico override permitido) — memoria (magenta/violeta) */
+/* identidade de cor do header (unico override permitido) — memoria (ciano/roxo da plataforma) */
 body {
-    --game-accent: linear-gradient(135deg, #d4308a, #7b2ff7);
-    --game-accent-border: rgba(212,48,138,0.5);
+    --game-accent: linear-gradient(135deg, #0891b2, #7c3aed);
+    --game-accent-border: rgba(0, 234, 255, 0.45);
+    --gh-title-grad: linear-gradient(90deg, #00EAFF, #a200ff);
 }
 
+
+/* HEADER: o título centralizado e a compressão das ações vêm do padrão
+   comum (games/css/header.css + games/js/header-fit.js). Aqui só os ajustes
+   próprios da memória para cada etapa (.gh-fit-N). */
+
+/* movimentos/tempo ficam juntos, sem esticar a linha */
+.game-header .memory-stats {
+    flex: 0 0 auto !important;
+}
+
+/* etapa 1: movimentos e tempo empilhados */
+.game-header.gh-fit-1 .memory-stats {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+}
+.game-header.gh-fit-1 .memory-stats > span { font-size: 13px !important; }
+.game-header.gh-fit-1 .memory-stats strong { font-size: 14px !important; }
+
+/* etapa 2: some o texto "Tamanho:" e o "Iniciar" (faz o mesmo que "Resetar") */
+.game-header.gh-fit-2 .ctrl-label > .muted,
+.game-header.gh-fit-2 #mStart {
+    display: none !important;
+}
+
+/* etapa 3: em 2 linhas, movimentos/tempo voltam lado a lado */
+.game-header.gh-fit-3 .memory-stats {
+    flex-direction: row !important;
+    gap: 8px !important;
+}
+.game-header.gh-fit-3 .memory-stats > span { font-size: 12px !important; }
+.game-header.gh-fit-3 .memory-stats strong { font-size: 13px !important; }

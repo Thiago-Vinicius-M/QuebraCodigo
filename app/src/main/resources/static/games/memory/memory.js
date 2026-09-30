@@ -137,7 +137,7 @@ function MemoryGame() {
 
   return (
     <div className="game-shell">
-      <header className="game-header">
+      <header className="game-header memory-header">
         <a href="/index.html" className="go-back" aria-label="Voltar">
           <img src="../img/topbar/setaVoltar.png" alt="Botão retornar para a Home" />
         </a>
@@ -155,7 +155,7 @@ function MemoryGame() {
               <option value="6">6 × 4</option>
             </select>
           </label>
-          <div className="controls">
+          <div className="controls memory-stats">
             <span className="muted">Movimentos: <strong>{moves}</strong></span>
             <span className="muted">Tempo: <strong>{timeStr}</strong></span>
           </div>

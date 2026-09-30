@@ -54,18 +54,13 @@
   min-height: var(--gh-height) !important;
   padding: 0 var(--sp-6) !important;
   /* GRID de 3 colunas: [voltar | título | ações].
-     As colunas laterais (1fr) têm a MESMA largura -> o título (coluna central
-     auto) fica de fato centralizado na página E nunca sobrepõe os controles
-     (responsivo: o título encolhe/elipsa em vez de passar por cima). */
-  /* FLEX: voltar(auto) | título(cresce, centralizado) | ações(auto).
-     O título é um item flex que ocupa o meio e centraliza o texto — itens flex
-     NUNCA se sobrepõem, então os controles jamais ficam por cima do título. */
-  display: flex !important;
-  flex-direction: row !important;
+     As colunas laterais (minmax(0,1fr)) têm SEMPRE a mesma largura -> o título
+     (coluna central auto) fica no centro exato da tela em todos os jogos.
+     Quem cede espaço são as ações da direita: elas se espremem em etapas
+     (container queries em "gh-actions", mais abaixo) em vez de empurrar o título. */
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
   align-items: center !important;
-  /* voltar + título à esquerda; controles empurrados à direita (margin-left:auto).
-     Assim o título fica SEMPRE na mesma posição em todos os jogos. */
-  justify-content: flex-start !important;
   gap: var(--sp-3) !important;
   background: rgba(0, 0, 0, 0.3) !important;
   backdrop-filter: blur(10px);
@@ -79,6 +74,7 @@
 .game-header .go-back,
 .game-header .c4-back {
   flex: 0 0 auto !important;
+  justify-self: start;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -97,21 +93,18 @@
 /* ---------- TÍTULO (sempre centralizado, independente das ações) ---------- */
 .game-header .game-title,
 .game-header .c4-title {
-  /* item flex central: cresce e centraliza o texto; encolhe (elipsa) se faltar
-     espaço, NUNCA sobrepõe os controles. (não mais position:absolute) */
+  /* coluna central do grid: sempre no meio da tela (não mais position:absolute) */
   position: static !important;
   left: auto !important;
   top: auto !important;
   transform: none !important;
-  /* block + sem crescer: o título fica logo após a seta de voltar, na MESMA
-     posição em todos os jogos (não cresce nem centraliza no espaço variável). */
   display: block !important;
-  flex: 0 1 auto !important;
+  justify-self: center;
   min-width: 0 !important;
-  max-width: 60% !important;
+  max-width: none !important;
   margin: 0 !important;
   padding: 6px 0 !important;             /* respiro p/ descendentes (g, p, ç) */
-  overflow: hidden !important;           /* elipsa se faltar espaço, em vez de invadir os controles */
+  overflow: hidden !important;
   text-overflow: ellipsis !important;
   font-family: var(--gh-font) !important;
   /* fonte fluida: encolhe em telas menores (notebook) p/ caber sem colidir */
@@ -120,7 +113,7 @@
   letter-spacing: 0.5px !important;
   line-height: 1.3 !important;           /* >1 evita corte dos descendentes no clip de texto */
   white-space: nowrap !important;
-  text-align: left !important;
+  text-align: center !important;
   pointer-events: none;
   background: var(--gh-title-grad) !important;
   -webkit-background-clip: text !important;
@@ -134,15 +127,33 @@
 .game-header .game-actions,
 .game-header .c4-controls {
   flex: 0 0 auto !important;
-  /* empurra os controles para a direita (título fica fixo à esquerda).
-     margin-left:auto absorve todo o espaço livre entre título e controles. */
-  margin: 0 0 0 auto !important;
+  margin: 0 !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  justify-content: flex-end !important;
+  /* "safe": se ainda assim não couber, transborda p/ a borda direita
+     e nunca por cima do título */
+  justify-content: safe flex-end !important;
   gap: var(--sp-3) !important;          /* 12px entre cada ação */
   flex-wrap: nowrap !important;
+}
+
+/* coluna da direita do grid: ocupa a coluna inteira; o header-fit.js mede se
+   o conteúdo cabe e aplica as etapas .gh-fit-1/2/3 (fim deste arquivo). */
+@media (min-width: 769px) {
+  .game-header > .controls,
+  .game-header > .game-actions,
+  .game-header > .c4-controls {
+    width: 100%;
+    min-width: 0 !important;
+  }
+  /* itens não encolhem (senão o texto vaza da caixa e o header-fit.js não
+     percebe que falta espaço): quem se adapta são as etapas .gh-fit-N */
+  .game-header > .controls > *,
+  .game-header > .game-actions > *,
+  .game-header > .c4-controls > * {
+    flex-shrink: 0 !important;
+  }
 }
 .game-header .ctrl-group {
   display: flex !important;
@@ -304,6 +315,7 @@
     order: -1;
     flex: 1 1 100%;
     max-width: 100% !important;
+    font-size: 30px !important;
   }
   .game-header .controls,
   .game-header .c4-controls {
@@ -316,8 +328,6 @@
 
 @media (max-width: 860px) {
   .game-header { padding: 0 var(--sp-4) !important; gap: var(--sp-2) !important; }
-  .game-header .game-title,
-  .game-header .c4-title { font-size: 30px !important; max-width: 100% !important; }
   .game-header .controls,
   .game-header .c4-controls { gap: var(--sp-2) !important; }
   .game-header .controls button,
@@ -338,3 +348,120 @@
   .game-header .ctrl-label,
   .game-header .controls > span { font-size: 14px !important; }
 }
+
+/* ---------- COMPRESSÃO DAS AÇÕES (desktop) ----------
+   O título fica fixo no centro; quando as ações da direita não cabem na
+   coluna delas, o games/js/header-fit.js aplica no .game-header, uma de cada
+   vez e só enquanto ainda não couber:
+     .gh-fit-1 -> botões/textos menores
+     .gh-fit-2 -> ainda mais justos
+     .gh-fit-3 -> ações quebram em 2 linhas compactas dentro dos 70px
+     .gh-fit-4 -> aperto extremo: sem texto nos rótulos, status menores
+   As classes são cumulativas (fit-2 também tem fit-1, etc.).
+   Cada jogo pode completar (ex.: memória esconde botão duplicado). */
+
+/* etapa 1 */
+.game-header.gh-fit-1 > .controls,
+.game-header.gh-fit-1 > .game-actions,
+.game-header.gh-fit-1 > .c4-controls,
+.game-header.gh-fit-1 .ctrl-group { gap: var(--sp-2) !important; }
+
+.game-header.gh-fit-1 .btn-game,
+.game-header.gh-fit-1 .controls button,
+.game-header.gh-fit-1 .controls select,
+.game-header.gh-fit-1 .c4-controls button,
+.game-header.gh-fit-1 .c4-controls select,
+.game-header.gh-fit-1 .difficulty-btn,
+.game-header.gh-fit-1 .btn {
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+}
+.game-header.gh-fit-1 .game-stat,
+.game-header.gh-fit-1 .score-container,
+.game-header.gh-fit-1 .info-panel { height: 38px !important; padding: 0 var(--sp-2) !important; }
+.game-header.gh-fit-1 .ctrl-label,
+.game-header.gh-fit-1 .c4-label,
+.game-header.gh-fit-1 .controls > label,
+.game-header.gh-fit-1 .controls > span { font-size: 14px !important; }
+.game-header.gh-fit-1 .game-stat-value,
+.game-header.gh-fit-1 .score-value,
+.game-header.gh-fit-1 .info-value,
+.game-header.gh-fit-1 .controls strong,
+.game-header.gh-fit-1 .controls b { font-size: 15px !important; }
+
+/* etapa 2 */
+.game-header.gh-fit-2 > .controls,
+.game-header.gh-fit-2 > .game-actions,
+.game-header.gh-fit-2 > .c4-controls,
+.game-header.gh-fit-2 .ctrl-group { gap: 6px !important; }
+
+.game-header.gh-fit-2 .btn-game,
+.game-header.gh-fit-2 .controls button,
+.game-header.gh-fit-2 .controls select,
+.game-header.gh-fit-2 .c4-controls button,
+.game-header.gh-fit-2 .c4-controls select,
+.game-header.gh-fit-2 .difficulty-btn,
+.game-header.gh-fit-2 .btn {
+  padding: 0 8px !important;
+  font-size: 13px !important;
+}
+.game-header.gh-fit-2 .ctrl-label,
+.game-header.gh-fit-2 .c4-label,
+.game-header.gh-fit-2 .controls > label,
+.game-header.gh-fit-2 .controls > span { font-size: 13px !important; gap: 6px !important; }
+
+/* etapa 3: 2 linhas compactas (2 x 30px + 4px cabem nos 70px do header) */
+.game-header.gh-fit-3 > .controls,
+.game-header.gh-fit-3 > .game-actions,
+.game-header.gh-fit-3 > .c4-controls {
+  flex-wrap: wrap !important;
+  align-content: center !important;
+  row-gap: 4px !important;
+}
+.game-header.gh-fit-3 .btn-game,
+.game-header.gh-fit-3 .controls button,
+.game-header.gh-fit-3 .controls select,
+.game-header.gh-fit-3 .c4-controls button,
+.game-header.gh-fit-3 .c4-controls select,
+.game-header.gh-fit-3 .difficulty-btn,
+.game-header.gh-fit-3 .btn {
+  height: 30px !important;
+  min-height: 30px !important;
+  font-size: 12px !important;
+  border-radius: 9px !important;
+}
+/* caixas de status viram uma linha só: "RÓTULO valor" */
+.game-header.gh-fit-3 .game-stat,
+.game-header.gh-fit-3 .score-container,
+.game-header.gh-fit-3 .info-panel {
+  height: 30px !important;
+  flex-direction: row !important;
+  gap: 6px !important;
+  border-radius: 9px !important;
+}
+.game-header.gh-fit-3 .ctrl-label,
+.game-header.gh-fit-3 .c4-label,
+.game-header.gh-fit-3 .controls > label,
+.game-header.gh-fit-3 .controls > span { font-size: 12px !important; }
+.game-header.gh-fit-3 .game-stat-value,
+.game-header.gh-fit-3 .score-value,
+.game-header.gh-fit-3 .info-value,
+.game-header.gh-fit-3 .controls strong,
+.game-header.gh-fit-3 .controls b { font-size: 13px !important; }
+
+/* etapa 4 (aperto extremo): esconde o texto dos rótulos ("Modo:",
+   "Dificuldade:" — o select já mostra a opção) e encolhe as caixas de status */
+.game-header.gh-fit-4 .ctrl-label,
+.game-header.gh-fit-4 .c4-label,
+.game-header.gh-fit-4 .controls > label {
+  font-size: 0 !important;
+  gap: 0 !important;
+}
+.game-header.gh-fit-4 .game-stat,
+.game-header.gh-fit-4 .score-container,
+.game-header.gh-fit-4 .info-panel { padding: 0 6px !important; gap: 4px !important; }
+.game-header.gh-fit-4 .game-stat-label,
+.game-header.gh-fit-4 .score-label,
+.game-header.gh-fit-4 .info-label { font-size: 10px !important; }
